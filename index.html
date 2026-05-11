@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>社内ワークフローポータル</title>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <style>
+    :root{--primary:#4f46e5;--primary-light:#6366f1;--primary-dark:#3730a3;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--info:#3b82f6;--purple:#7c3aed;--g50:#f9fafb;--g100:#f3f4f6;--g200:#e5e7eb;--g300:#d1d5db;--g400:#9ca3af;--g500:#6b7280;--g600:#4b5563;--g700:#374151;--g800:#1f2937;--g900:#111827;--white:#fff;--sw:260px;--hh:64px;--r:12px;--sh:0 1px 3px rgba(0,0,0,.1);--shm:0 4px 6px -1px rgba(0,0,0,.1);--shl:0 10px 15px -3px rgba(0,0,0,.1)}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;background:var(--g50);color:var(--g800);line-height:1.6}
+    button{cursor:pointer;font-family:inherit;border:none}
+    input,select,textarea{font-family:inherit}
+    .page{display:none}.page.active{display:block}
+    #page-login{display:none}#page-login.active{display:flex}
+    #page-login{min-height:100vh;align-items:center;justify-content:center;background:linear-gradient(150deg,#1e1b4b,#4338ca 50%,#7c3aed);padding:20px}
+    .login-card{background:rgba(255,255,255,.97);border-radius:24px;padding:40px 36px 32px;width:460px;max-width:100%;box-shadow:0 24px 64px rgba(0,0,0,.28);text-align:center;animation:lfi .4s ease}
+    @keyframes lfi{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .login-logo{width:64px;height:64px;background:linear-gradient(135deg,#4338ca,#7c3aed);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:28px;box-shadow:0 8px 24px rgba(99,102,241,.4)}
+    .login-card h1{font-size:20px;font-weight:800;color:var(--g900);margin-bottom:4px}
+    .login-subtitle{color:var(--g500);font-size:13px;margin-bottom:20px;line-height:1.5}
+    .google-btn{width:100%;padding:13px 20px;background:#4285f4;border-radius:12px;font-size:14px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;box-shadow:0 4px 14px rgba(66,133,244,.45)}
+    .google-btn:hover{background:#3367d6;transform:translateY(-1px)}.google-btn:disabled{background:var(--g400);box-shadow:none;cursor:not-allowed}
+    .google-btn svg{width:18px;height:18px;background:#fff;border-radius:3px;padding:2px;flex-shrink:0}
+    .google-btn .btn-spinner{display:none}.google-btn.loading .btn-spinner{display:block}.google-btn.loading svg{display:none}
+    .btn-spinner,.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .login-divider{display:flex;align-items:center;gap:10px;margin:16px 0 12px}
+    .login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--g200)}
+    .login-divider span{font-size:11px;color:var(--g400);font-weight:600;white-space:nowrap}
+    .demo-section-label{font-size:11px;font-weight:700;color:var(--g400);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+    .demo-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .demo-card{padding:12px 10px;border-radius:10px;cursor:pointer;border:2px solid transparent;transition:all .2s;text-align:left;position:relative;background:var(--g50)}
+    .dc-emp{background:#f0f0ff;border-color:#c7d2fe}.dc-emp:hover{background:#e0e7ff;border-color:var(--primary);transform:translateY(-1px)}
+    .dc-mgr{background:#fffbeb;border-color:#fde68a}.dc-mgr:hover{background:#fef3c7;border-color:#f59e0b;transform:translateY(-1px)}
+    .dc-pres{background:#ecfdf5;border-color:#a7f3d0}.dc-pres:hover{background:#d1fae5;border-color:#10b981;transform:translateY(-1px)}
+    .dc-final{background:#fdf4ff;border-color:#e9d5ff}.dc-final:hover{background:#f3e8ff;border-color:#7c3aed;transform:translateY(-1px)}
+    .demo-card:active{transform:translateY(0)}.demo-card:disabled{opacity:.6;cursor:not-allowed;transform:none!important}
+    .dc-icon{font-size:18px;margin-bottom:4px;display:block}.dc-title{font-size:12px;font-weight:700;color:var(--g800);display:block;margin-bottom:2px}
+    .dc-desc{font-size:10px;color:var(--g500);line-height:1.3;display:block}
+    .dc-badge{position:absolute;top:6px;right:6px;font-size:9px;font-weight:700;padding:2px 5px;border-radius:99px}
+    .dc-emp .dc-badge{background:#c7d2fe;color:#4338ca}.dc-mgr .dc-badge{background:#fde68a;color:#92400e}
+    .dc-pres .dc-badge{background:#a7f3d0;color:#065f46}.dc-final .dc-badge{background:#e9d5ff;color:#6b21a8}
+    .login-loading{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(150deg,#1e1b4b,#4338ca 50%,#7c3aed);z-index:999;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+    .login-loading.show{display:flex}.lli{font-size:48px;animation:pulse 1s ease-in-out infinite}
+    @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+    .lls{width:32px;height:32px;border:3px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+    .login-loading p{color:rgba(255,255,255,.9);font-size:14px;font-weight:600}.lln{color:rgba(255,255,255,.6);font-size:12px}
+    #app{display:none;min-height:100vh}#app.active{display:flex}
+    .sidebar{width:var(--sw);background:var(--g900);min-height:100vh;position:fixed;left:0;top:0;display:flex;flex-direction:column;z-index:100}
+    .sidebar-header{padding:18px 18px 14px;border-bottom:1px solid rgba(255,255,255,.08)}
+    .sb-logo{display:flex;align-items:center;gap:8px}
+    .sb-logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--primary),var(--primary-light));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
+    .sb-logo-text{color:var(--white);font-weight:700;font-size:13px;line-height:1.3}.sb-logo-sub{color:var(--g400);font-size:10px}
+    .sidebar-nav{padding:12px 10px;flex:1}
+    .nav-sec{color:var(--g500);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:0 8px;margin:14px 0 5px}
+    .nav-sec:first-child{margin-top:0}
+    .nav-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:8px;color:var(--g400);font-size:13px;font-weight:500;transition:all .15s;cursor:pointer;margin-bottom:2px;border:none;background:none;width:100%;text-align:left}
+    .nav-item:hover{background:rgba(255,255,255,.06);color:var(--white)}.nav-item.active{background:rgba(99,102,241,.25);color:var(--primary-light)}
+    .nav-icon{font-size:15px;width:18px;text-align:center}
+    .nav-badge{margin-left:auto;background:var(--danger);color:var(--white);font-size:10px;font-weight:700;padding:2px 6px;border-radius:99px;min-width:18px;text-align:center}
+    .sidebar-footer{padding:14px;border-top:1px solid rgba(255,255,255,.08)}
+    .user-chip{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;transition:background .15s;cursor:pointer}
+    .user-chip:hover{background:rgba(255,255,255,.06)}
+    .user-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#a78bfa,#818cf8);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--white);flex-shrink:0}
+    .user-info{flex:1;min-width:0}.user-name{color:var(--white);font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .user-role{color:var(--g500);font-size:10px}.logout-btn{color:var(--g500);font-size:14px;background:none;border:none;cursor:pointer;padding:4px}
+    .logout-btn:hover{color:var(--danger)}
+    .main{margin-left:var(--sw);flex:1;min-height:100vh}
+    .main-header{height:var(--hh);background:var(--white);border-bottom:1px solid var(--g200);display:flex;align-items:center;padding:0 24px;position:sticky;top:0;z-index:50}
+    .main-header h2{font-size:17px;font-weight:700;color:var(--g900)}
+    .main-header-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
+    .header-btn{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;transition:all .2s}
+    .header-btn-primary{background:var(--primary);color:var(--white)}.header-btn-primary:hover{background:var(--primary-dark)}
+    .main-content{padding:24px}
+    .inner-page{display:none}.inner-page.active{display:block}
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+    .stat-card{background:var(--white);border-radius:var(--r);padding:18px;box-shadow:var(--sh);display:flex;align-items:center;gap:14px}
+    .stat-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+    .si-blue{background:#dbeafe}.si-yellow{background:#fef3c7}.si-green{background:#d1fae5}.si-red{background:#fee2e2}.si-purple{background:#ede9fe}
+    .stat-value{font-size:26px;font-weight:700;color:var(--g900)}.stat-label{font-size:12px;color:var(--g500)}
+    .card{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+    .card-header{padding:16px 20px;border-bottom:1px solid var(--g100);display:flex;align-items:center;gap:10px}
+    .card-header h3{font-size:14px;font-weight:700;color:var(--g900);flex:1}
+    .filter-btn{padding:5px 10px;border-radius:6px;font-size:11px;font-weight:600;background:var(--g100);color:var(--g600);border:none;cursor:pointer;transition:all .15s;white-space:nowrap}
+    .filter-btn.active{background:var(--primary);color:var(--white)}.filter-btn:hover:not(.active){background:var(--g200)}
+    table{width:100%;border-collapse:collapse}
+    thead th{padding:10px 14px;text-align:left;font-size:10px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.05em;background:var(--g50);border-bottom:1px solid var(--g100)}
+    tbody tr{border-bottom:1px solid var(--g50);transition:background .1s}
+    tbody tr:last-child{border-bottom:none}tbody tr:hover{background:var(--g50)}
+    tbody td{padding:11px 14px;font-size:13px;color:var(--g700)}
+    .table-empty{text-align:center;padding:40px;color:var(--g400);font-size:13px}
+    .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:99px;font-size:11px;font-weight:600}
+    .badge::before{content:'●';font-size:7px}
+    .badge-pending{background:#fef3c7;color:#92400e}
+    .badge-manager_approved{background:#dbeafe;color:#1e40af}
+    .badge-president_approved{background:#ede9fe;color:#5b21b6}
+    .badge-completed{background:#d1fae5;color:#065f46}
+    .badge-returned{background:#fee2e2;color:#991b1b}
+    .cat-chip{display:inline-block;padding:2px 7px;border-radius:5px;font-size:11px;font-weight:600}
+    .cat-payment_error{background:#fee2e2;color:#991b1b}.cat-refund{background:#fef3c7;color:#92400e}
+    .cat-robo_stop{background:#ede9fe;color:#5b21b6}.cat-bank_account{background:#d1fae5;color:#065f46}
+    .action-link{color:var(--primary);font-size:12px;font-weight:600;cursor:pointer}.action-link:hover{text-decoration:underline}
+    .store-num{font-size:11px;color:var(--g500);background:var(--g100);padding:2px 7px;border-radius:4px;font-weight:600}
+    .timelog-cell{font-size:11px;color:var(--g500)}.timelog-action{font-weight:600;color:var(--g700)}
+    .apply-step-bar{display:flex;align-items:center;margin-bottom:24px}
+    .step-item{display:flex;align-items:center;gap:6px;flex:1}.step-item:last-child{flex:none}
+    .step-circle{width:26px;height:26px;border-radius:50%;border:2px solid var(--g300);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--g400);flex-shrink:0;transition:all .3s}
+    .step-circle.done{background:var(--primary);border-color:var(--primary);color:var(--white)}.step-circle.active{border-color:var(--primary);color:var(--primary)}
+    .step-label{font-size:11px;color:var(--g500)}.step-label.active{color:var(--primary);font-weight:600}
+    .step-divider{flex:1;height:2px;background:var(--g200);margin:0 6px}.step-divider.done{background:var(--primary)}
+    .category-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px}
+    .category-card{padding:18px;border:2px solid var(--g200);border-radius:var(--r);cursor:pointer;transition:all .2s;text-align:left;background:var(--white)}
+    .category-card:hover{border-color:var(--primary-light);background:#f5f3ff}.category-card.selected{border-color:var(--primary);background:#eef2ff}
+    .category-card-icon{font-size:26px;margin-bottom:8px}.category-card h4{font-size:14px;font-weight:700;color:var(--g800);margin-bottom:3px}
+    .category-card p{font-size:11px;color:var(--g500)}
+    .form-card{background:var(--white);border-radius:var(--r);padding:24px;box-shadow:var(--sh)}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .form-group{display:flex;flex-direction:column;gap:5px}.form-group.span2{grid-column:span 2}
+    label{font-size:12px;font-weight:600;color:var(--g700)}.required{color:var(--danger);margin-left:2px}
+    .manual-tag{font-size:10px;font-weight:700;background:#fee2e2;color:#991b1b;padding:1px 5px;border-radius:3px;margin-left:4px}
+    input[type=text],input[type=number],input[type=date],input[type=datetime-local],input[type=email],select,textarea{padding:9px 12px;border:1.5px solid var(--g200);border-radius:8px;font-size:13px;color:var(--g800);transition:border-color .15s,box-shadow .15s;background:var(--white);width:100%}
+    input[readonly]{background:var(--g50);color:var(--g500)}
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(79,70,229,.12)}
+    textarea{resize:vertical;min-height:80px}
+    .form-section-title{font-size:11px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.06em;grid-column:span 2;padding:6px 0 2px;border-top:1px solid var(--g100);margin-top:2px}
+    .radio-group,.check-group{display:flex;flex-wrap:wrap;gap:6px}
+    .radio-option,.check-option{display:flex;align-items:center;gap:5px;padding:7px 12px;border:1.5px solid var(--g200);border-radius:7px;cursor:pointer;font-size:12px;font-weight:500;color:var(--g700);transition:all .15s;background:var(--white)}
+    .radio-option input,.check-option input{display:none}
+    .radio-option.selected,.check-option.selected{border-color:var(--primary);background:#eef2ff;color:var(--primary);font-weight:600}
+    .confirm-check{display:flex;align-items:center;gap:8px;padding:10px 14px;border:1.5px solid var(--g200);border-radius:8px;cursor:pointer}
+    .confirm-check input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--primary)}
+    .confirm-check label{font-size:13px;font-weight:600;color:var(--g700);cursor:pointer}
+    .confirm-table{width:100%;border-collapse:collapse}
+    .confirm-table tr{border-bottom:1px solid var(--g100)}.confirm-table tr:last-child{border-bottom:none}
+    .confirm-table th{padding:9px 0;text-align:left;font-size:12px;color:var(--g500);font-weight:600;width:36%}
+    .confirm-table td{padding:9px 0;font-size:13px;color:var(--g800)}
+    .success-screen{text-align:center;padding:40px 0}
+    .success-icon{font-size:56px;margin-bottom:14px}
+    .success-screen h3{font-size:20px;font-weight:700;color:var(--g900);margin-bottom:6px}
+    .success-screen p{font-size:13px;color:var(--g500);max-width:320px;margin:0 auto 24px}
+    .btn{padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;transition:all .2s;cursor:pointer;border:none}
+    .btn-primary{background:var(--primary);color:var(--white)}.btn-primary:hover{background:var(--primary-dark)}
+    .btn-secondary{background:var(--g100);color:var(--g700)}.btn-secondary:hover{background:var(--g200)}
+    .btn-danger{background:var(--danger);color:var(--white)}.btn-danger:hover{background:#dc2626}
+    .btn-success{background:var(--success);color:var(--white)}.btn-success:hover{background:#059669}
+    .btn-warning{background:var(--warning);color:var(--white)}.btn-warning:hover{background:#d97706}
+    .btn-lg{padding:12px 24px;font-size:14px}.btn-sm{padding:5px 10px;font-size:11px}
+    .form-actions{display:flex;justify-content:space-between;align-items:center;margin-top:20px}
+    .camera-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;background:var(--g100);border:1.5px dashed var(--g300);border-radius:8px;color:var(--g600);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;margin-bottom:16px}
+    .camera-btn:hover{background:#eef2ff;border-color:var(--primary);color:var(--primary)}
+    .attachment-preview{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#eef2ff;border-radius:8px;font-size:12px;color:var(--primary);margin-bottom:12px}
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:16px}
+    .modal-overlay.open{display:flex}
+    .modal{background:var(--white);border-radius:16px;width:600px;max-width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shl)}
+    .modal-sm{width:480px}
+    .modal-header{padding:18px 22px 14px;border-bottom:1px solid var(--g100);display:flex;align-items:center;gap:10px}
+    .modal-header h3{flex:1;font-size:16px;font-weight:700}
+    .modal-close{background:none;border:none;font-size:18px;cursor:pointer;color:var(--g400);padding:4px}.modal-close:hover{color:var(--g700)}
+    .modal-body{padding:20px}
+    .modal-footer{padding:14px 22px;border-top:1px solid var(--g100);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+    .modal-tl-title{font-size:11px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.06em;margin:20px 0 10px;padding-top:16px;border-top:1px solid var(--g100)}
+    .modal-timeline{position:relative;padding-left:24px}
+    .modal-timeline::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:2px;background:var(--g200)}
+    .modal-tl-item{position:relative;margin-bottom:14px}
+    .modal-tl-dot{position:absolute;left:-20px;top:3px;width:10px;height:10px;border-radius:50%;border:2px solid var(--white)}
+    .tld-submitted{background:var(--info)}.tld-manager_approved{background:var(--info)}.tld-president_approved{background:var(--purple)}
+    .tld-completed{background:var(--success)}.tld-returned{background:var(--danger)}
+    .modal-tl-time{font-size:10px;color:var(--g400);margin-bottom:2px}
+    .modal-tl-content{font-size:12px;color:var(--g700)}.modal-tl-actor{font-size:11px;color:var(--g400);margin-top:1px}
+    .return-section{display:none;width:100%;flex-direction:column;gap:8px;padding-top:8px;border-top:1px solid var(--g100);margin-top:8px}
+    .return-section.show{display:flex}
+    .approval-flow{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:14px}
+    .flow-step{font-size:11px;padding:4px 10px;border-radius:99px;font-weight:600;white-space:nowrap}
+    .flow-step-done{background:#d1fae5;color:#065f46}.flow-step-active{background:var(--primary);color:var(--white)}
+    .flow-step-waiting{background:var(--g100);color:var(--g500)}.flow-arrow{color:var(--g300);font-size:12px}
+    .admin-filter-row{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+    .whitelist-add-card{background:var(--white);border-radius:var(--r);padding:20px;box-shadow:var(--sh);margin-bottom:20px}
+    .whitelist-add-card h3{font-size:14px;font-weight:700;margin-bottom:12px}
+    .wl-form{display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:10px;align-items:end}
+    .wl-fg{display:flex;flex-direction:column;gap:4px}
+    .timeline{position:relative;padding-left:28px}
+    .timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--g200)}
+    .timeline-item{position:relative;margin-bottom:20px}
+    .timeline-dot{position:absolute;left:-22px;top:4px;width:12px;height:12px;border-radius:50%;border:2px solid var(--white)}
+    .tld-pending{background:var(--warning)}.tld-approved,.tld-completed{background:var(--success)}.tld-rejected,.tld-returned{background:var(--danger)}
+    .timeline-date{font-size:10px;color:var(--g400);margin-bottom:3px}
+    .timeline-content{background:var(--white);border-radius:var(--r);padding:12px 14px;box-shadow:var(--sh);cursor:pointer}
+    .timeline-content h4{font-size:13px;font-weight:700;color:var(--g800)}
+    .timeline-content p{font-size:12px;color:var(--g500);margin-top:2px}
+    .toast-container{position:fixed;bottom:20px;right:20px;z-index:300;display:flex;flex-direction:column;gap:6px}
+    .toast{padding:12px 16px;border-radius:10px;font-size:13px;font-weight:500;box-shadow:var(--shl);animation:si .3s ease;display:flex;align-items:flex-start;gap:8px;min-width:260px;max-width:360px}
+    @keyframes si{from{transform:translateX(80px);opacity:0}to{transform:translateX(0);opacity:1}}
+    .toast-success{background:#065f46;color:var(--white)}.toast-error{background:#991b1b;color:var(--white)}
+    .toast-info{background:var(--primary-dark);color:var(--white)}.toast-email{background:#1e1b4b;color:var(--white);flex-direction:column;gap:4px}
+    .toast-email .toast-close{align-self:flex-end;background:none;border:none;color:rgba(255,255,255,.6);cursor:pointer;font-size:14px;padding:0;margin-top:-4px}
+    .attach-zone{border:2px dashed var(--g200);border-radius:8px;padding:20px;text-align:center;cursor:pointer;transition:border-color .2s}
+    .attach-zone:hover{border-color:var(--primary-light)}.attach-zone input{display:none}.attach-zone p{font-size:12px;color:var(--g400);margin-top:6px}
+    .ocr-progress{display:none;padding:16px;text-align:center}.ocr-progress p{font-size:13px;color:var(--g600);margin-top:8px}
+    .progress-bar{height:4px;background:var(--g200);border-radius:2px;margin-top:8px;overflow:hidden}
+    .progress-fill{height:100%;background:var(--primary);width:0;transition:width .3s;border-radius:2px}
+    .ocr-result-section{display:none}.ocr-manual-note{background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 14px;font-size:12px;color:#92400e;margin-bottom:12px}
+    .admin-badge{background:#fef3c7;color:#92400e;font-size:10px;padding:2px 5px;border-radius:4px;font-weight:700}
+    @media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}.form-group.span2{grid-column:span 1}.form-section-title{grid-column:span 1}.wl-form{grid-template-columns:1fr}}
+    @media(max-width:600px){.sidebar{display:none}.main{margin-left:0}.category-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+
+<div class="login-loading" id="login-loading">
+  <div class="lli">🏢</div>
+  <div class="lls"></div>
+  <p id="llm">ログイン中...</p>
+  <span class="lln" id="lln"></span>
+</div>
+
+<div id="page-login" class="page active">
+  <div class="login-card">
+    <div class="login-logo">🏢</div>
+    <h1>社内ワークフローポータル</h1>
+    <p class="login-subtitle">承認済みのGoogleアカウントでのみログインできます</p>
+    <button class="google-btn" id="google-login-btn" onclick="startLogin('employee')">
+      <div class="btn-spinner"></div>
+      <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+      <span>Googleでログイン</span>
+    </button>
+    <div class="login-divider"><span>または、デモで試す</span></div>
+    <p class="demo-section-label">ログインするロールを選択</p>
+    <div class="demo-cards">
+      <button class="demo-card dc-emp" onclick="startLogin('employee')">
+        <span class="dc-badge">社員</span><span class="dc-icon">👤</span>
+        <span class="dc-title">一般社員（申請者）</span>
+        <span class="dc-desc">申請作成・履歴確認</span>
+      </button>
+      <button class="demo-card dc-mgr" onclick="startLogin('manager')">
+        <span class="dc-badge">部長</span><span class="dc-icon">👔</span>
+        <span class="dc-title">部長（第一承認）</span>
+        <span class="dc-desc">申請の第一承認・差し戻し</span>
+      </button>
+      <button class="demo-card dc-pres" onclick="startLogin('president')">
+        <span class="dc-badge">社長</span><span class="dc-icon">🏆</span>
+        <span class="dc-title">社長（第二承認）</span>
+        <span class="dc-desc">申請の第二承認・差し戻し</span>
+      </button>
+      <button class="demo-card dc-final" onclick="startLogin('admin')">
+        <span class="dc-badge">最終</span><span class="dc-icon">✅</span>
+        <span class="dc-title">最終承認者（管理者）</span>
+        <span class="dc-desc">最終承認・全体管理</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="app">
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="sb-logo">
+        <div class="sb-logo-icon">🏢</div>
+        <div><div class="sb-logo-text">ワークフローポータル</div><div class="sb-logo-sub">社内申請管理システム</div></div>
+      </div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-sec">メニュー</div>
+      <button class="nav-item active" onclick="showSection('dashboard')"><span class="nav-icon">📊</span>ダッシュボード</button>
+      <button class="nav-item" onclick="showSection('apply')"><span class="nav-icon">✏️</span>新規申請</button>
+      <button class="nav-item" onclick="showSection('history')"><span class="nav-icon">📋</span>申請履歴</button>
+      <div id="admin-nav" style="display:none">
+        <div class="nav-sec">承認管理</div>
+        <button class="nav-item" id="approval-nav-btn" onclick="showSection('admin')">
+          <span class="nav-icon">⚙️</span><span id="approval-nav-label">申請管理</span>
+          <span class="nav-badge" id="pending-badge">0</span>
+        </button>
+        <button class="nav-item" id="whitelist-nav-btn" onclick="showSection('whitelist')" style="display:none"><span class="nav-icon">📧</span>メール登録管理</button>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="user-avatar" id="sb-avatar">U</div>
+        <div class="user-info"><div class="user-name" id="sb-name">ユーザー</div><div class="user-role" id="sb-role">社員</div></div>
+        <button class="logout-btn" onclick="logout()" title="ログアウト">⬡</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="main">
+    <div class="main-header">
+      <h2 id="main-title">ダッシュボード</h2>
+      <div class="main-header-actions">
+        <button class="header-btn header-btn-primary" onclick="showSection('apply')">＋ 新規申請</button>
+      </div>
+    </div>
+    <div class="main-content">
+
+      <!-- DASHBOARD -->
+      <div id="section-dashboard" class="inner-page active">
+        <div class="stats-grid" id="stats-grid"></div>
+        <div class="card">
+          <div class="card-header">
+            <h3>最近の申請</h3>
+            <button class="filter-btn active" onclick="filterTable('all',this)">すべて</button>
+            <button class="filter-btn" onclick="filterTable('pending',this)">部長待ち</button>
+            <button class="filter-btn" onclick="filterTable('manager_approved',this)">社長待ち</button>
+            <button class="filter-btn" onclick="filterTable('president_approved',this)">最終待ち</button>
+            <button class="filter-btn" onclick="filterTable('completed',this)">完了</button>
+            <button class="filter-btn" onclick="filterTable('returned',this)">差し戻し</button>
+          </div>
+          <table><thead><tr><th>申請ID</th><th>店舗番号</th><th>カテゴリ</th><th>内容</th><th>申請日</th><th>タイムログ</th><th>ステータス</th><th></th></tr></thead>
+          <tbody id="dashboard-tbody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- APPLY -->
+      <div id="section-apply" class="inner-page">
+        <div class="apply-step-bar">
+          <div class="step-item"><div class="step-circle active" id="sc1">1</div><div class="step-label active" id="sl1">カテゴリ</div></div>
+          <div class="step-divider" id="sd1"></div>
+          <div class="step-item"><div class="step-circle" id="sc2">2</div><div class="step-label" id="sl2">情報入力</div></div>
+          <div class="step-divider" id="sd2"></div>
+          <div class="step-item"><div class="step-circle" id="sc3">3</div><div class="step-label" id="sl3">確認</div></div>
+          <div class="step-divider" id="sd3"></div>
+          <div class="step-item"><div class="step-circle" id="sc4">4</div><div class="step-label" id="sl4">完了</div></div>
+        </div>
+        <div id="apply-step-1">
+          <div class="form-card">
+            <h3 style="margin-bottom:4px;font-size:16px;">申請カテゴリを選択</h3>
+            <p style="font-size:12px;color:var(--g500);margin-bottom:16px;">申請内容に合ったカテゴリを選んでください。</p>
+            <div class="category-grid">
+              <button class="category-card" onclick="selectCat('payment_error',this)"><div class="category-card-icon">💳</div><h4>決済エラー申請</h4><p>カード決済エラー・処理変更依頼</p></button>
+              <button class="category-card" onclick="selectCat('refund',this)"><div class="category-card-icon">💰</div><h4>返金申請</h4><p>患者様への返金処理の申請</p></button>
+              <button class="category-card" onclick="selectCat('robo_stop',this)"><div class="category-card-icon">🤖</div><h4>ロボ停止申請</h4><p>ロボペイ課金停止・変更依頼</p></button>
+              <button class="category-card" onclick="selectCat('bank_account',this)"><div class="category-card-icon">🏦</div><h4>銀行口座変更申請</h4><p>振込先銀行口座の変更申請</p></button>
+            </div>
+            <div style="text-align:right"><button class="btn btn-primary btn-lg" onclick="goStep2()" id="step1-next" disabled>次へ →</button></div>
+          </div>
+        </div>
+        <div id="apply-step-2" style="display:none">
+          <div class="form-card">
+            <h3 id="form-title" style="margin-bottom:4px;font-size:16px;"></h3>
+            <p style="font-size:11px;color:var(--g400);margin-bottom:16px;">📷 <span style="color:#991b1b;font-weight:600;">赤ラベル</span>の項目は必ず手入力してください。OCR自動入力はされません。</p>
+            <button class="camera-btn" onclick="openCameraModal()">📷 書類を撮影してOCR自動入力</button>
+            <div id="attachment-info" style="display:none" class="attachment-preview">📄 <span id="attachment-name">PDF添付済み</span> <button onclick="clearAttachment()" style="margin-left:auto;background:none;border:none;color:var(--primary);cursor:pointer;font-size:12px;">削除</button></div>
+            <div id="dynamic-form"></div>
+            <div class="form-actions">
+              <button class="btn btn-secondary" onclick="goStep1()">← 戻る</button>
+              <button class="btn btn-primary btn-lg" onclick="goStep3()">確認画面へ →</button>
+            </div>
+          </div>
+        </div>
+        <div id="apply-step-3" style="display:none">
+          <div class="form-card">
+            <h3 style="margin-bottom:4px;font-size:16px;">📋 申請内容の確認</h3>
+            <p style="font-size:12px;color:var(--g500);margin-bottom:16px;">内容を確認して送信してください。</p>
+            <table class="confirm-table" id="confirm-table"></table>
+            <div class="form-actions">
+              <button class="btn btn-secondary" onclick="goStep2Form()">← 修正する</button>
+              <button class="btn btn-primary btn-lg" onclick="submitReq()">申請を送信 ✓</button>
+            </div>
+          </div>
+        </div>
+        <div id="apply-step-4" style="display:none">
+          <div class="form-card">
+            <div class="success-screen">
+              <div class="success-icon">✅</div>
+              <h3>申請が完了しました</h3>
+              <p>申請を受け付けました。部長確認後に進捗をお知らせします。</p>
+              <div style="display:flex;gap:10px;justify-content:center;">
+                <button class="btn btn-secondary btn-lg" onclick="resetApply()">続けて申請する</button>
+                <button class="btn btn-primary btn-lg" onclick="showSection('dashboard')">ダッシュボードへ</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTORY -->
+      <div id="section-history" class="inner-page"><div id="history-content"></div></div>
+
+      <!-- ADMIN -->
+      <div id="section-admin" class="inner-page">
+        <div class="admin-filter-row" id="admin-filter-row">
+          <button class="filter-btn active" onclick="filterAdmin('all',this)">すべて</button>
+          <button class="filter-btn" onclick="filterAdmin('pending',this)">部長待ち</button>
+          <button class="filter-btn" onclick="filterAdmin('manager_approved',this)">社長待ち</button>
+          <button class="filter-btn" onclick="filterAdmin('president_approved',this)">最終待ち</button>
+          <button class="filter-btn" onclick="filterAdmin('completed',this)">完了</button>
+          <button class="filter-btn" onclick="filterAdmin('returned',this)">差し戻し</button>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3 id="admin-title">⚙️ 申請管理</h3><span id="admin-count" style="font-size:12px;color:var(--g400);"></span></div>
+          <table><thead><tr><th>申請ID</th><th>店舗番号</th><th>申請者</th><th>カテゴリ</th><th>申請日</th><th>ステータス</th><th>操作</th></tr></thead>
+          <tbody id="admin-tbody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- WHITELIST -->
+      <div id="section-whitelist" class="inner-page">
+        <div class="whitelist-add-card">
+          <h3>📧 メールアドレス事前登録</h3>
+          <p style="font-size:12px;color:var(--g500);margin-bottom:14px;">登録済みのメールアドレスのみログインできます。</p>
+          <div class="wl-form">
+            <div class="wl-fg"><label style="font-size:12px;font-weight:600;color:var(--g700);">メールアドレス</label><input type="email" id="wl-email" placeholder="tanaka@example.com"></div>
+            <div class="wl-fg"><label style="font-size:12px;font-weight:600;color:var(--g700);">院名</label><input type="text" id="wl-store" placeholder="渋谷院"></div>
+            <div class="wl-fg"><label style="font-size:12px;font-weight:600;color:var(--g700);">店舗番号</label><input type="text" id="wl-num" placeholder="S001"></div>
+            <div class="wl-fg"><label style="font-size:12px;font-weight:600;color:var(--g700);">ロール</label>
+              <select id="wl-role"><option value="employee">一般社員</option><option value="manager">部長</option><option value="president">社長</option><option value="admin">管理者/最終</option></select>
+            </div>
+            <button class="btn btn-primary" onclick="addWhitelist()" style="height:38px;white-space:nowrap">＋登録</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>登録済み一覧</h3><span id="wl-count" style="font-size:12px;color:var(--g400);"></span></div>
+          <table><thead><tr><th>メール</th><th>院名</th><th>店舗番号</th><th>ロール</th><th>登録日</th><th></th></tr></thead>
+          <tbody id="wl-tbody"></tbody></table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div id="modal-icon" style="font-size:20px;"></div>
+      <h3 id="modal-title">申請詳細</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="modal-flow" style="margin-bottom:12px;"></div>
+      <div id="modal-status-row" style="margin-bottom:14px;"></div>
+      <table class="confirm-table" id="modal-table"></table>
+      <div id="modal-attachment" style="display:none;margin-top:12px;"></div>
+      <div id="modal-timeline"></div>
+    </div>
+    <div class="modal-footer" id="modal-footer">
+      <div class="return-section" id="return-section">
+        <input type="text" id="return-reason" placeholder="差し戻し理由を入力してください（必須）" style="width:100%">
+        <div style="display:flex;gap:8px;justify-content:flex-end;">
+          <button class="btn btn-sm btn-secondary" onclick="hideReturn()">キャンセル</button>
+          <button class="btn btn-sm btn-danger" onclick="confirmReturn()">差し戻しを確定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CAMERA MODAL -->
+<div class="modal-overlay" id="camera-modal">
+  <div class="modal modal-sm">
+    <div class="modal-header"><h3>📷 書類を撮影・添付</h3><button class="modal-close" onclick="closeCameraModal()">✕</button></div>
+    <div class="modal-body">
+      <div id="cam-step1">
+        <div class="attach-zone" onclick="document.getElementById('cam-input').click()">
+          <div style="font-size:32px;">📸</div>
+          <p>クリックして写真を撮影、または画像ファイルを選択</p>
+          <input type="file" id="cam-input" accept="image/*" capture="environment" onchange="handleCapture(event)">
+        </div>
+      </div>
+      <div id="cam-step2" style="display:none">
+        <img id="cam-preview" style="max-width:100%;border-radius:8px;margin-bottom:12px;">
+        <div class="ocr-progress" id="ocr-progress">
+          <div class="spinner" style="margin:0 auto;border-color:rgba(79,70,229,.3);border-top-color:var(--primary);width:24px;height:24px;"></div>
+          <p id="ocr-status">処理中...</p>
+          <div class="progress-bar"><div class="progress-fill" id="ocr-fill"></div></div>
+        </div>
+        <div class="ocr-result-section" id="ocr-results">
+          <div class="ocr-manual-note">✋ <strong>手入力必須項目</strong>（患者氏名・理由欄）はOCRで自動入力されません。必ず手入力してください。</div>
+          <p style="font-size:12px;color:var(--g600);margin-bottom:8px;">以下の項目が抽出されました。確認後「フォームに反映」を押してください。</p>
+          <table class="confirm-table" id="ocr-table"></table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeCameraModal()">閉じる</button>
+      <button class="btn btn-primary" id="ocr-run-btn" onclick="runOCR()" style="display:none">🔍 OCR解析</button>
+      <button class="btn btn-success" id="ocr-apply-btn" onclick="applyOCR()" style="display:none">✅ フォームに反映</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// ══════════ DATA ══════════
+const SK='wf_v4';
+function loadData(){const r=localStorage.getItem(SK);return r?JSON.parse(r):{requests:[],whitelist:[]}}
+function saveData(d){localStorage.setItem(SK,JSON.stringify(d))}
+
+function initData(){
+  const d=loadData();
+  if(d.requests.length>0)return;
+  const now=Date.now();
+  const ago=(h)=>new Date(now-h*3600000).toISOString();
+  d.requests=[
+    {id:'REQ-001',user_id:'employee@example.com',user_name:'田中 太郎',store_name:'渋谷院',store_number:'S001',category:'payment_error',status:'pending',
+     data:{clinic_name:'渋谷院',request_date:'2026-05-08',writer_name:'田中 太郎',seller_name:'田中 太郎',payment_method:'クレジットカード',process_type:'停止',patient_name:'山田 花子',initial_payment_date:'2026-04-01',monthly_amount:'12800',remaining_count:'8',remaining_total:'102400',card_holder:'YAMADA HANAKO',process_reason:'①患者都合',reason_detail:'引越しのため継続困難',retry_date:'',director_confirmed:'確認済み'},
+     created_at:ago(48),logs:[{action:'submitted',label:'申請',actor:'田中 太郎',actor_email:'employee@example.com',timestamp:ago(48)}]},
+    {id:'REQ-002',user_id:'employee@example.com',user_name:'田中 太郎',store_name:'渋谷院',store_number:'S001',category:'refund',status:'manager_approved',
+     data:{clinic_name:'渋谷院',writer_name:'田中 太郎',seller_name:'鈴木 部長',president_approval_date:'2026-05-09',patient_name:'鈴木 一郎',card_holder:'SUZUKI ICHIRO',last_visit_date:'2026-04-20',ticket_purchase_date:'2026-03-01',product_name:'回数券10回コース',purchase_amount:'54000',remaining_sessions:'6/10',payment_method:'クレジットカード',refund_reason:'転居により来院困難',calculation:'54,000÷10×6＝32,400円'},
+     created_at:ago(72),logs:[{action:'submitted',label:'申請',actor:'田中 太郎',actor_email:'employee@example.com',timestamp:ago(72)},{action:'manager_approved',label:'部長承認',actor:'山本 部長',actor_email:'manager@example.com',timestamp:ago(60)}]},
+    {id:'REQ-003',user_id:'sato@example.com',user_name:'佐藤 次郎',store_name:'新宿院',store_number:'S002',category:'robo_stop',status:'president_approved',
+     data:{clinic_name:'新宿院',staff_name:'佐藤 次郎',president_approval_date:'2026-05-08',fit_type:'Fit A',process_type:'課金停止',card_holder:'SATO JIRO',initial_purchase_date:'2026-01-15',subscription_amount:'9800',change_month:'2026年6月',details:'メンテナンスのため定期停止'},
+     created_at:ago(96),logs:[{action:'submitted',label:'申請',actor:'佐藤 次郎',actor_email:'sato@example.com',timestamp:ago(96)},{action:'manager_approved',label:'部長承認',actor:'山本 部長',actor_email:'manager@example.com',timestamp:ago(84)},{action:'president_approved',label:'社長承認',actor:'奥本 社長',actor_email:'president@example.com',timestamp:ago(36)}]},
+    {id:'REQ-004',user_id:'sato@example.com',user_name:'佐藤 次郎',store_name:'新宿院',store_number:'S002',category:'bank_account',status:'returned',
+     data:{clinic_name:'新宿院',refund_amount:'32400',bank_name:'三菱UFJ銀行',branch_name_kana:'しんじゅくしてん',branch_name:'新宿支店',account_type:'普通',account_number:'9876543',account_holder:'サトウ ジロウ',transfer_fee:'弊社負担'},
+     created_at:ago(120),logs:[{action:'submitted',label:'申請',actor:'佐藤 次郎',actor_email:'sato@example.com',timestamp:ago(120)},{action:'returned',label:'差し戻し',actor:'山本 部長',actor_email:'manager@example.com',timestamp:ago(100),note:'口座番号を再確認してください'}]}
+  ];
+  d.whitelist=[
+    {email:'employee@example.com',store_name:'渋谷院',store_number:'S001',role:'employee',added_by:'システム',added_at:ago(200)},
+    {email:'sato@example.com',store_name:'新宿院',store_number:'S002',role:'employee',added_by:'システム',added_at:ago(200)},
+    {email:'manager@example.com',store_name:'本社',store_number:'HQ001',role:'manager',added_by:'システム',added_at:ago(200)},
+    {email:'president@example.com',store_name:'本社',store_number:'HQ001',role:'president',added_by:'システム',added_at:ago(200)},
+    {email:'admin@example.com',store_name:'本社',store_number:'HQ001',role:'admin',added_by:'システム',added_at:ago(200)}
+  ];
+  saveData(d);
+}
+
+// ══════════ AUTH ══════════
+const DEMO_USERS={
+  employee:{name:'田中 太郎',email:'employee@example.com',role:'employee',avatar:'田'},
+  manager:{name:'山本 部長',email:'manager@example.com',role:'manager',avatar:'山'},
+  president:{name:'奥本 社長',email:'president@example.com',role:'president',avatar:'奥'},
+  admin:{name:'リエリ',email:'admin@example.com',role:'admin',avatar:'リ'}
+};
+let currentUser=null;
+
+function startLogin(role){
+  document.querySelectorAll('.demo-card,.google-btn').forEach(b=>b.disabled=true);
+  const base=DEMO_USERS[role]||DEMO_USERS.employee;
+  const d=loadData();
+  const wl=d.whitelist.find(w=>w.email===base.email)||{};
+  currentUser={...base,store_name:wl.store_name||'未登録院',store_number:wl.store_number||'----'};
+  setTimeout(()=>{
+    document.getElementById('llm').textContent=currentUser.name+' としてログイン中...';
+    document.getElementById('lln').textContent=currentUser.email;
+    document.getElementById('login-loading').classList.add('show');
+  },300);
+  setTimeout(()=>{
+    document.getElementById('login-loading').classList.remove('show');
+    document.getElementById('page-login').classList.remove('active');
+    const app=document.getElementById('app');
+    app.style.display='flex';app.classList.add('active');
+    document.getElementById('sb-name').textContent=currentUser.name;
+    document.getElementById('sb-avatar').textContent=currentUser.avatar;
+    const roleLabel={employee:'一般社員',manager:'部長',president:'社長',admin:'管理者/最終承認'};
+    document.getElementById('sb-role').textContent=roleLabel[currentUser.role]||'社員';
+    const hasAdmin=['manager','president','admin'].includes(currentUser.role);
+    document.getElementById('admin-nav').style.display=hasAdmin?'block':'none';
+    if(currentUser.role==='admin'){document.getElementById('whitelist-nav-btn').style.display='block';}
+    const approvalLabels={manager:'部長承認管理',president:'社長承認管理',admin:'最終承認・全体管理'};
+    if(approvalLabels[currentUser.role]) document.getElementById('approval-nav-label').textContent=approvalLabels[currentUser.role];
+    document.querySelectorAll('.demo-card,.google-btn').forEach(b=>b.disabled=false);
+    showSection('dashboard');
+  },1600);
+}
+
+function logout(){
+  currentUser=null;
+  const app=document.getElementById('app');
+  app.style.display='none';app.classList.remove('active');
+  document.getElementById('admin-nav').style.display='none';
+  document.getElementById('page-login').classList.add('active');
+  document.querySelectorAll('.demo-card,.google-btn').forEach(b=>b.disabled=false);
+}
+
+// ══════════ HELPERS ══════════
+const CAT_LABELS={payment_error:'決済エラー申請',refund:'返金申請',robo_stop:'ロボ停止申請',bank_account:'銀行口座変更申請'};
+const CAT_ICONS={payment_error:'💳',refund:'💰',robo_stop:'🤖',bank_account:'🏦'};
+const STATUS_LABELS={pending:'部長確認待ち',manager_approved:'社長確認待ち',president_approved:'最終確認待ち',completed:'完了',returned:'差し戻し'};
+const ROLE_LABELS={employee:'一般社員',manager:'部長',president:'社長',admin:'管理者/最終'};
+
+function fmtDate(iso){const d=new Date(iso);return`${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())}`}
+function fmtDT(iso){const d=new Date(iso);return`${fmtDate(iso)} ${pad(d.getHours())}:${pad(d.getMinutes())}`}
+function pad(n){return String(n).padStart(2,'0')}
+
+function genId(){
+  const d=loadData();
+  const max=d.requests.reduce((m,r)=>{const n=parseInt(r.id.replace('REQ-',''));return isNaN(n)?m:Math.max(m,n)},0);
+  return`REQ-${String(max+1).padStart(3,'0')}`;
+}
+
+function getMyReqs(){
+  const d=loadData();
+  if(!currentUser)return[];
+  if(currentUser.role==='admin')return d.requests;
+  return d.requests.filter(r=>r.user_id===currentUser.email);
+}
+
+function getLatestLog(r){
+  if(!r.logs||!r.logs.length)return null;
+  return r.logs[r.logs.length-1];
+}
+
+// Approval flow helpers
+function canApprove(req){
+  if(!currentUser)return false;
+  const r=currentUser.role;
+  return(r==='manager'&&req.status==='pending')||(r==='president'&&req.status==='manager_approved')||(r==='admin'&&req.status==='president_approved');
+}
+function getNextStatus(role){
+  return{manager:'manager_approved',president:'president_approved',admin:'completed'}[role]||null;
+}
+function getApproveLabel(role){
+  return{manager:'部長承認',president:'社長承認',admin:'最終承認・完了'}[role]||'承認';
+}
+
+// ══════════ NAVIGATION ══════════
+const SECTIONS=['dashboard','apply','history','admin','whitelist'];
+const TITLES={dashboard:'ダッシュボード',apply:'新規申請',history:'申請履歴',admin:'申請管理',whitelist:'メールアドレス登録管理'};
+let adminFilter='all';
+
+function showSection(name){
+  SECTIONS.forEach(s=>{const el=document.getElementById('section-'+s);if(el)el.classList.remove('active')});
+  const t=document.getElementById('section-'+name);
+  if(t)t.classList.add('active');
+  document.getElementById('main-title').textContent=TITLES[name]||name;
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  const map={dashboard:0,apply:1,history:2,admin:3,whitelist:4};
+  const items=document.querySelectorAll('.nav-item');
+  if(map[name]!==undefined&&items[map[name]])items[map[name]].classList.add('active');
+  if(name==='dashboard')renderDashboard();
+  if(name==='history')renderHistory();
+  if(name==='admin'){adminFilter='all';document.querySelectorAll('#admin-filter-row .filter-btn').forEach((b,i)=>b.classList.toggle('active',i===0));renderAdmin();}
+  if(name==='whitelist')renderWhitelist();
+}
+
+// ══════════ DASHBOARD ══════════
+let dashFilter='all';
+
+function renderDashboard(){
+  const reqs=getMyReqs();
+  const cnt=(s)=>reqs.filter(r=>r.status===s).length;
+  document.getElementById('stats-grid').innerHTML=`
+    <div class="stat-card"><div class="stat-icon si-blue">📊</div><div><div class="stat-value">${reqs.length}</div><div class="stat-label">全申請数</div></div></div>
+    <div class="stat-card"><div class="stat-icon si-yellow">⏳</div><div><div class="stat-value">${cnt('pending')}</div><div class="stat-label">部長確認待ち</div></div></div>
+    <div class="stat-card"><div class="stat-icon si-blue">🔵</div><div><div class="stat-value">${cnt('manager_approved')}</div><div class="stat-label">社長確認待ち</div></div></div>
+    <div class="stat-card"><div class="stat-icon si-purple">🟣</div><div><div class="stat-value">${cnt('president_approved')}</div><div class="stat-label">最終確認待ち</div></div></div>
+  `;
+  const allPending=loadData().requests.filter(r=>['pending','manager_approved','president_approved'].includes(r.status)).length;
+  document.getElementById('pending-badge').textContent=allPending;
+  renderDashTable(dashFilter);
+}
+
+function filterTable(s,btn){
+  dashFilter=s;
+  document.querySelectorAll('#section-dashboard .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderDashTable(s);
+}
+
+function renderDashTable(filter){
+  let reqs=getMyReqs();
+  if(filter!=='all')reqs=reqs.filter(r=>r.status===filter);
+  reqs=[...reqs].reverse();
+  const tbody=document.getElementById('dashboard-tbody');
+  if(!reqs.length){tbody.innerHTML=`<tr><td colspan="8" class="table-empty">📭 申請がありません</td></tr>`;return;}
+  tbody.innerHTML=reqs.map(r=>{
+    const ll=getLatestLog(r);
+    const logHtml=ll?`<div class="timelog-cell"><span class="timelog-action">${ll.label}</span><br>${fmtDT(ll.timestamp)}</div>`:'—';
+    return`<tr>
+      <td><span style="font-weight:600">${r.id}</span></td>
+      <td><span class="store-num">${r.store_number||'----'}</span></td>
+      <td><span class="cat-chip cat-${r.category}">${CAT_ICONS[r.category]} ${CAT_LABELS[r.category]}</span></td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${getSummary(r)}</td>
+      <td>${fmtDate(r.created_at)}</td>
+      <td>${logHtml}</td>
+      <td><span class="badge badge-${r.status}">${STATUS_LABELS[r.status]}</span></td>
+      <td><span class="action-link" onclick="openDetail('${r.id}',false)">詳細 →</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function getSummary(r){
+  const d=r.data||{};
+  if(r.category==='payment_error')return`${d.patient_name||''} / ${d.card_holder||''}`;
+  if(r.category==='refund')return`${d.patient_name||''} / ¥${d.purchase_amount||''}`;
+  if(r.category==='robo_stop')return`${d.card_holder||''} / ${d.process_type||''}`;
+  if(r.category==='bank_account')return`${d.bank_name||''} ${d.branch_name||''}`;
+  return '';
+}
+
+// ══════════ APPLY ══════════
+let selCat=null,formData={},capturedPDF=null,ocrData={};
+
+function selectCat(cat,el){
+  selCat=cat;
+  document.querySelectorAll('.category-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('step1-next').disabled=false;
+}
+
+function setStep(n){
+  for(let i=1;i<=4;i++){
+    const c=document.getElementById('sc'+i),l=document.getElementById('sl'+i);
+    if(i<n){c.classList.add('done');c.classList.remove('active');c.textContent='✓';l.classList.remove('active');}
+    else if(i===n){c.classList.add('active');c.classList.remove('done');c.textContent=i;l.classList.add('active');}
+    else{c.classList.remove('done','active');c.textContent=i;l.classList.remove('active');}
+    if(i<4){const sd=document.getElementById('sd'+i);if(i<n)sd.classList.add('done');else sd.classList.remove('done');}
+  }
+  for(let i=1;i<=4;i++){const el=document.getElementById('apply-step-'+i);if(el)el.style.display=i===n?'block':'none';}
+}
+
+function goStep1(){setStep(1)}
+function goStep2(){if(!selCat)return;setStep(2);renderForm();}
+function goStep2Form(){setStep(2);}
+
+const MANUAL_FIELDS=['patient_name','reason_detail','process_reason','refund_reason','details','return_reason'];
+
+function renderForm(){
+  const ft={payment_error:'💳 決済エラー申請',refund:'💰 返金申請',robo_stop:'🤖 ロボ停止申請',bank_account:'🏦 銀行口座変更申請'};
+  document.getElementById('form-title').textContent=ft[selCat];
+  const fd=formData;
+  const mn='<span class="manual-tag">手入力必須</span>';
+  const rv=(id,val)=>MANUAL_FIELDS.includes(id)?`value="${val||''}"`:`value="${val||''}"`;
+  function ri(id,v,placeholder=''){return`<input type="text" id="f_${id}" ${rv(id,v)} placeholder="${placeholder}">`;}
+  function rd(id,v){return`<input type="date" id="f_${id}" value="${v||''}">`;}
+  function rn(id,v,placeholder='',extra=''){return`<input type="number" id="f_${id}" value="${v||''}" placeholder="${placeholder}" ${extra}>`;}
+  function rs(id,v,opts){return`<select id="f_${id}">${opts.map(o=>`<option value="${o}"${v===o?' selected':''}>${o}</option>`).join('')}</select>`;}
+  function ra(id,v,placeholder=''){return`<textarea id="f_${id}" placeholder="${placeholder}">${v||''}</textarea>`;}
+  function radioGroup(name,v,opts){
+    return`<div class="radio-group">${opts.map(o=>`<label class="radio-option${v===o?' selected':''}" data-radio="${name}" onclick="selRadio('${name}','${o}',this)"><input type="hidden" value="${o}">${o}</label>`).join('')}</div>`;
+  }
+  function checkGroup(name,v,opts){
+    const sel=(v||'').split('、');
+    return`<div class="check-group">${opts.map(o=>`<label class="check-option${sel.includes(o)?' selected':''}" data-check="${name}" onclick="togCheck(this)"><input type="hidden" value="${o}">${o}</label>`).join('')}</div>`;
+  }
+
+  let html='';
+  if(selCat==='payment_error'){
+    html=`<div class="form-grid">
+      <div class="form-group"><label>院名<span class="required">*</span></label>${ri('clinic_name',fd.clinic_name||currentUser?.store_name,'渋谷院')}</div>
+      <div class="form-group"><label>依頼日<span class="required">*</span></label>${rd('request_date',fd.request_date)}</div>
+      <div class="form-group"><label>記入者氏名<span class="required">*</span></label>${ri('writer_name',fd.writer_name||currentUser?.name)}</div>
+      <div class="form-group"><label>売上者氏名<span class="required">*</span></label>${ri('seller_name',fd.seller_name)}</div>
+      <div class="form-group"><label>初回決済方法<span class="required">*</span></label>${rs('payment_method',fd.payment_method,['','クレジットカード','現金','その他'])}</div>
+      <div class="form-group"><label>カード決済患者名${mn}<span class="required">*</span></label>${ri('patient_name',fd.patient_name,'山田 花子')}</div>
+      <div class="form-group span2"><label>処理区分<span class="required">*</span></label>${checkGroup('process_type',fd.process_type,['停止','取消し','回数変更','金額変更','再開'])}</div>
+      <div class="form-group"><label>初回決済日<span class="required">*</span></label>${rd('initial_payment_date',fd.initial_payment_date)}</div>
+      <div class="form-group"><label>カード名義人（英字）<span class="required">*</span></label>${ri('card_holder',fd.card_holder,'YAMADA HANAKO')}</div>
+      <div class="form-group"><label>毎月決済金額 A（円）<span class="required">*</span></label>${rn('monthly_amount',fd.monthly_amount,'12800','oninput="calcTotal()"')}</div>
+      <div class="form-group"><label>残り決済回数 B<span class="required">*</span></label>${rn('remaining_count',fd.remaining_count,'8','oninput="calcTotal()"')}</div>
+      <div class="form-group span2"><label>残り決済金額合計 C（A×B・自動計算）</label><input type="text" id="f_remaining_total" value="${fd.remaining_total||''}" readonly></div>
+      <div class="form-group span2"><label>処理理由<span class="required">*</span>${mn}</label>${radioGroup('process_reason',fd.process_reason,['①患者都合','②院都合','③カード会社都合','④その他'])}</div>
+      <div class="form-group span2"><label>理由・詳細<span class="required">*</span>${mn}</label>${ra('reason_detail',fd.reason_detail,'詳しい経緯を記載してください')}</div>
+      <div class="form-group"><label>再決済予定日</label>${rd('retry_date',fd.retry_date)}</div>
+      <div class="form-group"><label>院長確認</label><div class="confirm-check"><input type="checkbox" id="f_director_confirmed" ${fd.director_confirmed?'checked':''}><label for="f_director_confirmed">院長が内容を確認しました</label></div></div>
+    </div>`;
+  }else if(selCat==='refund'){
+    html=`<div class="form-grid">
+      <div class="form-group"><label>院名<span class="required">*</span></label>${ri('clinic_name',fd.clinic_name||currentUser?.store_name)}</div>
+      <div class="form-group"><label>記入者氏名<span class="required">*</span></label>${ri('writer_name',fd.writer_name||currentUser?.name)}</div>
+      <div class="form-group"><label>売上者氏名<span class="required">*</span></label>${ri('seller_name',fd.seller_name)}</div>
+      <div class="form-group"><label>社長承諾日<span class="required">*</span></label>${rd('president_approval_date',fd.president_approval_date)}</div>
+      <div class="form-group"><label>患者様名${mn}<span class="required">*</span></label>${ri('patient_name',fd.patient_name,'鈴木 一郎')}</div>
+      <div class="form-group"><label>カード名義人（英字）<span class="required">*</span></label>${ri('card_holder',fd.card_holder,'SUZUKI ICHIRO')}</div>
+      <div class="form-group"><label>最終来院日<span class="required">*</span></label>${rd('last_visit_date',fd.last_visit_date)}</div>
+      <div class="form-group"><label>回数券購入日<span class="required">*</span></label>${rd('ticket_purchase_date',fd.ticket_purchase_date)}</div>
+      <div class="form-group span2"><label>購入商品名<span class="required">*</span></label>${ri('product_name',fd.product_name,'回数券10回コース')}</div>
+      <div class="form-group"><label>購入金額（円）<span class="required">*</span></label>${rn('purchase_amount',fd.purchase_amount,'54000')}</div>
+      <div class="form-group"><label>残り回数/購入回数<span class="required">*</span></label>${ri('remaining_sessions',fd.remaining_sessions,'6/10')}</div>
+      <div class="form-group"><label>支払方法<span class="required">*</span></label>${rs('payment_method',fd.payment_method,['','クレジットカード','現金','分割払い','その他'])}</div>
+      <div class="form-group span2"><label>返金理由${mn}<span class="required">*</span></label>${ra('refund_reason',fd.refund_reason,'返金が必要な理由を詳しく記載')}</div>
+      <div class="form-group span2"><label>返金計算式<span class="required">*</span></label>${ri('calculation',fd.calculation,'例：54,000÷10×6＝32,400円')}</div>
+    </div>`;
+  }else if(selCat==='robo_stop'){
+    html=`<div class="form-grid">
+      <div class="form-group"><label>院名<span class="required">*</span></label>${ri('clinic_name',fd.clinic_name||currentUser?.store_name)}</div>
+      <div class="form-group"><label>担当者<span class="required">*</span></label>${ri('staff_name',fd.staff_name||currentUser?.name)}</div>
+      <div class="form-group"><label>社長承諾日<span class="required">*</span></label>${rd('president_approval_date',fd.president_approval_date)}</div>
+      <div class="form-group"><label>fit区分</label>${ri('fit_type',fd.fit_type,'Fit A')}</div>
+      <div class="form-group span2"><label>処理区分<span class="required">*</span></label>${radioGroup('process_type',fd.process_type,['課金停止','取消し','回数変更','金額変更','再開'])}</div>
+      <div class="form-group"><label>カード決済者名（英字）<span class="required">*</span></label>${ri('card_holder',fd.card_holder,'TANAKA TARO')}</div>
+      <div class="form-group"><label>初回購入日<span class="required">*</span></label>${rd('initial_purchase_date',fd.initial_purchase_date)}</div>
+      <div class="form-group"><label>サブスク金額（円）<span class="required">*</span></label>${rn('subscription_amount',fd.subscription_amount,'9800')}</div>
+      <div class="form-group"><label>停止/取消/変更月<span class="required">*</span></label>${ri('change_month',fd.change_month,'2026年6月')}</div>
+      <div class="form-group span2"><label>詳細${mn}<span class="required">*</span></label>${ra('details',fd.details,'処理の詳細内容を記載')}</div>
+    </div>`;
+  }else if(selCat==='bank_account'){
+    html=`<div class="form-grid">
+      <div class="form-group"><label>院名<span class="required">*</span></label>${ri('clinic_name',fd.clinic_name||currentUser?.store_name)}</div>
+      <div class="form-group"><label>返金額（円）<span class="required">*</span></label>${rn('refund_amount',fd.refund_amount,'32400')}</div>
+      <div class="form-group"><label>銀行名<span class="required">*</span></label>${ri('bank_name',fd.bank_name,'三菱UFJ銀行')}</div>
+      <div class="form-group"><label>支店名（ふりがな）<span class="required">*</span></label>${ri('branch_name_kana',fd.branch_name_kana,'しんじゅくしてん')}</div>
+      <div class="form-group"><label>支店名<span class="required">*</span></label>${ri('branch_name',fd.branch_name,'新宿支店')}</div>
+      <div class="form-group"><label>口座番号<span class="required">*</span></label>${ri('account_number',fd.account_number,'1234567')}</div>
+      <div class="form-group"><label>名義人名（カタカナ）<span class="required">*</span></label>${ri('account_holder',fd.account_holder,'タナカ タロウ')}</div>
+      <div class="form-group"><label>口座種別<span class="required">*</span></label>${radioGroup('account_type',fd.account_type,['普通','当座'])}</div>
+      <div class="form-group"><label>振込手数料負担<span class="required">*</span></label>${radioGroup('transfer_fee',fd.transfer_fee,['弊社負担','先方負担'])}</div>
+    </div>`;
+  }
+  document.getElementById('dynamic-form').innerHTML=html;
+}
+
+function selRadio(name,val,el){
+  document.querySelectorAll(`[data-radio="${name}"]`).forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  el.querySelector('input').value=val;
+}
+function togCheck(el){el.classList.toggle('selected');}
+function getRadio(name){const s=document.querySelector(`[data-radio="${name}"].selected input`);return s?s.value:'';}
+function getChecks(name){return Array.from(document.querySelectorAll(`[data-check="${name}"].selected input`)).map(i=>i.value).join('、');}
+function calcTotal(){
+  const a=parseFloat(document.getElementById('f_monthly_amount')?.value||0);
+  const b=parseFloat(document.getElementById('f_remaining_count')?.value||0);
+  const el=document.getElementById('f_remaining_total');
+  if(el)el.value=(a*b).toLocaleString();
+}
+function g(id){const el=document.getElementById(id);return el?el.value.trim():'';}
+function gc(id){const el=document.getElementById(id);return el?el.checked:false;}
+
+function collectForm(){
+  if(selCat==='payment_error'){formData={clinic_name:g('f_clinic_name'),request_date:g('f_request_date'),writer_name:g('f_writer_name'),seller_name:g('f_seller_name'),payment_method:g('f_payment_method'),process_type:getChecks('process_type'),patient_name:g('f_patient_name'),initial_payment_date:g('f_initial_payment_date'),card_holder:g('f_card_holder').toUpperCase(),monthly_amount:g('f_monthly_amount'),remaining_count:g('f_remaining_count'),remaining_total:g('f_remaining_total'),process_reason:getRadio('process_reason'),reason_detail:g('f_reason_detail'),retry_date:g('f_retry_date'),director_confirmed:gc('f_director_confirmed')?'確認済み':''};}
+  else if(selCat==='refund'){formData={clinic_name:g('f_clinic_name'),writer_name:g('f_writer_name'),seller_name:g('f_seller_name'),president_approval_date:g('f_president_approval_date'),patient_name:g('f_patient_name'),card_holder:g('f_card_holder').toUpperCase(),last_visit_date:g('f_last_visit_date'),ticket_purchase_date:g('f_ticket_purchase_date'),product_name:g('f_product_name'),purchase_amount:g('f_purchase_amount'),remaining_sessions:g('f_remaining_sessions'),payment_method:g('f_payment_method'),refund_reason:g('f_refund_reason'),calculation:g('f_calculation')};}
+  else if(selCat==='robo_stop'){formData={clinic_name:g('f_clinic_name'),staff_name:g('f_staff_name'),president_approval_date:g('f_president_approval_date'),fit_type:g('f_fit_type'),process_type:getRadio('process_type'),card_holder:g('f_card_holder').toUpperCase(),initial_purchase_date:g('f_initial_purchase_date'),subscription_amount:g('f_subscription_amount'),change_month:g('f_change_month'),details:g('f_details')};}
+  else if(selCat==='bank_account'){formData={clinic_name:g('f_clinic_name'),refund_amount:g('f_refund_amount'),bank_name:g('f_bank_name'),branch_name_kana:g('f_branch_name_kana'),branch_name:g('f_branch_name'),account_number:g('f_account_number'),account_holder:g('f_account_holder'),account_type:getRadio('account_type'),transfer_fee:getRadio('transfer_fee')};}
+}
+
+const FL={clinic_name:'院名',request_date:'依頼日',writer_name:'記入者氏名',seller_name:'売上者氏名',payment_method:'決済方法',process_type:'処理区分',patient_name:'患者様名',initial_payment_date:'初回決済日',card_holder:'カード名義人',monthly_amount:'毎月決済金額A',remaining_count:'残り回数B',remaining_total:'残り合計C',process_reason:'処理理由',reason_detail:'理由・詳細',retry_date:'再決済予定日',director_confirmed:'院長確認',president_approval_date:'社長承諾日',last_visit_date:'最終来院日',ticket_purchase_date:'購入日',product_name:'購入商品名',purchase_amount:'購入金額',remaining_sessions:'残り回数/購入回数',refund_reason:'返金理由',calculation:'返金計算式',staff_name:'担当者',fit_type:'fit区分',initial_purchase_date:'初回購入日',subscription_amount:'サブスク金額',change_month:'変更月',details:'詳細',refund_amount:'返金額',bank_name:'銀行名',branch_name_kana:'支店名（ふりがな）',branch_name:'支店名',account_number:'口座番号',account_holder:'名義人名',account_type:'口座種別',transfer_fee:'振込手数料負担'};
+
+function goStep3(){
+  collectForm();
+  const skip=['fit_type','retry_date','director_confirmed','remaining_total'];
+  const missing=Object.entries(formData).filter(([k,v])=>!skip.includes(k)&&!v);
+  if(missing.length){showToast('必須項目をすべて入力してください','error');return;}
+  setStep(3);
+  const rows=Object.entries(formData).map(([k,v])=>`<tr><th>${FL[k]||k}</th><td>${v||'—'}</td></tr>`).join('');
+  document.getElementById('confirm-table').innerHTML=`
+    <tr><th>カテゴリ</th><td><span class="cat-chip cat-${selCat}">${CAT_ICONS[selCat]} ${CAT_LABELS[selCat]}</span></td></tr>
+    <tr><th>院名</th><td>${currentUser?.store_name||''} (${currentUser?.store_number||''})</td></tr>
+    ${rows}${capturedPDF?'<tr><th>添付書類</th><td>📄 PDF添付済み</td></tr>':''}
+  `;
+}
+
+function submitReq(){
+  const d=loadData();
+  const now=new Date().toISOString();
+  const req={id:genId(),user_id:currentUser.email,user_name:currentUser.name,store_name:currentUser.store_name,store_number:currentUser.store_number,category:selCat,status:'pending',data:{...formData},created_at:now,logs:[{action:'submitted',label:'申請',actor:currentUser.name,actor_email:currentUser.email,timestamp:now}]};
+  if(capturedPDF)req.attachment=capturedPDF;
+  d.requests.push(req);
+  saveData(d);
+  sendEmailNotif(req,'pending');
+  setStep(4);
+  showToast('申請を送信しました！','success');
+}
+
+function resetApply(){
+  selCat=null;formData={};capturedPDF=null;ocrData={};
+  document.querySelectorAll('.category-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('step1-next').disabled=true;
+  document.getElementById('attachment-info').style.display='none';
+  setStep(1);
+}
+
+// ══════════ CAMERA / OCR ══════════
+let capturedImageURL=null;
+
+function openCameraModal(){
+  document.getElementById('camera-modal').classList.add('open');
+  document.getElementById('cam-step1').style.display='block';
+  document.getElementById('cam-step2').style.display='none';
+  document.getElementById('ocr-progress').style.display='none';
+  document.getElementById('ocr-results').style.display='none';
+  document.getElementById('ocr-run-btn').style.display='none';
+  document.getElementById('ocr-apply-btn').style.display='none';
+  document.getElementById('cam-input').value='';
+}
+
+function closeCameraModal(){document.getElementById('camera-modal').classList.remove('open');}
+
+function handleCapture(evt){
+  const file=evt.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async(e)=>{
+    capturedImageURL=e.target.result;
+    document.getElementById('cam-preview').src=capturedImageURL;
+    document.getElementById('cam-step1').style.display='none';
+    document.getElementById('cam-step2').style.display='block';
+    document.getElementById('ocr-run-btn').style.display='block';
+    // Generate PDF
+    try{
+      if(window.jspdf){
+        const{jsPDF}=window.jspdf;
+        const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+        const img=new Image();
+        img.onload=()=>{
+          const ar=img.width/img.height;
+          const w=190,h=w/ar;
+          pdf.addImage(capturedImageURL,'JPEG',10,10,w,Math.min(h,270));
+          capturedPDF=pdf.output('datauristring');
+          showToast('📄 PDFに変換しました','info');
+        };
+        img.src=capturedImageURL;
+      }
+    }catch(e){console.warn('PDF err',e);}
+  };
+  reader.readAsDataURL(file);
+}
+
+async function runOCR(){
+  if(!capturedImageURL)return;
+  document.getElementById('ocr-run-btn').style.display='none';
+  document.getElementById('ocr-progress').style.display='block';
+  const statusEl=document.getElementById('ocr-status');
+  const fillEl=document.getElementById('ocr-fill');
+  statusEl.textContent='OCRライブラリを読み込み中...';
+  fillEl.style.width='20%';
+  try{
+    if(!window.Tesseract){
+      await new Promise((res,rej)=>{
+        const s=document.createElement('script');
+        s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+        s.onload=res;s.onerror=rej;document.head.appendChild(s);
+      });
+    }
+    statusEl.textContent='日本語モデルを読み込み中...';fillEl.style.width='40%';
+    const result=await Tesseract.recognize(capturedImageURL,'jpn+eng',{
+      logger:m=>{if(m.status==='recognizing text'){const p=Math.round(m.progress*100);statusEl.textContent=`OCR解析中... ${p}%`;fillEl.style.width=`${40+p*0.5}%`;}}
+    });
+    fillEl.style.width='100%';
+    ocrData=parseOCRText(result.data.text);
+  }catch(e){
+    console.warn('OCR failed',e);
+    ocrData=getDemoOCR();
+    statusEl.textContent='OCR完了（デモデータ）';
+  }
+  document.getElementById('ocr-progress').style.display='none';
+  showOCRResults(ocrData);
+}
+
+function parseOCRText(text){
+  const ex={};
+  const patterns=[
+    {k:'clinic_name',re:/院名[：:]\s*(.+)/},{k:'request_date',re:/依頼日[：:]\s*(\d{4}[\/\-年]\d{1,2}[\/\-月]\d{1,2})/},
+    {k:'writer_name',re:/記入者[：:氏名]*\s*(.+)/},{k:'seller_name',re:/売上者[：:氏名]*\s*(.+)/},
+    {k:'card_holder',re:/名義人?[（(]英字[)）][：:]\s*([A-Za-z\s]+)/},
+    {k:'monthly_amount',re:/毎月[^\d]*([\d,]+)/},{k:'remaining_count',re:/残り[回数]*([\d]+)/},
+    {k:'bank_name',re:/銀行名?[：:]\s*(.+銀行)/},{k:'branch_name',re:/支店名?[：:]\s*(.+支店)/},
+    {k:'account_number',re:/口座番号[：:]\s*([\d]+)/},{k:'purchase_amount',re:/購入金額[：:]\s*([\d,]+)/},
+    {k:'subscription_amount',re:/サブスク[^\\d]*([\d,]+)/},{k:'refund_amount',re:/返金額[：:]\s*([\d,]+)/},
+    {k:'branch_name_kana',re:/支店名?\(ふりがな\)?[：:]\s*([぀-ゟ\s]+)/},
+    {k:'account_holder',re:/名義人名?[（(]カタカナ[)）][：:]\s*([゠-ヿ\s]+)/},
+  ];
+  patterns.forEach(({k,re})=>{
+    if(MANUAL_FIELDS.includes(k))return;
+    const m=text.match(re);
+    if(m)ex[k]=m[1].trim();
+  });
+  return ex;
+}
+
+function getDemoOCR(){
+  const demos={payment_error:{clinic_name:'渋谷院',writer_name:'田中 太郎',initial_payment_date:'2026-04-01',monthly_amount:'12800',remaining_count:'8',card_holder:'YAMADA HANAKO'},refund:{clinic_name:'渋谷院',writer_name:'田中 太郎',product_name:'回数券10回コース',purchase_amount:'54000',remaining_sessions:'6/10',card_holder:'SUZUKI ICHIRO'},robo_stop:{clinic_name:'渋谷院',staff_name:'田中 太郎',subscription_amount:'9800',change_month:'2026年6月',card_holder:'TANAKA TARO'},bank_account:{clinic_name:'渋谷院',bank_name:'三菱UFJ銀行',branch_name:'新宿支店',account_number:'1234567'}};
+  return demos[selCat]||{};
+}
+
+function showOCRResults(data){
+  const keys=Object.keys(data).filter(k=>!MANUAL_FIELDS.includes(k));
+  const el=document.getElementById('ocr-results');
+  if(!keys.length){el.innerHTML='<p style="font-size:12px;color:var(--g500);">テキストを抽出できませんでした。手入力をお願いします。</p>';el.style.display='block';return;}
+  document.getElementById('ocr-table').innerHTML=keys.map(k=>`<tr><th>${FL[k]||k}</th><td>${data[k]}</td></tr>`).join('');
+  el.style.display='block';
+  document.getElementById('ocr-apply-btn').style.display='block';
+}
+
+function applyOCR(){
+  Object.entries(ocrData).forEach(([k,v])=>{
+    if(MANUAL_FIELDS.includes(k))return;
+    const el=document.getElementById('f_'+k);
+    if(el&&!el.readOnly)el.value=v;
+  });
+  if(capturedPDF){
+    document.getElementById('attachment-info').style.display='flex';
+    document.getElementById('attachment-name').textContent='書類PDF添付済み';
+  }
+  closeCameraModal();
+  showToast('✅ フォームに反映しました（手入力必須項目は除く）','success');
+}
+
+function clearAttachment(){capturedPDF=null;document.getElementById('attachment-info').style.display='none';}
+
+// ══════════ HISTORY ══════════
+function renderHistory(){
+  const reqs=[...getMyReqs()].reverse();
+  const el=document.getElementById('history-content');
+  if(!reqs.length){el.innerHTML='<div class="card" style="padding:40px;text-align:center;color:var(--g400);">📭 申請履歴がありません</div>';return;}
+  el.innerHTML=`<div class="timeline">${reqs.map(r=>{
+    const cls={pending:'tld-pending',manager_approved:'tld-approved',president_approved:'tld-approved',completed:'tld-completed',returned:'tld-returned'}[r.status]||'tld-pending';
+    return`<div class="timeline-item"><div class="timeline-dot ${cls}"></div><div class="timeline-date">${fmtDate(r.created_at)}</div>
+    <div class="timeline-content" onclick="openDetail('${r.id}',false)">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+        <span>${CAT_ICONS[r.category]}</span><h4>${r.id} — ${CAT_LABELS[r.category]}</h4>
+        <span class="badge badge-${r.status}" style="margin-left:auto">${STATUS_LABELS[r.status]}</span>
+      </div>
+      <p>${getSummary(r)}</p>
+      ${r.status==='returned'&&r.user_id===currentUser?.email?`<button class="btn btn-sm btn-warning" onclick="event.stopPropagation();resubmit('${r.id}')" style="margin-top:8px">↩ 再申請する</button>`:''}
+    </div></div>`;
+  }).join('')}</div>`;
+}
+
+function resubmit(id){
+  const d=loadData();
+  const req=d.requests.find(r=>r.id===id);
+  if(!req)return;
+  selCat=req.category;
+  formData={...req.data};
+  document.querySelectorAll('.category-card').forEach(c=>c.classList.remove('selected'));
+  showSection('apply');
+  setTimeout(()=>{setStep(2);renderForm();},100);
+}
+
+// ══════════ ADMIN ══════════
+function filterAdmin(s,btn){
+  adminFilter=s;
+  document.querySelectorAll('#admin-filter-row .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAdmin();
+}
+
+function getAdminReqs(){
+  const d=loadData();
+  let reqs=[...d.requests].reverse();
+  if(adminFilter!=='all')reqs=reqs.filter(r=>r.status===adminFilter);
+  // Role-based filter for quick view
+  if(currentUser?.role==='manager')reqs=adminFilter==='all'?reqs.filter(r=>r.status==='pending'):reqs;
+  if(currentUser?.role==='president')reqs=adminFilter==='all'?reqs.filter(r=>r.status==='manager_approved'):reqs;
+  return reqs;
+}
+
+function renderAdmin(){
+  const reqs=getAdminReqs();
+  document.getElementById('admin-count').textContent=`${reqs.length}件`;
+  const tbody=document.getElementById('admin-tbody');
+  if(!reqs.length){tbody.innerHTML=`<tr><td colspan="7" class="table-empty">📭 該当する申請がありません</td></tr>`;return;}
+  tbody.innerHTML=reqs.map(r=>{
+    const actions=canApprove(r)?`<button class="btn btn-sm btn-success" onclick="doApprove('${r.id}')">${getApproveLabel(currentUser?.role)}</button><button class="btn btn-sm btn-danger" onclick="openDetail('${r.id}',true)">差し戻し</button>`:'';
+    return`<tr>
+      <td style="font-weight:600">${r.id}</td>
+      <td><span class="store-num">${r.store_number||'----'}</span></td>
+      <td>${r.user_name}</td>
+      <td><span class="cat-chip cat-${r.category}">${CAT_ICONS[r.category]} ${CAT_LABELS[r.category]}</span></td>
+      <td>${fmtDate(r.created_at)}</td>
+      <td><span class="badge badge-${r.status}">${STATUS_LABELS[r.status]}</span></td>
+      <td><div style="display:flex;gap:4px;flex-wrap:wrap"><button class="btn btn-sm btn-secondary" onclick="openDetail('${r.id}',true)">詳細</button>${actions}</div></td>
+    </tr>`;
+  }).join('');
+}
+
+function doApprove(id){
+  const nextStatus=getNextStatus(currentUser?.role);
+  if(!nextStatus)return;
+  updateStatus(id,nextStatus,null);
+}
+
+// ══════════ STATUS UPDATE ══════════
+let currentModalId=null;
+
+function updateStatus(id,status,note){
+  const d=loadData();
+  const req=d.requests.find(r=>r.id===id);
+  if(!req)return;
+  req.status=status;
+  const labelMap={manager_approved:'部長承認',president_approved:'社長承認',completed:'最終承認・完了',returned:'差し戻し'};
+  if(!req.logs)req.logs=[];
+  req.logs.push({action:status,label:labelMap[status]||status,actor:currentUser.name,actor_email:currentUser.email,timestamp:new Date().toISOString(),...(note?{note}:{})});
+  saveData(d);
+  sendEmailNotif(req,status,note);
+  renderAdmin();
+  renderDashboard();
+  const msgs={manager_approved:'部長承認しました',president_approved:'社長承認しました',completed:'最終承認・完了しました',returned:'差し戻しました'};
+  showToast(msgs[status]||'更新しました',status==='returned'?'error':'success');
+  closeModal();
+}
+
+// ══════════ DETAIL MODAL ══════════
+function openDetail(id,fromAdmin){
+  currentModalId=id;
+  const d=loadData();
+  const req=d.requests.find(r=>r.id===id);
+  if(!req)return;
+  document.getElementById('modal-icon').textContent=CAT_ICONS[req.category];
+  document.getElementById('modal-title').textContent=`${req.id} — ${CAT_LABELS[req.category]}`;
+  // Flow indicator
+  const steps=[{s:'pending',l:'部長確認待ち'},{s:'manager_approved',l:'部長承認済み'},{s:'president_approved',l:'社長承認済み'},{s:'completed',l:'完了'}];
+  const si=steps.findIndex(x=>x.s===req.status);
+  const flowHtml=req.status==='returned'?`<div class="approval-flow"><span class="flow-step flow-step-waiting" style="background:#fee2e2;color:#991b1b">↩ 差し戻し</span></div>`:`<div class="approval-flow">${steps.map((st,i)=>{const done=i<si,active=i===si;return`<span class="flow-step ${done?'flow-step-done':active?'flow-step-active':'flow-step-waiting'}">${st.l}</span>${i<steps.length-1?'<span class="flow-arrow">→</span>':''}`}).join('')}</div>`;
+  document.getElementById('modal-flow').innerHTML=flowHtml;
+  document.getElementById('modal-status-row').innerHTML=`<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--g500);">
+    <span class="badge badge-${req.status}">${STATUS_LABELS[req.status]}</span>
+    <span>申請者: ${req.user_name}</span><span>店舗: ${req.store_number||''} / ${req.store_name||''}</span><span>申請日: ${fmtDate(req.created_at)}</span>
+  </div>`;
+  document.getElementById('modal-table').innerHTML=Object.entries(req.data).map(([k,v])=>`<tr><th>${FL[k]||k}</th><td>${v||'—'}</td></tr>`).join('');
+  // Attachment
+  const attEl=document.getElementById('modal-attachment');
+  if(req.attachment){attEl.style.display='block';attEl.innerHTML=`<a href="${req.attachment}" download="申請書.pdf" class="btn btn-sm btn-secondary">📄 添付書類をダウンロード</a>`;}
+  else{attEl.style.display='none';}
+  // Timeline
+  const logs=req.logs||[];
+  document.getElementById('modal-timeline').innerHTML=`<div class="modal-tl-title">📋 承認タイムライン</div><div class="modal-timeline">${logs.map(l=>`<div class="modal-tl-item"><div class="modal-tl-dot tld-${l.action}"></div><div class="modal-tl-time">${fmtDT(l.timestamp)}</div><div class="modal-tl-content"><strong>${l.label}</strong>${l.note?'：'+l.note:''}</div><div class="modal-tl-actor">${l.actor} (${l.actor_email})</div></div>`).join('')}</div>`;
+  // Footer
+  const footer=document.getElementById('modal-footer');
+  hideReturn();
+  let btns=`<button class="btn btn-secondary" onclick="closeModal()">閉じる</button>`;
+  if(fromAdmin&&canApprove(req)){
+    btns+=`<button class="btn btn-danger" onclick="showReturn()">↩ 差し戻し</button><button class="btn btn-success" onclick="doApprove('${id}')">${getApproveLabel(currentUser?.role)}</button>`;
+  }else if(fromAdmin&&currentUser?.role==='admin'&&req.status==='president_approved'){
+    btns+=`<button class="btn btn-danger" onclick="showReturn()">↩ 差し戻し</button><button class="btn btn-success" onclick="doApprove('${id}')">最終承認・完了</button>`;
+  }
+  footer.insertAdjacentHTML('afterbegin',btns);
+  document.getElementById('detail-modal').classList.add('open');
+}
+
+function closeModal(){
+  document.getElementById('detail-modal').classList.remove('open');
+  const footer=document.getElementById('modal-footer');
+  footer.querySelectorAll('button:not(#return-section button)').forEach(b=>b.remove());
+  hideReturn();
+  currentModalId=null;
+}
+
+function showReturn(){document.getElementById('return-section').classList.add('show');}
+function hideReturn(){const el=document.getElementById('return-section');el.classList.remove('show');const i=document.getElementById('return-reason');if(i)i.value='';}
+function confirmReturn(){
+  const reason=document.getElementById('return-reason').value.trim();
+  if(!reason){showToast('差し戻し理由を入力してください','error');return;}
+  updateStatus(currentModalId,'returned',reason);
+}
+
+document.getElementById('detail-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+document.getElementById('camera-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeCameraModal();});
+
+// ══════════ WHITELIST ══════════
+function renderWhitelist(){
+  const d=loadData();
+  const list=d.whitelist||[];
+  document.getElementById('wl-count').textContent=`${list.length}件`;
+  const tbody=document.getElementById('wl-tbody');
+  if(!list.length){tbody.innerHTML='<tr><td colspan="6" class="table-empty">📭 登録されていません</td></tr>';return;}
+  tbody.innerHTML=list.map((w,i)=>`<tr><td>${w.email}</td><td>${w.store_name}</td><td><span class="store-num">${w.store_number}</span></td><td>${ROLE_LABELS[w.role]||w.role}</td><td>${fmtDate(w.added_at)}</td><td><button class="btn btn-sm btn-danger" onclick="removeWL(${i})">削除</button></td></tr>`).join('');
+}
+
+function addWhitelist(){
+  const email=document.getElementById('wl-email').value.trim();
+  const store=document.getElementById('wl-store').value.trim();
+  const num=document.getElementById('wl-num').value.trim();
+  const role=document.getElementById('wl-role').value;
+  if(!email||!store||!num){showToast('すべての項目を入力してください','error');return;}
+  if(!email.includes('@')){showToast('有効なメールアドレスを入力してください','error');return;}
+  const d=loadData();
+  if(!d.whitelist)d.whitelist=[];
+  if(d.whitelist.some(w=>w.email===email)){showToast('このメールアドレスはすでに登録されています','error');return;}
+  d.whitelist.push({email,store_name:store,store_number:num,role,added_by:currentUser.name,added_at:new Date().toISOString()});
+  saveData(d);
+  ['wl-email','wl-store','wl-num'].forEach(id=>document.getElementById(id).value='');
+  renderWhitelist();
+  showToast(`${email} を登録しました`,'success');
+}
+
+function removeWL(i){
+  const d=loadData();
+  if(!d.whitelist)return;
+  const removed=d.whitelist[i];
+  d.whitelist.splice(i,1);
+  saveData(d);
+  renderWhitelist();
+  showToast(`${removed.email} を削除しました`,'info');
+}
+
+// ══════════ EMAIL NOTIFICATION ══════════
+function getEmailRecipients(status,req){
+  const d=loadData();
+  const wl=d.whitelist||[];
+  if(status==='pending')return wl.filter(w=>w.role==='manager').map(w=>w.email);
+  if(status==='manager_approved')return wl.filter(w=>w.role==='president').map(w=>w.email);
+  if(status==='president_approved')return wl.filter(w=>w.role==='admin').map(w=>w.email);
+  if(status==='completed'||status==='returned')return[req.user_id];
+  return[];
+}
+
+function sendEmailNotif(req,status,note){
+  const to=getEmailRecipients(status,req);
+  if(!to.length)return;
+  const subjects={pending:`【要確認】部長承認依頼：${req.id} ${CAT_LABELS[req.category]}`,manager_approved:`【要確認】社長承認依頼：${req.id} ${CAT_LABELS[req.category]}`,president_approved:`【要確認】最終承認依頼：${req.id} ${CAT_LABELS[req.category]}`,completed:`【完了】申請が承認されました：${req.id}`,returned:`【差し戻し】申請が差し戻されました：${req.id}`};
+  const subject=subjects[status]||`【通知】${req.id} ステータス更新`;
+  const body=`申請者: ${req.user_name}（${req.store_name}）\nカテゴリ: ${CAT_LABELS[req.category]}\nステータス: ${STATUS_LABELS[status]}${note?'\n差し戻し理由: '+note:''}`;
+  showEmailToast(to.join(', '),subject,body);
+}
+
+function showEmailToast(to,subject,body){
+  const el=document.createElement('div');
+  el.className='toast toast-email';
+  el.innerHTML=`<div><div style="font-size:11px;font-weight:700;margin-bottom:3px;">📧 メール通知送信</div><div style="font-size:11px;opacity:.8;">宛先: ${to}</div><div style="font-size:11px;opacity:.8;">件名: ${subject}</div></div><button class="toast-close" onclick="this.parentElement.remove()">✕</button>`;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(()=>{if(el.parentElement)el.remove();},7000);
+}
+
+// ══════════ TOAST ══════════
+function showToast(msg,type='info'){
+  const icons={success:'✅',error:'❌',info:'ℹ️'};
+  const el=document.createElement('div');
+  el.className=`toast toast-${type}`;
+  el.innerHTML=`<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(()=>{if(el.parentElement)el.remove();},3500);
+}
+
+// ══════════ INIT ══════════
+initData();
+setStep(1);
+</script>
+</body>
+</html>
