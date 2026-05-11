@@ -97,9 +97,27 @@
     .badge-president_approved{background:#ede9fe;color:#5b21b6}
     .badge-completed{background:#d1fae5;color:#065f46}
     .badge-returned{background:#fee2e2;color:#991b1b}
+    .badge-resettlement_pending{background:#fef3c7;color:#92400e}
+    .badge-resettlement_completed{background:#d1fae5;color:#065f46}
+    .tld-resettlement_pending{background:#f59e0b}
+    .tld-resettlement_completed{background:#10b981}
     .cat-chip{display:inline-block;padding:2px 7px;border-radius:5px;font-size:11px;font-weight:600}
     .cat-payment_error{background:#fee2e2;color:#991b1b}.cat-refund{background:#fef3c7;color:#92400e}
     .cat-robo_stop{background:#ede9fe;color:#5b21b6}.cat-bank_account{background:#d1fae5;color:#065f46}
+    .cat-transport{background:#e0f2fe;color:#0369a1}
+    .file-upload-zone{border:2px dashed var(--g300);border-radius:8px;padding:14px 16px;cursor:pointer;transition:border-color .2s;font-size:12px;color:var(--g500);text-align:center}
+    .file-upload-zone:hover{border-color:var(--primary);color:var(--primary)}.file-upload-zone.uploaded{border-color:var(--success);background:#f0fdf4;color:#065f46}
+    .validation-pass{background:#d1fae5;border:1px solid #6ee7b7;border-radius:8px;padding:10px 14px;font-size:12px;color:#065f46;margin-top:8px}
+    .validation-fail{background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;padding:10px 14px;font-size:12px;color:#991b1b;margin-top:8px}
+    .ts-card{background:var(--white);border-radius:var(--r);padding:20px;box-shadow:var(--sh);margin-bottom:16px}
+    .route-row{display:grid;grid-template-columns:1fr 80px 80px auto;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--g100)}
+    .route-row:last-child{border-bottom:none}
+    .route-select-option{padding:8px 12px;border:1.5px solid var(--g200);border-radius:8px;font-size:13px;background:var(--white);width:100%;cursor:pointer}
+    .route-amount-badge{display:inline-block;background:#e0f2fe;color:#0369a1;font-size:12px;font-weight:700;padding:3px 8px;border-radius:6px;}
+    .route-fixed-badge{display:inline-block;background:#fef3c7;color:#92400e;font-size:11px;font-weight:700;padding:2px 6px;border-radius:4px;margin-left:4px;}
+    .draft-card{background:var(--white);border:1.5px solid var(--g200);border-radius:10px;padding:11px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .15s;margin-bottom:6px}
+    .draft-card:hover{border-color:var(--primary);background:#f5f3ff;transform:translateY(-1px)}
+    .draft-badge{background:#818cf8;color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:99px;margin-left:6px}
     .action-link{color:var(--primary);font-size:12px;font-weight:600;cursor:pointer}.action-link:hover{text-decoration:underline}
     .store-num{font-size:11px;color:var(--g500);background:var(--g100);padding:2px 7px;border-radius:4px;font-weight:600}
     .timelog-cell{font-size:11px;color:var(--g500)}.timelog-action{font-weight:600;color:var(--g700)}
@@ -271,6 +289,7 @@
           <span class="nav-badge" id="pending-badge">0</span>
         </button>
         <button class="nav-item" id="whitelist-nav-btn" onclick="showSection('whitelist')" style="display:none"><span class="nav-icon">📧</span>メール登録管理</button>
+        <button class="nav-item" id="transport-settings-nav-btn" onclick="showSection('transport-settings')" style="display:none"><span class="nav-icon">🚗</span>交通費設定</button>
       </div>
     </div>
     <div class="sidebar-footer">
@@ -298,7 +317,7 @@
           <div class="card-header">
             <h3>最近の申請</h3>
             <button class="filter-btn active" onclick="filterTable('all',this)">すべて</button>
-            <button class="filter-btn" onclick="filterTable('pending',this)">部長待ち</button>
+            <button class="filter-btn" onclick="filterTable('pending',this)">承認待ち</button>
             <button class="filter-btn" onclick="filterTable('manager_approved',this)">社長待ち</button>
             <button class="filter-btn" onclick="filterTable('president_approved',this)">最終待ち</button>
             <button class="filter-btn" onclick="filterTable('completed',this)">完了</button>
@@ -329,6 +348,11 @@
               <button class="category-card" onclick="selectCat('refund',this)"><div class="category-card-icon">💰</div><h4>返金申請</h4><p>患者様への返金処理の申請</p></button>
               <button class="category-card" onclick="selectCat('robo_stop',this)"><div class="category-card-icon">🤖</div><h4>ロボ停止申請</h4><p>ロボペイ課金停止・変更依頼</p></button>
               <button class="category-card" onclick="selectCat('bank_account',this)"><div class="category-card-icon">🏦</div><h4>銀行口座変更申請</h4><p>振込先銀行口座の変更申請</p></button>
+              <button class="category-card" onclick="selectCat('transport',this)"><div class="category-card-icon">🚗</div><h4>交通費申請</h4><p>交通費・ガソリン代の精算申請</p></button>
+            </div>
+            <div id="draft-list-container" style="display:none;margin-top:16px;">
+              <div style="font-size:11px;font-weight:700;color:var(--g400);letter-spacing:.06em;margin-bottom:8px;">📝 保存済み下書き（続きから再開）</div>
+              <div id="draft-list"></div>
             </div>
             <div style="text-align:right"><button class="btn btn-primary btn-lg" onclick="goStep2()" id="step1-next" disabled>次へ →</button></div>
           </div>
@@ -336,12 +360,13 @@
         <div id="apply-step-2" style="display:none">
           <div class="form-card">
             <h3 id="form-title" style="margin-bottom:4px;font-size:16px;"></h3>
-            <p style="font-size:11px;color:var(--g400);margin-bottom:16px;">📷 <span style="color:#991b1b;font-weight:600;">赤ラベル</span>の項目は必ず手入力してください。OCR自動入力はされません。</p>
-            <button class="camera-btn" onclick="openCameraModal()">📷 書類を撮影してOCR自動入力</button>
+            <p id="form-note" style="font-size:11px;color:var(--g400);margin-bottom:16px;">📷 <span style="color:#991b1b;font-weight:600;">赤ラベル</span>の項目は必ず手入力してください。OCR自動入力はされません。</p>
+            <button class="camera-btn" id="camera-btn-main" onclick="openCameraModal()">📷 書類を撮影してOCR自動入力</button>
             <div id="attachment-info" style="display:none" class="attachment-preview">📄 <span id="attachment-name">PDF添付済み</span> <button onclick="clearAttachment()" style="margin-left:auto;background:none;border:none;color:var(--primary);cursor:pointer;font-size:12px;">削除</button></div>
             <div id="dynamic-form"></div>
             <div class="form-actions">
               <button class="btn btn-secondary" onclick="goStep1()">← 戻る</button>
+              <button class="btn btn-secondary" onclick="saveDraft()" style="margin-left:auto;margin-right:8px;">💾 下書き保存</button>
               <button class="btn btn-primary btn-lg" onclick="goStep3()">確認画面へ →</button>
             </div>
           </div>
@@ -362,7 +387,7 @@
             <div class="success-screen">
               <div class="success-icon">✅</div>
               <h3>申請が完了しました</h3>
-              <p>申請を受け付けました。部長確認後に進捗をお知らせします。</p>
+              <p id="success-msg">申請を受け付けました。経理担当者の確認後に進捗をお知らせします。</p>
               <div style="display:flex;gap:10px;justify-content:center;">
                 <button class="btn btn-secondary btn-lg" onclick="resetApply()">続けて申請する</button>
                 <button class="btn btn-primary btn-lg" onclick="showSection('dashboard')">ダッシュボードへ</button>
@@ -389,6 +414,44 @@
           <div class="card-header"><h3 id="admin-title">⚙️ 申請管理</h3><span id="admin-count" style="font-size:12px;color:var(--g400);"></span></div>
           <table><thead><tr><th>申請ID</th><th>店舗番号</th><th>申請者</th><th>カテゴリ</th><th>申請日</th><th>ステータス</th><th>操作</th></tr></thead>
           <tbody id="admin-tbody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- TRANSPORT SETTINGS -->
+      <div id="section-transport-settings" class="inner-page">
+        <div class="ts-card">
+          <h3 style="font-size:15px;font-weight:700;margin-bottom:4px;">⛽ ガソリン代単価設定</h3>
+          <p style="font-size:12px;color:var(--g500);margin-bottom:14px;">全ルートの計算に使用されます。変更すると全ルートの金額が自動更新されます。</p>
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <div class="form-group" style="max-width:200px;">
+              <label>ガソリン代単価（円/km）</label>
+              <input type="number" id="ts-gasoline" placeholder="13" min="1" step="0.5">
+            </div>
+            <div class="form-group" style="max-width:200px;">
+              <label>月別上限額（円）</label>
+              <input type="number" id="ts-max" placeholder="50000" min="0">
+            </div>
+          </div>
+          <div style="text-align:right;margin-top:12px"><button class="btn btn-primary" onclick="saveTransportSettings()">保存する</button></div>
+        </div>
+
+        <div class="ts-card">
+          <h3 style="font-size:15px;font-weight:700;margin-bottom:4px;">🗺️ ルートマスター登録</h3>
+          <p style="font-size:12px;color:var(--g500);margin-bottom:14px;">申請者がルートを選択すると距離×単価で金額が自動計算されます。</p>
+          <p style="font-size:11px;color:var(--g500);margin-bottom:10px;">🚗 <b>ガソリン代</b>: 距離(km)を入力 → 単価×距離で自動計算。&nbsp;🚃 <b>電車・バス</b>: 固定金額(円)を直接入力（単価変更の影響なし）。</p>
+          <div style="display:grid;grid-template-columns:1fr 80px 90px 80px auto;gap:8px;align-items:end;margin-bottom:12px;">
+            <div class="form-group" style="margin:0"><label style="font-size:11px;">ルート名</label><input type="text" id="rt-name" placeholder="例: 登美ヶ丘院 → 東生駒院"></div>
+            <div class="form-group" style="margin:0"><label style="font-size:11px;">距離(km)</label><input type="number" id="rt-km" placeholder="7.0" min="0" step="0.1" oninput="previewRouteAmount()"></div>
+            <div class="form-group" style="margin:0"><label style="font-size:11px;">固定金額(円) <span style="color:var(--g400);">※電車等</span></label><input type="number" id="rt-fixed" placeholder="91" min="0" step="1" oninput="previewRouteAmount()"></div>
+            <div class="form-group" style="margin:0"><label style="font-size:11px;">金額確認</label><div id="rt-amount-preview" style="padding:8px 10px;background:var(--g50);border-radius:8px;font-size:13px;font-weight:600;color:var(--primary);">¥—</div></div>
+            <button class="btn btn-primary" onclick="addRoute()" style="height:38px;">＋追加</button>
+          </div>
+          <div id="route-list"></div>
+        </div>
+
+        <div id="ts-saved-info" style="display:none" class="ts-card">
+          <h3 style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--g500);">現在の設定</h3>
+          <div id="ts-saved-display"></div>
         </div>
       </div>
 
@@ -445,6 +508,22 @@
   </div>
 </div>
 
+<!-- RESETTLEMENT REPORT MODAL -->
+<div class="modal-overlay" id="resettlement-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div style="font-size:20px;">🔄</div>
+      <h3>再決済報告</h3>
+      <button class="modal-close" onclick="closeResettlementModal()">✕</button>
+    </div>
+    <div class="modal-body" id="resettlement-modal-body" style="max-height:70vh;overflow-y:auto;"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeResettlementModal()">キャンセル</button>
+      <button class="btn btn-primary" onclick="submitResettlement()">📤 報告を提出</button>
+    </div>
+  </div>
+</div>
+
 <!-- CAMERA MODAL -->
 <div class="modal-overlay" id="camera-modal">
   <div class="modal modal-sm">
@@ -483,13 +562,212 @@
 
 <script>
 // ══════════ DATA ══════════
-const SK='wf_v4';
+const SK='wf_v5';
 function loadData(){const r=localStorage.getItem(SK);return r?JSON.parse(r):{requests:[],whitelist:[]}}
 function saveData(d){localStorage.setItem(SK,JSON.stringify(d))}
 
 function initData(){
   const d=loadData();
-  if(d.requests.length>0)return;
+  if(!d.transport_settings||!d.transport_settings.v||d.transport_settings.v<3){
+    const prev_rate=d.transport_settings?.gasoline_per_km||13;
+    const prev_max=d.transport_settings?.max_allowance||null;
+    d.transport_settings={gasoline_per_km:prev_rate,max_allowance:prev_max,v:3,routes:[
+      // ── 舞洲研修センター（車・ガソリン代、距離ベース）──
+      {name:'🚗 舞洲研修センター → 大安寺院',km:44},
+      {name:'🚗 舞洲研修センター → 東生駒院',km:33},
+      {name:'🚗 舞洲研修センター → 桜井院',km:53},
+      {name:'🚗 舞洲研修センター → 天理院',km:51},
+      {name:'🚗 舞洲研修センター → 大和郡山院',km:48},
+      {name:'🚗 舞洲研修センター → 門真院',km:29},
+      {name:'🚗 舞洲研修センター → 岸和田院',km:34},
+      {name:'🚗 舞洲研修センター → 津久野院',km:23},
+      {name:'🚗 舞洲研修センター → 橋本院',km:63},
+      {name:'🚗 舞洲研修センター → 岩出院',km:65},
+      {name:'🚗 舞洲研修センター → かつらぎ院',km:59},
+      {name:'🚗 舞洲研修センター → 海南院',km:80},
+      {name:'🚗 舞洲研修センター → 岩出中島店',km:66},
+      {name:'🚗 舞洲研修センター → 登美ヶ丘院',km:41},
+      // ── 院間移動（固定金額）── 登美ヶ丘院
+      {name:'登美ヶ丘院 → 東生駒院',fixed_amount:70},
+      // 東生駒院
+      {name:'東生駒院 → 登美ヶ丘院',fixed_amount:91},
+      {name:'東生駒院 → 大和郡山院',fixed_amount:120},
+      {name:'東生駒院 → 大安寺院',fixed_amount:110},
+      {name:'東生駒院 → 桜井院',fixed_amount:260},
+      {name:'東生駒院 → 天理院',fixed_amount:190},
+      {name:'東生駒院 → 岩出院',fixed_amount:840},
+      {name:'東生駒院 → 岸和田院',fixed_amount:540},
+      {name:'東生駒院 → 津久野院',fixed_amount:420},
+      // 大和郡山院
+      {name:'大和郡山院 → 登美ヶ丘院',fixed_amount:182},
+      {name:'大和郡山院 → 東生駒院',fixed_amount:156},
+      {name:'大和郡山院 → 大安寺院',fixed_amount:95},
+      // 大安寺院
+      {name:'大安寺院 → 登美ヶ丘院',fixed_amount:156},
+      {name:'大安寺院 → 東生駒院',fixed_amount:143},
+      {name:'大安寺院 → 大和郡山院',fixed_amount:124},
+      {name:'大安寺院 → 桜井院',fixed_amount:180},
+      {name:'大安寺院 → 岩出院',fixed_amount:810},
+      {name:'大安寺院 → かつらぎ院',fixed_amount:600},
+      {name:'大安寺院 → 海南院',fixed_amount:920},
+      {name:'大安寺院 → 岸和田院',fixed_amount:600},
+      {name:'大安寺院 → 津久野院',fixed_amount:500},
+      // 桜井院
+      {name:'桜井院 → 登美ヶ丘院',fixed_amount:416},
+      {name:'桜井院 → 東生駒院',fixed_amount:338},
+      {name:'桜井院 → 大和郡山院',fixed_amount:234},
+      {name:'桜井院 → 大安寺院',fixed_amount:234},
+      {name:'桜井院 → 天理院',fixed_amount:100},
+      {name:'桜井院 → かつらぎ院',fixed_amount:480},
+      {name:'桜井院 → 橋本院',fixed_amount:410},
+      // 天理院
+      {name:'天理院 → 登美ヶ丘院',fixed_amount:260},
+      {name:'天理院 → 東生駒院',fixed_amount:247},
+      {name:'天理院 → 大安寺院',fixed_amount:130},
+      {name:'天理院 → 桜井院',fixed_amount:130},
+      {name:'天理院 → 岩出院',fixed_amount:720},
+      {name:'天理院 → 橋本院',fixed_amount:470},
+      {name:'天理院 → 海南院',fixed_amount:840},
+      {name:'天理院 → 岸和田院',fixed_amount:450},
+      // 岩出院
+      {name:'岩出院 → 登美ヶ丘院',fixed_amount:1183},
+      {name:'岩出院 → 東生駒院',fixed_amount:1092},
+      {name:'岩出院 → 大和郡山院',fixed_amount:1001},
+      {name:'岩出院 → 大安寺院',fixed_amount:1053},
+      {name:'岩出院 → 桜井院',fixed_amount:897},
+      {name:'岩出院 → 天理院',fixed_amount:936},
+      {name:'岩出院 → かつらぎ院',fixed_amount:200},
+      {name:'岩出院 → 橋本院',fixed_amount:300},
+      {name:'岩出院 → 海南院',fixed_amount:180},
+      {name:'岩出院 → 門真院',fixed_amount:800},
+      {name:'岩出院 → 岸和田院',fixed_amount:310},
+      {name:'岩出院 → 津久野院',fixed_amount:430},
+      // かつらぎ院
+      {name:'かつらぎ院 → 登美ヶ丘院',fixed_amount:910},
+      {name:'かつらぎ院 → 東生駒院',fixed_amount:910},
+      {name:'かつらぎ院 → 大和郡山院',fixed_amount:741},
+      {name:'かつらぎ院 → 大安寺院',fixed_amount:780},
+      {name:'かつらぎ院 → 桜井院',fixed_amount:624},
+      {name:'かつらぎ院 → 天理院',fixed_amount:702},
+      {name:'かつらぎ院 → 岩出院',fixed_amount:260},
+      {name:'かつらぎ院 → 岩出中島店',fixed_amount:190},
+      {name:'かつらぎ院 → 橋本院',fixed_amount:90},
+      {name:'かつらぎ院 → 海南院',fixed_amount:320},
+      {name:'かつらぎ院 → 岸和田院',fixed_amount:300},
+      {name:'かつらぎ院 → 津久野院',fixed_amount:370},
+      // 岩出中島店
+      {name:'岩出中島店 → 登美ヶ丘院',fixed_amount:1196},
+      {name:'岩出中島店 → 東生駒院',fixed_amount:1066},
+      {name:'岩出中島店 → 大和郡山院',fixed_amount:1027},
+      {name:'岩出中島店 → 大安寺院',fixed_amount:1313},
+      {name:'岩出中島店 → 桜井院',fixed_amount:910},
+      {name:'岩出中島店 → 天理院',fixed_amount:936},
+      {name:'岩出中島店 → かつらぎ院',fixed_amount:247},
+      // 橋本院
+      {name:'橋本院 → 登美ヶ丘院',fixed_amount:819},
+      {name:'橋本院 → 東生駒院',fixed_amount:793},
+      {name:'橋本院 → 大和郡山院',fixed_amount:611},
+      {name:'橋本院 → 大安寺院',fixed_amount:689},
+      {name:'橋本院 → 桜井院',fixed_amount:533},
+      {name:'橋本院 → 天理院',fixed_amount:611},
+      {name:'橋本院 → 岩出院',fixed_amount:390},
+      {name:'橋本院 → かつらぎ院',fixed_amount:117},
+      {name:'橋本院 → 岩出中島店',fixed_amount:403},
+      {name:'橋本院 → 海南院',fixed_amount:500},
+      {name:'橋本院 → 門真院',fixed_amount:600},
+      {name:'橋本院 → 岸和田院',fixed_amount:390},
+      {name:'橋本院 → 津久野院',fixed_amount:380},
+      // 海南院
+      {name:'海南院 → 登美ヶ丘院',fixed_amount:1339},
+      {name:'海南院 → 東生駒院',fixed_amount:1248},
+      {name:'海南院 → 大和郡山院',fixed_amount:1144},
+      {name:'海南院 → 大安寺院',fixed_amount:1196},
+      {name:'海南院 → 桜井院',fixed_amount:1131},
+      {name:'海南院 → 天理院',fixed_amount:1092},
+      {name:'海南院 → 岩出院',fixed_amount:234},
+      {name:'海南院 → かつらぎ院',fixed_amount:416},
+      {name:'海南院 → 岩出中島店',fixed_amount:156},
+      {name:'海南院 → 橋本院',fixed_amount:650},
+      {name:'海南院 → 門真院',fixed_amount:940},
+      // 門真院
+      {name:'門真院 → 登美ヶ丘院',fixed_amount:195},
+      {name:'門真院 → 東生駒院',fixed_amount:208},
+      {name:'門真院 → 大和郡山院',fixed_amount:403},
+      {name:'門真院 → 大安寺院',fixed_amount:351},
+      {name:'門真院 → 桜井院',fixed_amount:611},
+      {name:'門真院 → 天理院',fixed_amount:442},
+      {name:'門真院 → 岩出院',fixed_amount:1040},
+      {name:'門真院 → かつらぎ院',fixed_amount:858},
+      {name:'門真院 → 岩出中島店',fixed_amount:1001},
+      {name:'門真院 → 橋本院',fixed_amount:780},
+      {name:'門真院 → 海南院',fixed_amount:1222},
+      {name:'門真院 → 岸和田院',fixed_amount:450},
+      {name:'門真院 → 津久野院',fixed_amount:340},
+      // 岸和田院
+      {name:'岸和田院 → 登美ヶ丘院',fixed_amount:767},
+      {name:'岸和田院 → 東生駒院',fixed_amount:702},
+      {name:'岸和田院 → 大和郡山院',fixed_amount:650},
+      {name:'岸和田院 → 大安寺院',fixed_amount:780},
+      {name:'岸和田院 → 桜井院',fixed_amount:845},
+      {name:'岸和田院 → 天理院',fixed_amount:728},
+      {name:'岸和田院 → 岩出院',fixed_amount:403},
+      {name:'岸和田院 → かつらぎ院',fixed_amount:390},
+      {name:'岸和田院 → 岩出中島店',fixed_amount:429},
+      {name:'岸和田院 → 橋本院',fixed_amount:507},
+      {name:'岸和田院 → 海南院',fixed_amount:663},
+      {name:'岸和田院 → 門真院',fixed_amount:585},
+      {name:'岸和田院 → 津久野院',fixed_amount:140},
+      // 津久野院
+      {name:'津久野院 → 登美ヶ丘院',fixed_amount:585},
+      {name:'津久野院 → 東生駒院',fixed_amount:546},
+      {name:'津久野院 → 大和郡山院',fixed_amount:442},
+      {name:'津久野院 → 大安寺院',fixed_amount:650},
+      {name:'津久野院 → 桜井院',fixed_amount:559},
+      {name:'津久野院 → 天理院',fixed_amount:585},
+      {name:'津久野院 → 岩出院',fixed_amount:559},
+      {name:'津久野院 → かつらぎ院',fixed_amount:481},
+      {name:'津久野院 → 岩出中島店',fixed_amount:637},
+      {name:'津久野院 → 橋本院',fixed_amount:494},
+      {name:'津久野院 → 海南院',fixed_amount:819},
+      {name:'津久野院 → 門真院',fixed_amount:442},
+      {name:'津久野院 → 岸和田院',fixed_amount:182},
+      // 和歌山北島院
+      {name:'和歌山北島院 → 登美ヶ丘院',fixed_amount:1248},
+      {name:'和歌山北島院 → 東生駒院',fixed_amount:1157},
+      {name:'和歌山北島院 → 大和郡山院',fixed_amount:1144},
+      {name:'和歌山北島院 → 大安寺院',fixed_amount:1235},
+      {name:'和歌山北島院 → 桜井院',fixed_amount:1079},
+      {name:'和歌山北島院 → 天理院',fixed_amount:1118},
+      {name:'和歌山北島院 → 岩出院',fixed_amount:182},
+      {name:'和歌山北島院 → かつらぎ院',fixed_amount:429},
+      {name:'和歌山北島院 → 岩出中島店',fixed_amount:195},
+      {name:'和歌山北島院 → 橋本院',fixed_amount:559},
+      {name:'和歌山北島院 → 海南院',fixed_amount:208},
+      {name:'和歌山北島院 → 門真院',fixed_amount:1105},
+      {name:'和歌山北島院 → 岸和田院',fixed_amount:546},
+      {name:'和歌山北島院 → 津久野院',fixed_amount:741},
+      // 登美ヶ丘事業所
+      {name:'登美ヶ丘事業所 → 東生駒院',fixed_amount:98},
+      {name:'登美ヶ丘事業所 → 大和郡山院',fixed_amount:169},
+      {name:'登美ヶ丘事業所 → 大安寺院',fixed_amount:130},
+      {name:'登美ヶ丘事業所 → 桜井院',fixed_amount:416},
+      {name:'登美ヶ丘事業所 → 天理院',fixed_amount:247},
+      {name:'登美ヶ丘事業所 → 岩出院',fixed_amount:1222},
+      {name:'登美ヶ丘事業所 → かつらぎ院',fixed_amount:897},
+      {name:'登美ヶ丘事業所 → 橋本院',fixed_amount:806},
+      {name:'登美ヶ丘事業所 → 海南院',fixed_amount:1378},
+      {name:'登美ヶ丘事業所 → 門真院',fixed_amount:208},
+      {name:'登美ヶ丘事業所 → 岸和田院',fixed_amount:780},
+      {name:'登美ヶ丘事業所 → 津久野院',fixed_amount:663},
+      {name:'登美ヶ丘事業所 → 和歌山北島院',fixed_amount:1287}
+    ]};
+    // fixed_amount → km変換（ガソリン単価変更で全ルート再計算できるよう）
+    d.transport_settings.routes=d.transport_settings.routes.map(r=>{
+      if(r.fixed_amount&&!r.km)return{name:r.name,km:Math.round(r.fixed_amount/13*10)/10};
+      return r;
+    });
+  }
+  if(d.requests.length>0){saveData(d);return;}
   const now=Date.now();
   const ago=(h)=>new Date(now-h*3600000).toISOString();
   d.requests=[
@@ -498,13 +776,16 @@ function initData(){
      created_at:ago(48),logs:[{action:'submitted',label:'申請',actor:'田中 太郎',actor_email:'employee@example.com',timestamp:ago(48)}]},
     {id:'REQ-002',user_id:'employee@example.com',user_name:'田中 太郎',store_name:'渋谷院',store_number:'S001',category:'refund',status:'manager_approved',
      data:{clinic_name:'渋谷院',writer_name:'田中 太郎',seller_name:'鈴木 部長',president_approval_date:'2026-05-09',patient_name:'鈴木 一郎',card_holder:'SUZUKI ICHIRO',last_visit_date:'2026-04-20',ticket_purchase_date:'2026-03-01',product_name:'回数券10回コース',purchase_amount:'54000',remaining_sessions:'6/10',payment_method:'クレジットカード',refund_reason:'転居により来院困難',calculation:'54,000÷10×6＝32,400円'},
-     created_at:ago(72),logs:[{action:'submitted',label:'申請',actor:'田中 太郎',actor_email:'employee@example.com',timestamp:ago(72)},{action:'manager_approved',label:'部長承認',actor:'山本 部長',actor_email:'manager@example.com',timestamp:ago(60)}]},
-    {id:'REQ-003',user_id:'sato@example.com',user_name:'佐藤 次郎',store_name:'新宿院',store_number:'S002',category:'robo_stop',status:'president_approved',
+     created_at:ago(72),logs:[{action:'submitted',label:'申請',actor:'田中 太郎',actor_email:'employee@example.com',timestamp:ago(72)},{action:'manager_approved',label:'部長承認',actor:'部長',actor_email:'manager@example.com',timestamp:ago(60)}]},
+    {id:'REQ-003',user_id:'sato@example.com',user_name:'佐藤 次郎',store_name:'新宿院',store_number:'S002',category:'robo_stop',status:'completed',
      data:{clinic_name:'新宿院',staff_name:'佐藤 次郎',president_approval_date:'2026-05-08',fit_type:'Fit A',process_type:'課金停止',card_holder:'SATO JIRO',initial_purchase_date:'2026-01-15',subscription_amount:'9800',change_month:'2026年6月',details:'メンテナンスのため定期停止'},
-     created_at:ago(96),logs:[{action:'submitted',label:'申請',actor:'佐藤 次郎',actor_email:'sato@example.com',timestamp:ago(96)},{action:'manager_approved',label:'部長承認',actor:'山本 部長',actor_email:'manager@example.com',timestamp:ago(84)},{action:'president_approved',label:'社長承認',actor:'奥本 社長',actor_email:'president@example.com',timestamp:ago(36)}]},
+     created_at:ago(96),logs:[{action:'submitted',label:'申請',actor:'佐藤 次郎',actor_email:'sato@example.com',timestamp:ago(96)},{action:'completed',label:'最終承認・完了',actor:'経理担当',actor_email:'admin@example.com',timestamp:ago(72)}]},
+    {id:'REQ-005',user_id:'employee@example.com',user_name:'田中 太郎',store_name:'渋谷院',store_number:'S001',category:'transport',status:'pending',
+     data:{clinic_name:'渋谷院',transport_applicant:'田中 太郎',period_start:'2026-05-01',period_end:'2026-05-31',transport_method:'電車、バス',route:'渋谷駅 → 恵比寿駅',transport_amount:'8400',distance_km:'',transport_note:'月間交通費精算',edf_uploaded:'✅ アップロード済み',receipt_uploaded:'✅ アップロード済み',validation_status:'整合性確認済み'},
+     created_at:ago(12),logs:[{action:'submitted',label:'申請',actor:'田中 太郎',actor_email:'employee@example.com',timestamp:ago(12)}]},
     {id:'REQ-004',user_id:'sato@example.com',user_name:'佐藤 次郎',store_name:'新宿院',store_number:'S002',category:'bank_account',status:'returned',
      data:{clinic_name:'新宿院',refund_amount:'32400',bank_name:'三菱UFJ銀行',branch_name_kana:'しんじゅくしてん',branch_name:'新宿支店',account_type:'普通',account_number:'9876543',account_holder:'サトウ ジロウ',transfer_fee:'弊社負担'},
-     created_at:ago(120),logs:[{action:'submitted',label:'申請',actor:'佐藤 次郎',actor_email:'sato@example.com',timestamp:ago(120)},{action:'returned',label:'差し戻し',actor:'山本 部長',actor_email:'manager@example.com',timestamp:ago(100),note:'口座番号を再確認してください'}]}
+     created_at:ago(120),logs:[{action:'submitted',label:'申請',actor:'佐藤 次郎',actor_email:'sato@example.com',timestamp:ago(120)},{action:'returned',label:'差し戻し',actor:'部長',actor_email:'manager@example.com',timestamp:ago(100),note:'口座番号を再確認してください'}]}
   ];
   d.whitelist=[
     {email:'employee@example.com',store_name:'渋谷院',store_number:'S001',role:'employee',added_by:'システム',added_at:ago(200)},
@@ -519,9 +800,9 @@ function initData(){
 // ══════════ AUTH ══════════
 const DEMO_USERS={
   employee:{name:'田中 太郎',email:'employee@example.com',role:'employee',avatar:'田'},
-  manager:{name:'山本 部長',email:'manager@example.com',role:'manager',avatar:'山'},
-  president:{name:'奥本 社長',email:'president@example.com',role:'president',avatar:'奥'},
-  admin:{name:'リエリ',email:'admin@example.com',role:'admin',avatar:'リ'}
+  manager:{name:'部長',email:'manager@example.com',role:'manager',avatar:'部'},
+  president:{name:'社長',email:'president@example.com',role:'president',avatar:'社'},
+  admin:{name:'経理担当',email:'admin@example.com',role:'admin',avatar:'経'}
 };
 let currentUser=null;
 
@@ -547,7 +828,7 @@ function startLogin(role){
     document.getElementById('sb-role').textContent=roleLabel[currentUser.role]||'社員';
     const hasAdmin=['manager','president','admin'].includes(currentUser.role);
     document.getElementById('admin-nav').style.display=hasAdmin?'block':'none';
-    if(currentUser.role==='admin'){document.getElementById('whitelist-nav-btn').style.display='block';}
+    if(currentUser.role==='admin'){document.getElementById('whitelist-nav-btn').style.display='block';document.getElementById('transport-settings-nav-btn').style.display='block';}
     const approvalLabels={manager:'部長承認管理',president:'社長承認管理',admin:'最終承認・全体管理'};
     if(approvalLabels[currentUser.role]) document.getElementById('approval-nav-label').textContent=approvalLabels[currentUser.role];
     document.querySelectorAll('.demo-card,.google-btn').forEach(b=>b.disabled=false);
@@ -560,15 +841,28 @@ function logout(){
   const app=document.getElementById('app');
   app.style.display='none';app.classList.remove('active');
   document.getElementById('admin-nav').style.display='none';
+  document.getElementById('whitelist-nav-btn').style.display='none';
+  document.getElementById('transport-settings-nav-btn').style.display='none';
   document.getElementById('page-login').classList.add('active');
   document.querySelectorAll('.demo-card,.google-btn').forEach(b=>b.disabled=false);
 }
 
 // ══════════ HELPERS ══════════
-const CAT_LABELS={payment_error:'決済エラー申請',refund:'返金申請',robo_stop:'ロボ停止申請',bank_account:'銀行口座変更申請'};
-const CAT_ICONS={payment_error:'💳',refund:'💰',robo_stop:'🤖',bank_account:'🏦'};
-const STATUS_LABELS={pending:'部長確認待ち',manager_approved:'社長確認待ち',president_approved:'最終確認待ち',completed:'完了',returned:'差し戻し'};
+const CAT_LABELS={payment_error:'決済エラー申請',refund:'返金申請',robo_stop:'ロボ停止申請',bank_account:'銀行口座変更申請',transport:'交通費申請'};
+const CAT_ICONS={payment_error:'💳',refund:'💰',robo_stop:'🤖',bank_account:'🏦',transport:'🚗'};
+const STATUS_LABELS={pending:'承認待ち',manager_approved:'社長確認待ち',president_approved:'最終確認待ち',completed:'完了',returned:'差し戻し',resettlement_pending:'再決済報告確認中',resettlement_completed:'全工程完了'};
 const ROLE_LABELS={employee:'一般社員',manager:'部長',president:'社長',admin:'管理者/最終'};
+// Dynamic status label: 返金のみ部長/社長ステップ表示
+function getStatusLabel(req){
+  if(!req)return STATUS_LABELS['pending'];
+  if(req.category==='refund'&&req.status==='pending')return '部長確認待ち';
+  if(req.category==='refund'&&req.status==='manager_approved')return '社長確認待ち';
+  if(req.status==='president_approved')return '最終確認待ち';
+  if(req.category==='payment_error'&&req.status==='completed')return '承認済み（再決済報告待ち）';
+  if(req.status==='resettlement_pending')return '再決済報告確認中';
+  if(req.status==='resettlement_completed')return '全工程完了';
+  return STATUS_LABELS[req.status]||req.status;
+}
 
 function fmtDate(iso){const d=new Date(iso);return`${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())}`}
 function fmtDT(iso){const d=new Date(iso);return`${fmtDate(iso)} ${pad(d.getHours())}:${pad(d.getMinutes())}`}
@@ -593,21 +887,33 @@ function getLatestLog(r){
 }
 
 // Approval flow helpers
+// 返金のみ3段階。それ以外は申請→経理（admin）直接承認
+function isRefund(req){return req&&req.category==='refund';}
 function canApprove(req){
   if(!currentUser)return false;
   const r=currentUser.role;
-  return(r==='manager'&&req.status==='pending')||(r==='president'&&req.status==='manager_approved')||(r==='admin'&&req.status==='president_approved');
+  if(r==='manager')return isRefund(req)&&req.status==='pending';
+  if(r==='president')return isRefund(req)&&req.status==='manager_approved';
+  if(r==='admin')return (isRefund(req)&&req.status==='president_approved')||(!isRefund(req)&&req.status==='pending')||(req.category==='payment_error'&&req.status==='resettlement_pending');
+  return false;
 }
-function getNextStatus(role){
-  return{manager:'manager_approved',president:'president_approved',admin:'completed'}[role]||null;
+function getNextStatus(role,req){
+  if(role==='manager')return'manager_approved';
+  if(role==='president')return'president_approved';
+  if(role==='admin'&&req&&req.status==='resettlement_pending')return'resettlement_completed';
+  if(role==='admin')return'completed';
+  return null;
 }
-function getApproveLabel(role){
-  return{manager:'部長承認',president:'社長承認',admin:'最終承認・完了'}[role]||'承認';
+function getApproveLabel(role,req){
+  if(role==='manager')return'部長承認';
+  if(role==='president')return'社長承認';
+  if(req&&req.status==='resettlement_pending')return'再決済報告を承認・完了';
+  return'最終承認・完了';
 }
 
 // ══════════ NAVIGATION ══════════
-const SECTIONS=['dashboard','apply','history','admin','whitelist'];
-const TITLES={dashboard:'ダッシュボード',apply:'新規申請',history:'申請履歴',admin:'申請管理',whitelist:'メールアドレス登録管理'};
+const SECTIONS=['dashboard','apply','history','admin','whitelist','transport-settings'];
+const TITLES={dashboard:'ダッシュボード',apply:'新規申請',history:'申請履歴',admin:'申請管理',whitelist:'メールアドレス登録管理','transport-settings':'交通費設定'};
 let adminFilter='all';
 
 function showSection(name){
@@ -623,6 +929,14 @@ function showSection(name){
   if(name==='history')renderHistory();
   if(name==='admin'){adminFilter='all';document.querySelectorAll('#admin-filter-row .filter-btn').forEach((b,i)=>b.classList.toggle('active',i===0));renderAdmin();}
   if(name==='whitelist')renderWhitelist();
+  if(name==='transport-settings')renderTransportSettings();
+  if(name==='apply'){resetApplyState();renderDraftList();}
+}
+
+function resetApplyState(){
+  // 申請セクションを開いたときの状態リセット（下書き一覧は保持）
+  if(document.getElementById('apply-step-1').style.display==='none')return;
+  // Already on step 1, just refresh draft list
 }
 
 // ══════════ DASHBOARD ══════════
@@ -631,13 +945,15 @@ let dashFilter='all';
 function renderDashboard(){
   const reqs=getMyReqs();
   const cnt=(s)=>reqs.filter(r=>r.status===s).length;
+  const pendingCnt=reqs.filter(r=>['pending','manager_approved','president_approved','resettlement_pending'].includes(r.status)).length;
+  const completedCnt=reqs.filter(r=>['completed','resettlement_completed'].includes(r.status)).length;
   document.getElementById('stats-grid').innerHTML=`
     <div class="stat-card"><div class="stat-icon si-blue">📊</div><div><div class="stat-value">${reqs.length}</div><div class="stat-label">全申請数</div></div></div>
-    <div class="stat-card"><div class="stat-icon si-yellow">⏳</div><div><div class="stat-value">${cnt('pending')}</div><div class="stat-label">部長確認待ち</div></div></div>
-    <div class="stat-card"><div class="stat-icon si-blue">🔵</div><div><div class="stat-value">${cnt('manager_approved')}</div><div class="stat-label">社長確認待ち</div></div></div>
-    <div class="stat-card"><div class="stat-icon si-purple">🟣</div><div><div class="stat-value">${cnt('president_approved')}</div><div class="stat-label">最終確認待ち</div></div></div>
+    <div class="stat-card"><div class="stat-icon si-yellow">⏳</div><div><div class="stat-value">${pendingCnt}</div><div class="stat-label">承認待ち</div></div></div>
+    <div class="stat-card"><div class="stat-icon si-green">✅</div><div><div class="stat-value">${completedCnt}</div><div class="stat-label">承認済・完了</div></div></div>
+    <div class="stat-card"><div class="stat-icon si-red">↩</div><div><div class="stat-value">${cnt('returned')}</div><div class="stat-label">差し戻し</div></div></div>
   `;
-  const allPending=loadData().requests.filter(r=>['pending','manager_approved','president_approved'].includes(r.status)).length;
+  const allPending=loadData().requests.filter(r=>['pending','manager_approved','president_approved','resettlement_pending'].includes(r.status)).length;
   document.getElementById('pending-badge').textContent=allPending;
   renderDashTable(dashFilter);
 }
@@ -665,7 +981,7 @@ function renderDashTable(filter){
       <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${getSummary(r)}</td>
       <td>${fmtDate(r.created_at)}</td>
       <td>${logHtml}</td>
-      <td><span class="badge badge-${r.status}">${STATUS_LABELS[r.status]}</span></td>
+      <td><span class="badge badge-${r.status}">${getStatusLabel(r)}</span></td>
       <td><span class="action-link" onclick="openDetail('${r.id}',false)">詳細 →</span></td>
     </tr>`;
   }).join('');
@@ -677,6 +993,7 @@ function getSummary(r){
   if(r.category==='refund')return`${d.patient_name||''} / ¥${d.purchase_amount||''}`;
   if(r.category==='robo_stop')return`${d.card_holder||''} / ${d.process_type||''}`;
   if(r.category==='bank_account')return`${d.bank_name||''} ${d.branch_name||''}`;
+  if(r.category==='transport')return`${d.transport_applicant||''} / ¥${Number(d.transport_amount||0).toLocaleString()} (${d.expense_month||d.period_start||''})`;
   return '';
 }
 
@@ -708,7 +1025,7 @@ function goStep2Form(){setStep(2);}
 const MANUAL_FIELDS=['patient_name','reason_detail','process_reason','refund_reason','details','return_reason'];
 
 function renderForm(){
-  const ft={payment_error:'💳 決済エラー申請',refund:'💰 返金申請',robo_stop:'🤖 ロボ停止申請',bank_account:'🏦 銀行口座変更申請'};
+  const ft={payment_error:'💳 決済エラー申請',refund:'💰 返金申請',robo_stop:'🤖 ロボ停止申請',bank_account:'🏦 銀行口座変更申請',transport:'🚗 交通費申請'};
   document.getElementById('form-title').textContent=ft[selCat];
   const fd=formData;
   const mn='<span class="manual-tag">手入力必須</span>';
@@ -789,7 +1106,101 @@ function renderForm(){
       <div class="form-group"><label>振込手数料負担<span class="required">*</span></label>${radioGroup('transfer_fee',fd.transfer_fee,['弊社負担','先方負担'])}</div>
     </div>`;
   }
+  if(selCat==='transport'){
+    const now=new Date();
+    const yOpts=Array.from({length:3},(_,i)=>now.getFullYear()-1+i).map(y=>`<option value="${y}"${y===now.getFullYear()?' selected':''}>${y}年</option>`).join('');
+    const mOpts=Array.from({length:12},(_,i)=>i+1).map(m=>`<option value="${m}"${m===(now.getMonth()+1)?' selected':''}>${m}月分</option>`).join('');
+    const initRows=fd.daily_entries&&fd.daily_entries.length?fd.daily_entries.map((e,i)=>buildDailyRow(i,e,e.type||'route')).join(''):buildDailyRow(0,{},'route');
+    const routes=loadData().transport_settings?.routes||[];
+    const routeOpts=routes.length?routes.map((r,i)=>`<option value="${i}">${r.name}（${r.km}km / ¥${Math.round(r.km*(loadData().transport_settings?.gasoline_per_km||13)).toLocaleString()}）</option>`).join(''):'<option value="">（ルート未登録）</option>';
+    html=`<div class="form-grid">
+      <div class="form-group"><label>院名<span class="required">*</span></label>${ri('clinic_name',fd.clinic_name||currentUser?.store_name)}</div>
+      <div class="form-group"><label>申請者名<span class="required">*</span></label>${ri('transport_applicant',fd.transport_applicant||currentUser?.name)}</div>
+      <div class="form-group span2">
+        <label>申請月（20日締め・21日〜翌20日）<span class="required">*</span></label>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <select id="f_exp_year" onchange="updateExpensePeriod()">${yOpts}</select>
+          <select id="f_exp_month" onchange="updateExpensePeriod()">${mOpts}</select>
+          <span id="period-display" style="font-size:12px;background:var(--g100);padding:4px 10px;border-radius:6px;color:var(--g600);"></span>
+        </div>
+        <input type="hidden" id="f_period_start" value="${fd.period_start||''}">
+        <input type="hidden" id="f_period_end" value="${fd.period_end||''}">
+      </div>
+      <div class="form-section-title">日別交通費明細<span style="font-weight:400;font-size:10px;margin-left:8px;">ルート選択→自動計算 / 手動入力→各種費用を直接入力</span></div>
+      <div class="form-group span2" style="margin-bottom:6px;">
+        <div id="fav-routes-bar" style="display:none;background:#fffbeb;border:1.5px solid #fde68a;border-radius:10px;padding:10px 12px;margin-bottom:8px;">
+          <div style="font-size:11px;font-weight:700;color:#92400e;margin-bottom:6px;">⭐ よく使うルート（過去の申請履歴から）</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <select id="fav-route-select" style="padding:5px 8px;border:1.5px solid #fde68a;border-radius:7px;font-size:12px;flex:1;min-width:200px;max-width:360px;background:white;" onchange="addFavRouteRow(this)">
+              <option value="">選択すると行が自動追加されます...</option>
+            </select>
+            <span style="font-size:10px;color:#92400e;">クリックで手動入力行に追加</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <label style="font-size:11px;white-space:nowrap;">🔍 ルート絞り込み:</label>
+          <input type="text" id="route-filter-input" placeholder="例: 大安寺院" oninput="filterRouteDropdowns(this.value)" style="padding:6px 10px;border:1.5px solid var(--g200);border-radius:8px;font-size:12px;width:180px;">
+        </div>
+      </div>
+      <div class="form-group span2">
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:11px;min-width:720px;" id="daily-transport-table">
+            <thead><tr style="background:var(--g50);font-size:10px;color:var(--g500);text-transform:uppercase;font-weight:700;">
+              <th style="padding:6px 5px;text-align:left;border-bottom:1px solid var(--g200);white-space:nowrap;">日付</th>
+              <th style="padding:6px 5px;text-align:left;border-bottom:1px solid var(--g200);">ルート / 経路</th>
+              <th style="padding:6px 4px;text-align:center;border-bottom:1px solid var(--g200);">往復</th>
+              <th style="padding:6px 5px;text-align:right;border-bottom:1px solid var(--g200);">距離km</th>
+              <th style="padding:6px 5px;text-align:right;border-bottom:1px solid var(--g200);">🚗ガソリン</th>
+              <th style="padding:6px 5px;text-align:right;border-bottom:1px solid var(--g200);">🛣️高速代</th>
+              <th style="padding:6px 5px;text-align:right;border-bottom:1px solid var(--g200);">🚃交通費</th>
+              <th style="padding:6px 5px;text-align:right;border-bottom:1px solid var(--g200);">🅿️駐車場</th>
+              <th style="padding:6px 5px;text-align:right;border-bottom:1px solid var(--g200);color:var(--primary);">小計</th>
+              <th style="padding:6px 3px;border-bottom:1px solid var(--g200);"></th>
+            </tr></thead>
+            <tbody id="daily-tbody">${initRows}</tbody>
+          </table>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;flex-wrap:wrap;gap:6px;">
+          <div style="display:flex;gap:6px;">
+            <button type="button" class="btn btn-sm btn-secondary" onclick="addDailyRow('route')">＋ ルートから追加</button>
+            <button type="button" class="btn btn-sm btn-secondary" onclick="addDailyRow('manual')" style="background:#f0fdf4;border-color:#86efac;color:#166534;">＋ 手動で追加</button>
+          </div>
+          <span style="font-size:13px;font-weight:700;">合計: <span id="daily-total" style="color:var(--primary);">¥0</span></span>
+        </div>
+        <input type="hidden" id="f_transport_amount" value="${fd.transport_amount||'0'}">
+        ${!routes.length?'<p style="font-size:11px;color:var(--warning);margin-top:6px;">⚠️ ルートが未登録です。経理担当者にルートマスターの登録を依頼してください。</p>':''}
+      </div>
+      <div class="form-section-title">書類アップロード</div>
+      <div class="form-group span2">
+        <label>勤怠データ（EDF/CSV/Excel）<span class="required">*</span></label>
+        <div class="file-upload-zone" id="edf-zone" onclick="document.getElementById('f_edf_file').click()">
+          <input type="file" id="f_edf_file" accept=".edf,.csv,.xls,.xlsx,.txt" onchange="handleEDFUpload(event)" style="display:none">
+          <div id="edf-preview">📊 クリックして勤怠データをアップロード（EDF/CSV）</div>
+        </div>
+      </div>
+      <div class="form-group span2">
+        <label>交通機関明細（PDF/画像）<span class="required">*</span></label>
+        <div class="file-upload-zone" id="receipt-zone" onclick="document.getElementById('f_receipt_file').click()">
+          <input type="file" id="f_receipt_file" accept=".pdf,image/*" onchange="handleReceiptUpload(event)" style="display:none">
+          <div id="receipt-preview">🧾 クリックして明細をアップロード（PDF/画像）</div>
+        </div>
+        <div id="validation-result" style="display:none;margin-top:8px;"></div>
+      </div>
+      <div class="form-group span2"><label>備考</label>${ra('transport_note',fd.transport_note,'')}</div>
+    </div>`;
+  }
   document.getElementById('dynamic-form').innerHTML=html;
+  // 交通費申請はOCRカメラ不要なので非表示
+  const camBtn=document.getElementById('camera-btn-main');
+  const formNote=document.getElementById('form-note');
+  if(camBtn)camBtn.style.display=selCat==='transport'?'none':'flex';
+  if(formNote)formNote.style.display=selCat==='transport'?'none':'block';
+  if(selCat==='transport'){
+    dailyRowCount=Math.max(dailyRowCount,1);
+    updateExpensePeriod();
+    updateDailyTotal();
+    renderFavRoutesDropdown();
+  }
 }
 
 function selRadio(name,val,el){
@@ -814,13 +1225,32 @@ function collectForm(){
   else if(selCat==='refund'){formData={clinic_name:g('f_clinic_name'),writer_name:g('f_writer_name'),seller_name:g('f_seller_name'),president_approval_date:g('f_president_approval_date'),patient_name:g('f_patient_name'),card_holder:g('f_card_holder').toUpperCase(),last_visit_date:g('f_last_visit_date'),ticket_purchase_date:g('f_ticket_purchase_date'),product_name:g('f_product_name'),purchase_amount:g('f_purchase_amount'),remaining_sessions:g('f_remaining_sessions'),payment_method:g('f_payment_method'),refund_reason:g('f_refund_reason'),calculation:g('f_calculation')};}
   else if(selCat==='robo_stop'){formData={clinic_name:g('f_clinic_name'),staff_name:g('f_staff_name'),president_approval_date:g('f_president_approval_date'),fit_type:g('f_fit_type'),process_type:getRadio('process_type'),card_holder:g('f_card_holder').toUpperCase(),initial_purchase_date:g('f_initial_purchase_date'),subscription_amount:g('f_subscription_amount'),change_month:g('f_change_month'),details:g('f_details')};}
   else if(selCat==='bank_account'){formData={clinic_name:g('f_clinic_name'),refund_amount:g('f_refund_amount'),bank_name:g('f_bank_name'),branch_name_kana:g('f_branch_name_kana'),branch_name:g('f_branch_name'),account_number:g('f_account_number'),account_holder:g('f_account_holder'),account_type:getRadio('account_type'),transfer_fee:getRadio('transfer_fee')};}
+  else if(selCat==='transport'){
+    const entries=collectDailyEntries();
+    const total=entries.reduce((s,e)=>s+(parseInt(e.amount)||0),0);
+    const routeNames=[...new Set(entries.map(e=>e.route_name).filter(Boolean))];
+    const hasGas=entries.some(e=>parseInt(e.gas||0)>0);
+    const hasToll=entries.some(e=>parseInt(e.toll||0)>0);
+    const hasTransit=entries.some(e=>parseInt(e.transit||0)>0);
+    const hasParking=entries.some(e=>parseInt(e.parking||0)>0);
+    const methods=[hasGas?'🚗ガソリン':null,hasToll?'🛣️高速代':null,hasTransit?'🚃交通費':null,hasParking?'🅿️駐車場':null].filter(Boolean).join('・');
+    formData={clinic_name:g('f_clinic_name'),transport_applicant:g('f_transport_applicant'),
+      expense_month:`${g('f_exp_year')}年${g('f_exp_month')}月分`,
+      period_start:g('f_period_start'),period_end:g('f_period_end'),
+      transport_method:methods||'未選択',transport_amount:String(total),
+      daily_entries:entries,
+      edf_uploaded:edfData?'✅ アップロード済み':'未アップロード',
+      receipt_uploaded:receiptData?'✅ アップロード済み':'未アップロード',
+      validation_status:transportValidPassed?'整合性確認済み':(transportValidPassed===false?'⚠️ 不整合あり':'未チェック')};
+  }
 }
 
-const FL={clinic_name:'院名',request_date:'依頼日',writer_name:'記入者氏名',seller_name:'売上者氏名',payment_method:'決済方法',process_type:'処理区分',patient_name:'患者様名',initial_payment_date:'初回決済日',card_holder:'カード名義人',monthly_amount:'毎月決済金額A',remaining_count:'残り回数B',remaining_total:'残り合計C',process_reason:'処理理由',reason_detail:'理由・詳細',retry_date:'再決済予定日',director_confirmed:'院長確認',president_approval_date:'社長承諾日',last_visit_date:'最終来院日',ticket_purchase_date:'購入日',product_name:'購入商品名',purchase_amount:'購入金額',remaining_sessions:'残り回数/購入回数',refund_reason:'返金理由',calculation:'返金計算式',staff_name:'担当者',fit_type:'fit区分',initial_purchase_date:'初回購入日',subscription_amount:'サブスク金額',change_month:'変更月',details:'詳細',refund_amount:'返金額',bank_name:'銀行名',branch_name_kana:'支店名（ふりがな）',branch_name:'支店名',account_number:'口座番号',account_holder:'名義人名',account_type:'口座種別',transfer_fee:'振込手数料負担'};
+const FL={clinic_name:'院名',request_date:'依頼日',writer_name:'記入者氏名',seller_name:'売上者氏名',payment_method:'決済方法',process_type:'処理区分',patient_name:'患者様名',initial_payment_date:'初回決済日',card_holder:'カード名義人',monthly_amount:'毎月決済金額A',remaining_count:'残り回数B',remaining_total:'残り合計C',process_reason:'処理理由',reason_detail:'理由・詳細',retry_date:'再決済予定日',director_confirmed:'院長確認',president_approval_date:'社長承諾日',last_visit_date:'最終来院日',ticket_purchase_date:'購入日',product_name:'購入商品名',purchase_amount:'購入金額',remaining_sessions:'残り回数/購入回数',refund_reason:'返金理由',calculation:'返金計算式',staff_name:'担当者',fit_type:'fit区分',initial_purchase_date:'初回購入日',subscription_amount:'サブスク金額',change_month:'変更月',details:'詳細',refund_amount:'返金額',bank_name:'銀行名',branch_name_kana:'支店名（ふりがな）',branch_name:'支店名',account_number:'口座番号',account_holder:'名義人名',account_type:'口座種別',transfer_fee:'振込手数料負担',
+  transport_applicant:'申請者名',expense_month:'申請月',period_start:'申請期間（開始）',period_end:'申請期間（終了）',transport_method:'交通手段',transport_amount:'合計申請金額',edf_uploaded:'勤怠データ',receipt_uploaded:'交通機関明細',validation_status:'整合性チェック'};
 
 function goStep3(){
   collectForm();
-  const skip=['fit_type','retry_date','director_confirmed','remaining_total'];
+  const skip=['fit_type','retry_date','director_confirmed','remaining_total','validation_status','daily_entries','period_start','period_end'];
   const missing=Object.entries(formData).filter(([k,v])=>!skip.includes(k)&&!v);
   if(missing.length){showToast('必須項目をすべて入力してください','error');return;}
   setStep(3);
@@ -839,17 +1269,116 @@ function submitReq(){
   if(capturedPDF)req.attachment=capturedPDF;
   d.requests.push(req);
   saveData(d);
+  // 下書き削除
+  _saveDraftsRaw(loadDrafts().filter(d=>!(d.user_id===currentUser.email&&d.category===selCat)));
+  // よく使うルート保存（手動入力分）
+  if(selCat==='transport'&&req.data.daily_entries){saveFavoriteRoutes(req.data.daily_entries,req.user_id);}
+  edfData=null;receiptData=null;transportValidPassed=null;
   sendEmailNotif(req,'pending');
   setStep(4);
+  const msgEl=document.getElementById('success-msg');
+  if(msgEl)msgEl.textContent=selCat==='refund'?'申請を受け付けました。部長→社長→経理の順で確認します。':'申請を受け付けました。経理担当者の確認後に進捗をお知らせします。';
   showToast('申請を送信しました！','success');
 }
 
 function resetApply(){
-  selCat=null;formData={};capturedPDF=null;ocrData={};
+  selCat=null;formData={};capturedPDF=null;ocrData={};edfData=null;receiptData=null;transportValidPassed=null;dailyRowCount=0;
   document.querySelectorAll('.category-card').forEach(c=>c.classList.remove('selected'));
   document.getElementById('step1-next').disabled=true;
   document.getElementById('attachment-info').style.display='none';
   setStep(1);
+  renderDraftList();
+}
+
+// ══════════ DRAFT SYSTEM ══════════
+const DRAFT_SK='wf_drafts_v1';
+function loadDrafts(){const r=localStorage.getItem(DRAFT_SK);return r?JSON.parse(r):[]}
+function _saveDraftsRaw(arr){localStorage.setItem(DRAFT_SK,JSON.stringify(arr))}
+function getDraftsByUser(){return loadDrafts().filter(d=>d.user_id===(currentUser?.email||''))}
+
+function saveDraft(){
+  if(!currentUser||!selCat){showToast('カテゴリを選択してください','error');return;}
+  const raw={};
+  document.querySelectorAll('[id^="f_"]').forEach(el=>{if(el.type!=='file')raw[el.id.replace(/^f_/,'')]=el.value||'';});
+  const entries=selCat==='transport'?collectDailyEntries():[];
+  const all=loadDrafts();
+  const idx=all.findIndex(d=>d.user_id===currentUser.email&&d.category===selCat);
+  const draft={
+    id:idx>=0?all[idx].id:('D-'+Date.now()),
+    user_id:currentUser.email,
+    category:selCat,
+    updated_at:new Date().toISOString(),
+    form_data:raw,
+    daily_entries:entries
+  };
+  if(idx>=0)all[idx]=draft;else all.push(draft);
+  _saveDraftsRaw(all);
+  showToast('💾 下書きを保存しました','success');
+  renderDraftList();
+}
+
+function deleteDraft(id,e){
+  if(e)e.stopPropagation();
+  if(!confirm('この下書きを削除しますか？'))return;
+  _saveDraftsRaw(loadDrafts().filter(d=>d.id!==id));
+  showToast('下書きを削除しました','info');
+  renderDraftList();
+}
+
+function renderDraftList(){
+  const container=document.getElementById('draft-list-container');
+  const list=document.getElementById('draft-list');
+  if(!container||!list)return;
+  const drafts=getDraftsByUser();
+  if(!drafts.length){container.style.display='none';return;}
+  container.style.display='block';
+  list.innerHTML=drafts.map(d=>`
+    <div class="draft-card" onclick="resumeDraft('${d.id}')">
+      <span style="font-size:20px;">${CAT_ICONS[d.category]||'📝'}</span>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:700;">${CAT_LABELS[d.category]||d.category}<span class="draft-badge">下書き</span></div>
+        <div style="font-size:11px;color:var(--g500);">最終保存: ${new Date(d.updated_at).toLocaleString('ja-JP')}</div>
+      </div>
+      <button onclick="deleteDraft('${d.id}',event)" style="background:none;border:none;color:var(--g400);font-size:18px;padding:4px 6px;line-height:1;" title="削除">🗑️</button>
+    </div>
+  `).join('');
+}
+
+function resumeDraft(id){
+  const draft=loadDrafts().find(d=>d.id===id);
+  if(!draft)return;
+  // Select category card
+  document.querySelectorAll('.category-card').forEach(c=>c.classList.remove('selected'));
+  const catBtn=document.querySelector(`.category-card[onclick*="'${draft.category}'"]`);
+  if(catBtn){catBtn.click();}
+  // Navigate to step 2 and render form
+  goStep2();
+  // After form renders, populate fields
+  setTimeout(()=>{
+    Object.entries(draft.form_data||{}).forEach(([k,v])=>{
+      const el=document.getElementById('f_'+k);
+      if(el&&el.type!=='file')el.value=v;
+    });
+    // Restore transport daily entries
+    if(draft.daily_entries?.length&&draft.category==='transport'){
+      const tbody=document.getElementById('daily-tbody');
+      if(tbody){
+        tbody.innerHTML='';
+        dailyRowCount=0;
+        draft.daily_entries.forEach((e,i)=>{
+          const html=buildDailyRow(i,e,e.type||'route');
+          const tmp=document.createElement('table');
+          tmp.innerHTML='<tbody>'+html+'</tbody>';
+          const tr=tmp.querySelector('tr');
+          if(tr)tbody.appendChild(tr);
+        });
+        dailyRowCount=draft.daily_entries.length;
+        updateDailyTotal();
+      }
+    }
+    if(draft.category==='transport')updateExpensePeriod();
+    showToast('📂 下書きを復元しました','success');
+  },80);
 }
 
 // ══════════ CAMERA / OCR ══════════
@@ -986,15 +1515,17 @@ function renderHistory(){
   const el=document.getElementById('history-content');
   if(!reqs.length){el.innerHTML='<div class="card" style="padding:40px;text-align:center;color:var(--g400);">📭 申請履歴がありません</div>';return;}
   el.innerHTML=`<div class="timeline">${reqs.map(r=>{
-    const cls={pending:'tld-pending',manager_approved:'tld-approved',president_approved:'tld-approved',completed:'tld-completed',returned:'tld-returned'}[r.status]||'tld-pending';
+    const cls={pending:'tld-pending',manager_approved:'tld-approved',president_approved:'tld-approved',completed:'tld-completed',returned:'tld-returned',resettlement_pending:'tld-resettlement_pending',resettlement_completed:'tld-resettlement_completed'}[r.status]||'tld-pending';
+    const needsResettlement=r.category==='payment_error'&&r.status==='completed'&&r.user_id===currentUser?.email;
     return`<div class="timeline-item"><div class="timeline-dot ${cls}"></div><div class="timeline-date">${fmtDate(r.created_at)}</div>
     <div class="timeline-content" onclick="openDetail('${r.id}',false)">
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
         <span>${CAT_ICONS[r.category]}</span><h4>${r.id} — ${CAT_LABELS[r.category]}</h4>
-        <span class="badge badge-${r.status}" style="margin-left:auto">${STATUS_LABELS[r.status]}</span>
+        <span class="badge badge-${r.status}" style="margin-left:auto">${getStatusLabel(r)}</span>
       </div>
       <p>${getSummary(r)}</p>
       ${r.status==='returned'&&r.user_id===currentUser?.email?`<button class="btn btn-sm btn-warning" onclick="event.stopPropagation();resubmit('${r.id}')" style="margin-top:8px">↩ 再申請する</button>`:''}
+      ${needsResettlement?`<button class="btn btn-sm btn-primary" onclick="event.stopPropagation();openResettlementModal('${r.id}')" style="margin-top:8px;background:var(--primary);">🔄 再決済報告を提出</button>`:''}
     </div></div>`;
   }).join('')}</div>`;
 }
@@ -1022,9 +1553,10 @@ function getAdminReqs(){
   const d=loadData();
   let reqs=[...d.requests].reverse();
   if(adminFilter!=='all')reqs=reqs.filter(r=>r.status===adminFilter);
-  // Role-based filter for quick view
-  if(currentUser?.role==='manager')reqs=adminFilter==='all'?reqs.filter(r=>r.status==='pending'):reqs;
+  // Role-based filter: manager sees only refund pending, president sees refund manager_approved
+  if(currentUser?.role==='manager')reqs=adminFilter==='all'?reqs.filter(r=>r.status==='pending'&&r.category==='refund'):reqs;
   if(currentUser?.role==='president')reqs=adminFilter==='all'?reqs.filter(r=>r.status==='manager_approved'):reqs;
+  if(currentUser?.role==='admin'&&adminFilter==='all')reqs=reqs.filter(r=>(r.status==='pending'&&r.category!=='refund')||(r.status==='president_approved')||r.status==='resettlement_pending'||r.status==='resettlement_completed'||r.status==='completed'||r.status==='returned');
   return reqs;
 }
 
@@ -1034,21 +1566,24 @@ function renderAdmin(){
   const tbody=document.getElementById('admin-tbody');
   if(!reqs.length){tbody.innerHTML=`<tr><td colspan="7" class="table-empty">📭 該当する申請がありません</td></tr>`;return;}
   tbody.innerHTML=reqs.map(r=>{
-    const actions=canApprove(r)?`<button class="btn btn-sm btn-success" onclick="doApprove('${r.id}')">${getApproveLabel(currentUser?.role)}</button><button class="btn btn-sm btn-danger" onclick="openDetail('${r.id}',true)">差し戻し</button>`:'';
+    const actions=canApprove(r)?`<button class="btn btn-sm btn-success" onclick="doApprove('${r.id}')">${getApproveLabel(currentUser?.role,r)}</button><button class="btn btn-sm btn-danger" onclick="openDetail('${r.id}',true)">差し戻し</button>`:'';
     return`<tr>
       <td style="font-weight:600">${r.id}</td>
       <td><span class="store-num">${r.store_number||'----'}</span></td>
       <td>${r.user_name}</td>
       <td><span class="cat-chip cat-${r.category}">${CAT_ICONS[r.category]} ${CAT_LABELS[r.category]}</span></td>
       <td>${fmtDate(r.created_at)}</td>
-      <td><span class="badge badge-${r.status}">${STATUS_LABELS[r.status]}</span></td>
+      <td><span class="badge badge-${r.status}">${getStatusLabel(r)}</span></td>
       <td><div style="display:flex;gap:4px;flex-wrap:wrap"><button class="btn btn-sm btn-secondary" onclick="openDetail('${r.id}',true)">詳細</button>${actions}</div></td>
     </tr>`;
   }).join('');
 }
 
 function doApprove(id){
-  const nextStatus=getNextStatus(currentUser?.role);
+  const d=loadData();
+  const req=d.requests.find(r=>r.id===id);
+  if(!req)return;
+  const nextStatus=getNextStatus(currentUser?.role,req);
   if(!nextStatus)return;
   updateStatus(id,nextStatus,null);
 }
@@ -1061,14 +1596,14 @@ function updateStatus(id,status,note){
   const req=d.requests.find(r=>r.id===id);
   if(!req)return;
   req.status=status;
-  const labelMap={manager_approved:'部長承認',president_approved:'社長承認',completed:'最終承認・完了',returned:'差し戻し'};
+  const labelMap={manager_approved:'部長承認',president_approved:'社長承認',completed:'最終承認・完了',returned:'差し戻し',resettlement_completed:'再決済報告承認・全工程完了'};
   if(!req.logs)req.logs=[];
   req.logs.push({action:status,label:labelMap[status]||status,actor:currentUser.name,actor_email:currentUser.email,timestamp:new Date().toISOString(),...(note?{note}:{})});
   saveData(d);
   sendEmailNotif(req,status,note);
   renderAdmin();
   renderDashboard();
-  const msgs={manager_approved:'部長承認しました',president_approved:'社長承認しました',completed:'最終承認・完了しました',returned:'差し戻しました'};
+  const msgs={manager_approved:'部長承認しました',president_approved:'社長承認しました',completed:'最終承認・完了しました',returned:'差し戻しました',resettlement_completed:'再決済報告を承認しました（全工程完了）'};
   showToast(msgs[status]||'更新しました',status==='returned'?'error':'success');
   closeModal();
 }
@@ -1081,16 +1616,67 @@ function openDetail(id,fromAdmin){
   if(!req)return;
   document.getElementById('modal-icon').textContent=CAT_ICONS[req.category];
   document.getElementById('modal-title').textContent=`${req.id} — ${CAT_LABELS[req.category]}`;
-  // Flow indicator
-  const steps=[{s:'pending',l:'部長確認待ち'},{s:'manager_approved',l:'部長承認済み'},{s:'president_approved',l:'社長承認済み'},{s:'completed',l:'完了'}];
+  // Flow indicator — 返金は3段階、決済エラーは5段階、それ以外は2段階
+  const steps=req.category==='refund'
+    ?[{s:'pending',l:'部長確認待ち'},{s:'manager_approved',l:'部長承認済み'},{s:'president_approved',l:'社長承認済み'},{s:'completed',l:'完了'}]
+    :req.category==='payment_error'
+    ?[{s:'pending',l:'経理確認待ち'},{s:'completed',l:'申請承認済み'},{s:'resettlement_pending',l:'再決済報告提出'},{s:'resettlement_completed',l:'全工程完了'}]
+    :[{s:'pending',l:'経理確認待ち'},{s:'completed',l:'完了'}];
+  const statusOrder=['pending','manager_approved','president_approved','completed','resettlement_pending','resettlement_completed'];
   const si=steps.findIndex(x=>x.s===req.status);
-  const flowHtml=req.status==='returned'?`<div class="approval-flow"><span class="flow-step flow-step-waiting" style="background:#fee2e2;color:#991b1b">↩ 差し戻し</span></div>`:`<div class="approval-flow">${steps.map((st,i)=>{const done=i<si,active=i===si;return`<span class="flow-step ${done?'flow-step-done':active?'flow-step-active':'flow-step-waiting'}">${st.l}</span>${i<steps.length-1?'<span class="flow-arrow">→</span>':''}`}).join('')}</div>`;
+  const curIdx=statusOrder.indexOf(req.status);
+  const flowHtml=req.status==='returned'?`<div class="approval-flow"><span class="flow-step flow-step-waiting" style="background:#fee2e2;color:#991b1b">↩ 差し戻し</span></div>`:`<div class="approval-flow">${steps.map((st,i)=>{const stIdx=statusOrder.indexOf(st.s);const done=stIdx<curIdx,active=st.s===req.status;return`<span class="flow-step ${done?'flow-step-done':active?'flow-step-active':'flow-step-waiting'}">${st.l}</span>${i<steps.length-1?'<span class="flow-arrow">→</span>':''}`}).join('')}</div>`;
   document.getElementById('modal-flow').innerHTML=flowHtml;
   document.getElementById('modal-status-row').innerHTML=`<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--g500);">
-    <span class="badge badge-${req.status}">${STATUS_LABELS[req.status]}</span>
+    <span class="badge badge-${req.status}">${getStatusLabel(req)}</span>
     <span>申請者: ${req.user_name}</span><span>店舗: ${req.store_number||''} / ${req.store_name||''}</span><span>申請日: ${fmtDate(req.created_at)}</span>
   </div>`;
-  document.getElementById('modal-table').innerHTML=Object.entries(req.data).map(([k,v])=>`<tr><th>${FL[k]||k}</th><td>${v||'—'}</td></tr>`).join('');
+  const skipModalKeys=['daily_entries','period_start','period_end'];
+  let modalRows=Object.entries(req.data).filter(([k])=>!skipModalKeys.includes(k)).map(([k,v])=>`<tr><th>${FL[k]||k}</th><td>${typeof v==='object'?JSON.stringify(v):v||'—'}</td></tr>`).join('');
+  if(req.category==='transport'&&req.data.daily_entries?.length){
+    const entries=req.data.daily_entries;
+    const dailyHtml=`<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:10px;margin-top:4px;min-width:400px;">
+      <thead><tr style="background:var(--g50);font-weight:700;">
+        <th style="padding:4px 5px;text-align:left;">日付</th>
+        <th style="padding:4px 5px;text-align:left;">ルート/経路</th>
+        <th style="padding:4px 5px;text-align:right;">km</th>
+        <th style="padding:4px 5px;text-align:right;">🚗ガソリン</th>
+        <th style="padding:4px 5px;text-align:right;">🛣️高速</th>
+        <th style="padding:4px 5px;text-align:right;">🚃交通費</th>
+        <th style="padding:4px 5px;text-align:right;">🅿️駐車</th>
+        <th style="padding:4px 5px;text-align:right;color:var(--primary);">小計</th>
+      </tr></thead>
+      <tbody>${entries.map(e=>`<tr style="border-top:1px solid var(--g100);">
+        <td style="padding:3px 5px;">${e.date||'—'}</td>
+        <td style="padding:3px 5px;">${e.route_name||'—'}${e.round?' (往復)':''}</td>
+        <td style="padding:3px 5px;text-align:right;">${e.km||'—'}</td>
+        <td style="padding:3px 5px;text-align:right;">${e.gas?'¥'+Number(e.gas).toLocaleString():'—'}</td>
+        <td style="padding:3px 5px;text-align:right;">${e.toll?'¥'+Number(e.toll).toLocaleString():'—'}</td>
+        <td style="padding:3px 5px;text-align:right;">${e.transit?'¥'+Number(e.transit).toLocaleString():'—'}</td>
+        <td style="padding:3px 5px;text-align:right;">${e.parking?'¥'+Number(e.parking).toLocaleString():'—'}</td>
+        <td style="padding:3px 5px;text-align:right;font-weight:700;">¥${Number(e.amount||0).toLocaleString()}</td>
+      </tr>`).join('')}
+      <tr style="border-top:2px solid var(--g200);font-weight:700;background:var(--g50);">
+        <td colspan="7" style="padding:4px 5px;">合計</td>
+        <td style="padding:4px 5px;text-align:right;color:var(--primary);">¥${entries.reduce((s,e)=>s+(parseInt(e.amount)||0),0).toLocaleString()}</td>
+      </tr></tbody></table></div>`;
+    modalRows+=`<tr><th style="vertical-align:top;padding-top:8px;">日別明細</th><td>${dailyHtml}</td></tr>`;
+  }
+  // 再決済報告がある場合はテーブルに追加
+  if(req.resettlement_report){
+    const rs=req.resettlement_report;
+    const rsResultLabel=rs.result==='success'?'✅ 再決済できた':'❌ できなかった';
+    let rsDetail=`<strong>結果:</strong> ${rsResultLabel}<br>`;
+    if(rs.fail_reason)rsDetail+=`<strong>失敗の理由:</strong> ${rs.fail_reason}<br>`;
+    if(rs.next_date)rsDetail+=`<strong>次回再決済予定日:</strong> ${rs.next_date}<br>`;
+    rsDetail+=`<strong>報告日時:</strong> ${fmtDT(rs.submitted_at)} （${rs.submitted_by}）`;
+    if(rs.attachments&&rs.attachments.length){
+      rsDetail+=`<br><strong>添付書類:</strong> `;
+      rsDetail+=rs.attachments.map((a,i)=>`<a href="${a.data}" download="${a.name}" style="color:var(--primary);font-size:12px;">📎 ${a.name}</a>`).join('　');
+    }
+    modalRows+=`<tr><th style="vertical-align:top;padding-top:8px;background:#eff6ff;color:#1e40af;">🔄 再決済報告</th><td style="background:#eff6ff;">${rsDetail}</td></tr>`;
+  }
+  document.getElementById('modal-table').innerHTML=modalRows;
   // Attachment
   const attEl=document.getElementById('modal-attachment');
   if(req.attachment){attEl.style.display='block';attEl.innerHTML=`<a href="${req.attachment}" download="申請書.pdf" class="btn btn-sm btn-secondary">📄 添付書類をダウンロード</a>`;}
@@ -1103,9 +1689,11 @@ function openDetail(id,fromAdmin){
   hideReturn();
   let btns=`<button class="btn btn-secondary" onclick="closeModal()">閉じる</button>`;
   if(fromAdmin&&canApprove(req)){
-    btns+=`<button class="btn btn-danger" onclick="showReturn()">↩ 差し戻し</button><button class="btn btn-success" onclick="doApprove('${id}')">${getApproveLabel(currentUser?.role)}</button>`;
-  }else if(fromAdmin&&currentUser?.role==='admin'&&req.status==='president_approved'){
-    btns+=`<button class="btn btn-danger" onclick="showReturn()">↩ 差し戻し</button><button class="btn btn-success" onclick="doApprove('${id}')">最終承認・完了</button>`;
+    btns+=`<button class="btn btn-danger" onclick="showReturn()">↩ 差し戻し</button><button class="btn btn-success" onclick="doApprove('${id}')">${getApproveLabel(currentUser?.role,req)}</button>`;
+  }
+  // 申請者が自分の決済エラー申請で、承認済み（再決済報告待ち）の場合
+  if(!fromAdmin&&req.category==='payment_error'&&req.status==='completed'&&currentUser&&currentUser.email===req.user_id){
+    btns+=`<button class="btn btn-primary" onclick="closeModal();openResettlementModal('${id}')">🔄 再決済報告を提出</button>`;
   }
   footer.insertAdjacentHTML('afterbegin',btns);
   document.getElementById('detail-modal').classList.add('open');
@@ -1171,17 +1759,23 @@ function removeWL(i){
 function getEmailRecipients(status,req){
   const d=loadData();
   const wl=d.whitelist||[];
-  if(status==='pending')return wl.filter(w=>w.role==='manager').map(w=>w.email);
+  if(status==='pending'){
+    // 返金のみ部長へ、それ以外は直接経理へ
+    if(req&&req.category==='refund')return wl.filter(w=>w.role==='manager').map(w=>w.email);
+    return wl.filter(w=>w.role==='admin').map(w=>w.email);
+  }
   if(status==='manager_approved')return wl.filter(w=>w.role==='president').map(w=>w.email);
   if(status==='president_approved')return wl.filter(w=>w.role==='admin').map(w=>w.email);
   if(status==='completed'||status==='returned')return[req.user_id];
+  if(status==='resettlement_pending')return wl.filter(w=>w.role==='admin').map(w=>w.email);
+  if(status==='resettlement_completed')return[req.user_id];
   return[];
 }
 
 function sendEmailNotif(req,status,note){
   const to=getEmailRecipients(status,req);
   if(!to.length)return;
-  const subjects={pending:`【要確認】部長承認依頼：${req.id} ${CAT_LABELS[req.category]}`,manager_approved:`【要確認】社長承認依頼：${req.id} ${CAT_LABELS[req.category]}`,president_approved:`【要確認】最終承認依頼：${req.id} ${CAT_LABELS[req.category]}`,completed:`【完了】申請が承認されました：${req.id}`,returned:`【差し戻し】申請が差し戻されました：${req.id}`};
+  const subjects={pending:`【要確認】部長承認依頼：${req.id} ${CAT_LABELS[req.category]}`,manager_approved:`【要確認】社長承認依頼：${req.id} ${CAT_LABELS[req.category]}`,president_approved:`【要確認】最終承認依頼：${req.id} ${CAT_LABELS[req.category]}`,completed:`【完了】申請が承認されました：${req.id}`,returned:`【差し戻し】申請が差し戻されました：${req.id}`,resettlement_pending:`【要確認】再決済報告が提出されました：${req.id}`,resettlement_completed:`【完了】再決済報告が承認されました（全工程完了）：${req.id}`};
   const subject=subjects[status]||`【通知】${req.id} ステータス更新`;
   const body=`申請者: ${req.user_name}（${req.store_name}）\nカテゴリ: ${CAT_LABELS[req.category]}\nステータス: ${STATUS_LABELS[status]}${note?'\n差し戻し理由: '+note:''}`;
   showEmailToast(to.join(', '),subject,body);
@@ -1203,6 +1797,637 @@ function showToast(msg,type='info'){
   el.innerHTML=`<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
   document.getElementById('toast-container').appendChild(el);
   setTimeout(()=>{if(el.parentElement)el.remove();},3500);
+}
+
+// ══════════ RESETTLEMENT REPORT ══════════
+let resettlementTargetId=null;
+let rsAttachments=[];
+
+function openResettlementModal(reqId){
+  resettlementTargetId=reqId;
+  rsAttachments=[];
+  const d=loadData();
+  const req=d.requests.find(r=>r.id===reqId);
+  if(!req)return;
+  const fd=req.data;
+  const retryDate=fd.retry_date?`<span style="color:var(--primary);font-weight:600;">${fd.retry_date}</span>`:'—';
+  const amtDisp=fd.remaining_total||'—';
+
+  document.getElementById('resettlement-modal-body').innerHTML=`
+    <div style="background:var(--g50);border-radius:8px;padding:12px;margin-bottom:16px;border:1px solid var(--g200);">
+      <div style="font-size:11px;font-weight:700;color:var(--g500);letter-spacing:.06em;margin-bottom:8px;">📋 元申請情報（引き継ぎ）</div>
+      <table style="font-size:12px;width:100%;border-collapse:collapse;">
+        <tr><td style="color:var(--g500);padding:2px 10px 2px 0;white-space:nowrap;">院名</td><td style="font-weight:600;">${fd.clinic_name||'—'}</td><td style="color:var(--g500);padding:2px 10px 2px 16px;white-space:nowrap;">患者様名</td><td style="font-weight:600;">${fd.patient_name||'—'}</td></tr>
+        <tr><td style="color:var(--g500);padding:2px 10px 2px 0;white-space:nowrap;">カード名義</td><td style="font-weight:600;">${fd.card_holder||'—'}</td><td style="color:var(--g500);padding:2px 10px 2px 16px;white-space:nowrap;">処理区分</td><td style="font-weight:600;">${fd.process_type||'—'}</td></tr>
+        <tr><td style="color:var(--g500);padding:2px 10px 2px 0;white-space:nowrap;">毎月決済額</td><td style="font-weight:600;">${fd.monthly_amount?'¥'+Number(fd.monthly_amount).toLocaleString():'—'}</td><td style="color:var(--g500);padding:2px 10px 2px 16px;white-space:nowrap;">残り回数</td><td style="font-weight:600;">${fd.remaining_count||'—'}回</td></tr>
+        <tr><td style="color:var(--g500);padding:2px 10px 2px 0;white-space:nowrap;">残り合計額</td><td style="font-weight:600;">${amtDisp?'¥'+amtDisp:'—'}</td><td style="color:var(--g500);padding:2px 10px 2px 16px;white-space:nowrap;">再決済予定日</td><td>${retryDate}</td></tr>
+        <tr><td style="color:var(--g500);padding:2px 10px 2px 0;white-space:nowrap;">処理理由</td><td colspan="3">${fd.process_reason||'—'}</td></tr>
+      </table>
+    </div>
+
+    <div style="margin-bottom:16px;">
+      <div style="font-size:13px;font-weight:700;margin-bottom:8px;">再決済結果 <span class="required">*</span></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <label id="rs-success-label" style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:10px 18px;border:2px solid var(--g200);border-radius:8px;font-size:13px;font-weight:600;transition:all .2s;">
+          <input type="radio" name="rs_result" value="success" onchange="onResettlementResultChange()"> ✅ 再決済できた
+        </label>
+        <label id="rs-fail-label" style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:10px 18px;border:2px solid var(--g200);border-radius:8px;font-size:13px;font-weight:600;transition:all .2s;">
+          <input type="radio" name="rs_result" value="fail" onchange="onResettlementResultChange()"> ❌ できなかった
+        </label>
+      </div>
+    </div>
+
+    <div id="rs-fail-section" style="display:none;background:#fff7f7;border:1px solid #fecaca;border-radius:8px;padding:14px;margin-bottom:16px;">
+      <div style="margin-bottom:12px;">
+        <label style="font-size:13px;font-weight:700;display:block;margin-bottom:5px;">失敗の理由・詳細 <span class="required">*</span></label>
+        <textarea id="rs_fail_reason" rows="3" style="width:100%;border:1px solid var(--g300);border-radius:6px;padding:8px;font-size:13px;font-family:inherit;" placeholder="再決済できなかった理由と経緯を詳しく記載してください"></textarea>
+      </div>
+      <div>
+        <label style="font-size:13px;font-weight:700;display:block;margin-bottom:5px;">次回再決済予定日</label>
+        <input type="date" id="rs_next_date" style="border:1px solid var(--g300);border-radius:6px;padding:8px;font-size:13px;width:100%;">
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size:13px;font-weight:700;margin-bottom:5px;">書類添付（写真・PDF）</div>
+      <div style="font-size:11px;color:var(--g500);margin-bottom:8px;">📸 書類を撮影またはPDFで添付できます（OCR自動入力なし・複数可）</div>
+      <div class="file-upload-zone" id="rs-attach-zone" onclick="document.getElementById('rs-file-input').click()">
+        <input type="file" id="rs-file-input" accept="image/*,.pdf" multiple onchange="handleResettlementAttach(event)" style="display:none">
+        <div style="font-size:26px;margin-bottom:4px;">📎</div>
+        <p style="font-size:12px;color:var(--g500);margin:0;">クリックして書類を添付（写真・PDF）</p>
+      </div>
+      <div id="rs-attach-list" style="margin-top:8px;"></div>
+    </div>
+  `;
+  document.getElementById('resettlement-modal').classList.add('open');
+}
+
+function closeResettlementModal(){
+  document.getElementById('resettlement-modal').classList.remove('open');
+  resettlementTargetId=null;
+  rsAttachments=[];
+}
+
+function onResettlementResultChange(){
+  const val=document.querySelector('input[name="rs_result"]:checked')?.value;
+  document.getElementById('rs-fail-section').style.display=val==='fail'?'block':'none';
+  const sl=document.getElementById('rs-success-label');
+  const fl=document.getElementById('rs-fail-label');
+  if(sl){sl.style.borderColor=val==='success'?'var(--success)':'var(--g200)';sl.style.background=val==='success'?'#ecfdf5':'';}
+  if(fl){fl.style.borderColor=val==='fail'?'var(--danger)':'var(--g200)';fl.style.background=val==='fail'?'#fef2f2':'';}
+}
+
+function handleResettlementAttach(evt){
+  const files=Array.from(evt.target.files);
+  if(!files.length)return;
+  const listEl=document.getElementById('rs-attach-list');
+  const zone=document.getElementById('rs-attach-zone');
+
+  files.forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const entry={name:file.name,data:e.target.result,type:file.type};
+      rsAttachments.push(entry);
+
+      // 画像の場合はjsPDFでPDF化
+      if(file.type.startsWith('image/')&&window.jspdf){
+        const img=new Image();
+        img.onload=()=>{
+          const {jsPDF}=window.jspdf;
+          const pdf=new jsPDF({orientation:img.width>img.height?'l':'p',unit:'mm',format:'a4'});
+          const pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight();
+          const ratio=Math.min(pw/img.width,ph/img.height);
+          pdf.addImage(img,'JPEG',0,0,img.width*ratio,img.height*ratio);
+          entry.pdfData=pdf.output('datauristring');
+          entry.name=file.name.replace(/\.[^.]+$/,'')+'.pdf';
+        };
+        img.src=e.target.result;
+      }
+
+      // 一覧を再描画
+      listEl.innerHTML=rsAttachments.map((a,i)=>`
+        <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--g50);border-radius:6px;margin-bottom:4px;font-size:12px;">
+          <span>${a.type&&a.type.startsWith('image/')?'🖼️':'📄'} ${a.name}</span>
+          <button onclick="rsAttachments.splice(${i},1);document.getElementById('rs-attach-list').innerHTML='';document.getElementById('rs-file-input').value='';" style="margin-left:auto;background:none;border:none;color:var(--danger);cursor:pointer;font-size:14px;padding:0;">✕</button>
+        </div>`).join('');
+    };
+    reader.readAsDataURL(file);
+  });
+
+  if(zone){zone.style.borderColor='var(--success)';zone.style.background='#f0fdf4';}
+  // inputをリセット（同じファイルの再選択に備える）
+  evt.target.value='';
+}
+
+function submitResettlement(){
+  if(!resettlementTargetId)return;
+  const result=document.querySelector('input[name="rs_result"]:checked')?.value;
+  if(!result){showToast('再決済結果を選択してください','error');return;}
+  const failReason=(document.getElementById('rs_fail_reason')?.value||'').trim();
+  const nextDate=document.getElementById('rs_next_date')?.value||null;
+  if(result==='fail'&&!failReason){showToast('失敗の理由を入力してください','error');return;}
+
+  const d=loadData();
+  const req=d.requests.find(r=>r.id===resettlementTargetId);
+  if(!req)return;
+  const now=new Date().toISOString();
+
+  req.resettlement_report={
+    result,
+    fail_reason:failReason||null,
+    next_date:nextDate,
+    attachments:rsAttachments.map(a=>({name:a.name,data:a.pdfData||a.data})),
+    submitted_at:now,
+    submitted_by:currentUser.name
+  };
+  req.status='resettlement_pending';
+  req.logs.push({action:'resettlement_pending',label:'再決済報告提出',actor:currentUser.name,actor_email:currentUser.email,timestamp:now});
+
+  saveData(d);
+  closeResettlementModal();
+  sendEmailNotif(req,'resettlement_pending');
+  renderDashboard();
+  if(typeof renderHistory==='function')renderHistory();
+  showToast('再決済報告を提出しました','success');
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  const rm=document.getElementById('resettlement-modal');
+  if(rm)rm.addEventListener('click',e=>{if(e.target===e.currentTarget)closeResettlementModal();});
+});
+
+// ══════════ TRANSPORT DAILY ENTRIES ══════════
+let dailyRowCount=0;
+
+function _buildRouteOpts(selectedIdx,filterQ=''){
+  const routes=loadData().transport_settings?.routes||[];
+  const lower=filterQ.toLowerCase();
+  return '<option value="">ルートを選択</option>'+routes.map((r,i)=>{
+    if(filterQ&&!r.name.toLowerCase().includes(lower))return'';
+    return`<option value="${i}"${String(selectedIdx)===String(i)?' selected':''}>${r.name}（${r.km}km）</option>`;
+  }).join('');
+}
+
+function buildDailyRow(idx,e,rowType){
+  dailyRowCount=Math.max(dailyRowCount,idx+1);
+  const d=loadData();
+  const routes=d.transport_settings?.routes||[];
+  const rate=d.transport_settings?.gasoline_per_km||13;
+  const type=e.type||rowType||'route';
+  const isRound=e.round||false;
+  const toll=parseInt(e.toll||0);
+  const transit=parseInt(e.transit||0);
+  const parking=parseInt(e.parking||0);
+
+  let routeCell,gasAmt=0,kmDisp='—';
+  if(type==='manual'){
+    const kmBase=parseFloat(e.km||0);
+    const km=isRound?kmBase*2:kmBase;
+    gasAmt=km?Math.round(km*rate):0;
+    routeCell=`<div style="display:flex;gap:3px;align-items:center;flex-wrap:wrap;">
+      <input type="text" class="d-from" value="${e.from_name||''}" placeholder="出発地" style="padding:3px 5px;border:1.5px solid #86efac;border-radius:5px;font-size:11px;width:82px;">
+      <span style="color:var(--g400);font-size:10px;">→</span>
+      <input type="text" class="d-to" value="${e.to_name||''}" placeholder="目的地" style="padding:3px 5px;border:1.5px solid #86efac;border-radius:5px;font-size:11px;width:82px;">
+    </div>
+    <div style="margin-top:3px;display:flex;align-items:center;gap:4px;font-size:10px;color:var(--g500);">
+      距離: <input type="number" class="d-km-input" value="${e.km||''}" placeholder="km" min="0" step="0.1" oninput="calcManualGasoline(this)" style="padding:2px 4px;border:1.5px solid var(--g200);border-radius:4px;font-size:11px;width:52px;text-align:right;"> km
+    </div>`;
+    kmDisp=km||'—';
+  }else{
+    const selRoute=e.route_idx!==undefined&&routes[e.route_idx]?routes[e.route_idx]:null;
+    if(selRoute?.km){const km=isRound?selRoute.km*2:selRoute.km;gasAmt=Math.round(km*rate);kmDisp=km;}
+    routeCell=`<select class="d-route" onchange="calcRowAmount(this)" style="padding:3px 5px;border:1.5px solid var(--g200);border-radius:5px;font-size:11px;width:100%;max-width:210px;">${_buildRouteOpts(e.route_idx)}</select>`;
+  }
+
+  const rowTotal=gasAmt+toll+transit+parking;
+  const gasDisp=gasAmt?'¥'+gasAmt.toLocaleString():'—';
+  const totalDisp=rowTotal?'¥'+rowTotal.toLocaleString():'—';
+  const inpStyle='padding:3px 4px;border:1.5px solid var(--g200);border-radius:5px;font-size:11px;width:60px;text-align:right;';
+
+  return`<tr id="drow-${idx}" data-type="${type}" style="border-bottom:1px solid var(--g100);${type==='manual'?'background:#f0fdf4;':''}">
+    <td style="padding:4px 5px;vertical-align:middle;"><input type="date" class="d-date" value="${e.date||''}" style="padding:3px 5px;border:1.5px solid var(--g200);border-radius:5px;font-size:11px;width:125px;"></td>
+    <td style="padding:4px 5px;min-width:190px;vertical-align:middle;">${routeCell}</td>
+    <td style="padding:4px 4px;text-align:center;vertical-align:middle;"><label style="display:flex;align-items:center;justify-content:center;gap:3px;cursor:pointer;font-size:11px;"><input type="checkbox" class="d-round" ${isRound?'checked':''} onchange="calcRoundTrip(this)"><span>往復</span></label></td>
+    <td style="padding:4px 5px;text-align:right;vertical-align:middle;"><span class="d-km-display" style="font-size:11px;color:var(--g500);">${kmDisp}</span><input type="hidden" class="d-km" value="${typeof kmDisp==='number'?kmDisp:0}"></td>
+    <td style="padding:4px 5px;text-align:right;vertical-align:middle;"><span class="d-gas-display" style="font-size:11px;font-weight:600;color:var(--g600);">${gasDisp}</span><input type="hidden" class="d-gas" value="${gasAmt}"></td>
+    <td style="padding:4px 5px;vertical-align:middle;"><input type="number" class="d-toll" value="${toll||''}" placeholder="0" min="0" oninput="recalcRowTotal(this)" style="${inpStyle}"></td>
+    <td style="padding:4px 5px;vertical-align:middle;"><input type="number" class="d-transit" value="${transit||''}" placeholder="0" min="0" oninput="recalcRowTotal(this)" style="${inpStyle}"></td>
+    <td style="padding:4px 5px;vertical-align:middle;"><input type="number" class="d-parking" value="${parking||''}" placeholder="0" min="0" oninput="recalcRowTotal(this)" style="${inpStyle}"></td>
+    <td style="padding:4px 5px;text-align:right;vertical-align:middle;"><span class="d-total-display" style="font-size:11px;font-weight:700;color:var(--primary);">${totalDisp}</span><input type="hidden" class="d-amount" value="${rowTotal}"></td>
+    <td style="padding:4px 3px;vertical-align:middle;"><button type="button" onclick="removeDailyRow('drow-${idx}')" style="background:none;border:none;color:var(--g400);cursor:pointer;font-size:13px;padding:2px;" title="削除">✕</button></td>
+  </tr>`;
+}
+
+// ★ バグ修正: <tr>は<div>に入れると消えるため<table><tbody>ラッパーを使用
+function addDailyRow(type){
+  const tbody=document.getElementById('daily-tbody');
+  if(!tbody)return;
+  const html=buildDailyRow(dailyRowCount,{},type||'route');
+  dailyRowCount++;
+  const tmp=document.createElement('table');
+  tmp.innerHTML='<tbody>'+html+'</tbody>';
+  const tr=tmp.querySelector('tr');
+  if(tr)tbody.appendChild(tr);
+}
+
+function removeDailyRow(id){
+  const el=document.getElementById(id);
+  if(el&&document.querySelectorAll('#daily-tbody tr').length>1){el.remove();updateDailyTotal();}
+}
+
+function calcRowAmount(routeSel){
+  const row=routeSel.closest('tr');
+  if(!row)return;
+  const d=loadData();
+  const routes=d.transport_settings?.routes||[];
+  const rate=d.transport_settings?.gasoline_per_km||13;
+  const idx=parseInt(routeSel.value);
+  const route=routes[idx];
+  const isRound=row.querySelector('.d-round')?.checked||false;
+  let gasAmt=0,km=0;
+  if(route?.km){km=isRound?route.km*2:route.km;gasAmt=Math.round(km*rate);}
+  const kmDisp=row.querySelector('.d-km-display');
+  if(kmDisp)kmDisp.textContent=km||'—';
+  row.querySelector('.d-km').value=String(km);
+  row.querySelector('.d-gas-display').textContent=gasAmt?'¥'+gasAmt.toLocaleString():'—';
+  row.querySelector('.d-gas').value=String(gasAmt);
+  _recalcRow(row);
+}
+
+function calcRoundTrip(cb){
+  const row=cb.closest('tr');
+  if(row.dataset.type==='manual')calcManualGasoline(row.querySelector('.d-km-input'));
+  else calcRowAmount(row.querySelector('.d-route'));
+}
+
+function calcManualGasoline(input){
+  if(!input)return;
+  const row=input.closest('tr');
+  if(!row)return;
+  const rate=loadData().transport_settings?.gasoline_per_km||13;
+  const isRound=row.querySelector('.d-round')?.checked||false;
+  const kmBase=parseFloat(input.value)||0;
+  const km=isRound?kmBase*2:kmBase;
+  const gasAmt=km?Math.round(km*rate):0;
+  row.querySelector('.d-km').value=String(km);
+  const kmDisp=row.querySelector('.d-km-display');
+  if(kmDisp)kmDisp.textContent=km||'—';
+  row.querySelector('.d-gas-display').textContent=gasAmt?'¥'+gasAmt.toLocaleString():'—';
+  row.querySelector('.d-gas').value=String(gasAmt);
+  _recalcRow(row);
+}
+
+function _recalcRow(row){
+  const gas=parseInt(row.querySelector('.d-gas')?.value||0);
+  const toll=parseInt(row.querySelector('.d-toll')?.value||0);
+  const transit=parseInt(row.querySelector('.d-transit')?.value||0);
+  const parking=parseInt(row.querySelector('.d-parking')?.value||0);
+  const total=gas+toll+transit+parking;
+  row.querySelector('.d-total-display').textContent=total?'¥'+total.toLocaleString():'—';
+  row.querySelector('.d-amount').value=String(total);
+  updateDailyTotal();
+}
+
+function recalcRowTotal(input){_recalcRow(input.closest('tr'));}
+
+function updateDailyTotal(){
+  let total=0;
+  document.querySelectorAll('#daily-tbody .d-amount').forEach(h=>{const v=parseInt(h.value||0);if(!isNaN(v))total+=v;});
+  const el=document.getElementById('daily-total');if(el)el.textContent='¥'+total.toLocaleString();
+  const h=document.getElementById('f_transport_amount');if(h)h.value=String(total);
+  if(edfData)runValidation();
+}
+
+function filterRouteDropdowns(q){
+  document.querySelectorAll('#daily-tbody .d-route').forEach(sel=>{
+    const cur=sel.value;
+    sel.innerHTML=_buildRouteOpts(cur,q);
+  });
+}
+
+function collectDailyEntries(){
+  const d=loadData();
+  const routes=d.transport_settings?.routes||[];
+  const rate=d.transport_settings?.gasoline_per_km||13;
+  return Array.from(document.querySelectorAll('#daily-tbody tr')).map(r=>{
+    const type=r.dataset.type||'route';
+    const isRound=r.querySelector('.d-round')?.checked||false;
+    const toll=parseInt(r.querySelector('.d-toll')?.value||0);
+    const transit=parseInt(r.querySelector('.d-transit')?.value||0);
+    const parking=parseInt(r.querySelector('.d-parking')?.value||0);
+    if(type==='manual'){
+      const kmBase=parseFloat(r.querySelector('.d-km-input')?.value||0);
+      const km=isRound?kmBase*2:kmBase;
+      const gas=km?Math.round(km*rate):0;
+      const total=gas+toll+transit+parking;
+      return{date:r.querySelector('.d-date')?.value||'',type:'manual',from_name:r.querySelector('.d-from')?.value||'',to_name:r.querySelector('.d-to')?.value||'',route_name:(r.querySelector('.d-from')?.value||'')+'→'+(r.querySelector('.d-to')?.value||''),round:isRound,km:String(km),gas,toll,transit,parking,amount:String(total)};
+    }else{
+      const routeIdx=r.querySelector('.d-route')?.value;
+      const route=routes[parseInt(routeIdx)];
+      const gas=parseInt(r.querySelector('.d-gas')?.value||0);
+      const total=gas+toll+transit+parking;
+      return{date:r.querySelector('.d-date')?.value||'',type:'route',route_name:route?.name||'',route_idx:routeIdx||'',round:isRound,km:r.querySelector('.d-km')?.value||'0',gas,toll,transit,parking,amount:String(total)};
+    }
+  }).filter(e=>e.date||parseInt(e.amount)>0);
+}
+
+// 申請期間: 前月21日〜当月20日
+function updateExpensePeriod(){
+  const y=parseInt(document.getElementById('f_exp_year')?.value||new Date().getFullYear());
+  const m=parseInt(document.getElementById('f_exp_month')?.value||new Date().getMonth()+1);
+  let sy=y,sm=m-1;
+  if(sm===0){sm=12;sy--;}
+  const start=`${sy}-${String(sm).padStart(2,'0')}-21`;
+  const end=`${y}-${String(m).padStart(2,'0')}-20`;
+  const si=document.getElementById('f_period_start');if(si)si.value=start;
+  const ei=document.getElementById('f_period_end');if(ei)ei.value=end;
+  const dp=document.getElementById('period-display');
+  if(dp)dp.textContent=`${sy}/${String(sm).padStart(2,'0')}/21 〜 ${y}/${String(m).padStart(2,'0')}/20`;
+}
+
+// ══════════ よく使うルート（手動申請履歴） ══════════
+const FAV_ROUTES_KEY='wf_fav_routes';
+
+function saveFavoriteRoutes(entries, userId){
+  // 手動入力行のルートを使用頻度付きで保存
+  const favRaw=localStorage.getItem(FAV_ROUTES_KEY);
+  const favByUser=favRaw?JSON.parse(favRaw):{};
+  const uid=userId||(currentUser?.email||'');
+  if(!favByUser[uid])favByUser[uid]=[];
+  const userFavs=favByUser[uid];
+  entries.forEach(e=>{
+    if(e.type!=='manual'||(!e.from_name&&!e.to_name))return;
+    const key=`${e.from_name||''}→${e.to_name||''}`;
+    const existing=userFavs.find(r=>r.key===key);
+    if(existing){existing.count=(existing.count||1)+1;existing.last_used=new Date().toISOString();}
+    else{userFavs.push({key,from:e.from_name||'',to:e.to_name||'',km:parseFloat(e.km)||0,count:1,last_used:new Date().toISOString()});}
+  });
+  // 使用頻度順に並び替え、上位50件保存
+  favByUser[uid]=userFavs.sort((a,b)=>b.count-a.count).slice(0,50);
+  localStorage.setItem(FAV_ROUTES_KEY,JSON.stringify(favByUser));
+}
+
+function getFavRoutes(){
+  const uid=currentUser?.email||'';
+  const raw=localStorage.getItem(FAV_ROUTES_KEY);
+  if(!raw)return[];
+  const all=JSON.parse(raw);
+  // 過去の申請からも自動的に抽出
+  const fromHistory=[];
+  const d=loadData();
+  (d.requests||[]).forEach(req=>{
+    if(req.category!=='transport'||req.user_id!==uid)return;
+    (req.data?.daily_entries||[]).forEach(e=>{
+      if(e.type!=='manual'||(!e.from_name&&!e.to_name))return;
+      const key=`${e.from_name||''}→${e.to_name||''}`;
+      const ex=fromHistory.find(r=>r.key===key);
+      if(ex){ex.count++;} else{fromHistory.push({key,from:e.from_name||'',to:e.to_name||'',km:parseFloat(e.km)||0,count:1});}
+    });
+  });
+  // マージ
+  const stored=all[uid]||[];
+  fromHistory.forEach(h=>{
+    if(!stored.find(s=>s.key===h.key))stored.push(h);
+    else{const s=stored.find(x=>x.key===h.key);s.count=Math.max(s.count,h.count);}
+  });
+  return stored.sort((a,b)=>b.count-a.count);
+}
+
+function renderFavRoutesDropdown(){
+  const bar=document.getElementById('fav-routes-bar');
+  const sel=document.getElementById('fav-route-select');
+  if(!bar||!sel)return;
+  const favs=getFavRoutes();
+  if(!favs.length){bar.style.display='none';return;}
+  bar.style.display='block';
+  sel.innerHTML='<option value="">選択すると手動入力行に自動追加...</option>'+
+    favs.map((r,i)=>`<option value="${i}">⭐ ${r.from} → ${r.to}${r.km?'（'+r.km+'km）':''} ×${r.count}回使用</option>`).join('');
+}
+
+function addFavRouteRow(selectEl){
+  const favs=getFavRoutes();
+  const idx=parseInt(selectEl.value);
+  if(isNaN(idx)||!favs[idx])return;
+  const fav=favs[idx];
+  // 手動入力行を追加してから値を設定
+  const tbody=document.getElementById('daily-tbody');
+  if(!tbody)return;
+  const html=buildDailyRow(dailyRowCount,{type:'manual',from_name:fav.from,to_name:fav.to,km:fav.km},'manual');
+  dailyRowCount++;
+  const tmp=document.createElement('table');
+  tmp.innerHTML='<tbody>'+html+'</tbody>';
+  const tr=tmp.querySelector('tr');
+  if(tr)tbody.appendChild(tr);
+  selectEl.value=''; // リセット
+  showToast(`「${fav.from} → ${fav.to}」を追加しました`,'success');
+}
+
+// ══════════ TRANSPORT FILE VALIDATION ══════════
+let edfData=null,receiptData=null,transportValidPassed=null;
+
+function handleEDFUpload(evt){
+  const file=evt.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    edfData=parseEDF(e.target.result);
+    const z=document.getElementById('edf-zone');
+    if(z)z.classList.add('uploaded');
+    document.getElementById('edf-preview').textContent=`✅ ${file.name}（${edfData.dates.length}件の勤務日を検出）`;
+    if(receiptData)runValidation();
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+function parseEDF(text){
+  const dates=[];
+  const re=/(\d{4})[\/\-年](\d{1,2})[\/\-月](\d{1,2})/g;
+  let m;
+  while((m=re.exec(text))!==null){
+    const d=`${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`;
+    if(!dates.includes(d))dates.push(d);
+  }
+  return{dates,lines:text.split(/\r?\n/).length};
+}
+
+async function handleReceiptUpload(evt){
+  const file=evt.target.files[0];if(!file)return;
+  const z=document.getElementById('receipt-zone');
+  const prev=document.getElementById('receipt-preview');
+  if(prev)prev.textContent='🔍 解析中...';
+  if(file.type.startsWith('image/')){
+    const reader=new FileReader();
+    reader.onload=async e=>{
+      try{
+        if(!window.Tesseract){
+          await new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';s.onload=res;s.onerror=rej;document.head.appendChild(s);});
+        }
+        const result=await Tesseract.recognize(e.target.result,'jpn+eng');
+        receiptData=parseReceipt(result.data.text);
+      }catch(err){receiptData={dates:[],amounts:[]};}
+      finalizeReceiptUpload(file.name,z,prev);
+    };
+    reader.readAsDataURL(file);
+  }else{
+    // PDF: try binary text extraction
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const binary=e.target.result;
+      const text=extractPDFText(binary);
+      receiptData=parseReceipt(text);
+      finalizeReceiptUpload(file.name,z,prev);
+    };
+    reader.readAsBinaryString(file);
+  }
+}
+
+function extractPDFText(bin){
+  const texts=[];const re=/\(([^)]{2,60})\)/g;let m;
+  while((m=re.exec(bin))!==null){if(/[　-鿿\d]/.test(m[1]))texts.push(m[1]);}
+  return texts.join(' ');
+}
+
+function parseReceipt(text){
+  const dates=[],amounts=[];
+  const dr=/(\d{4})[\/\-年](\d{1,2})[\/\-月](\d{1,2})/g;
+  const ar=/[¥￥]?\s*([\d,]+)\s*円/g;
+  let m;
+  while((m=dr.exec(text))!==null){const d=`${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`;if(!dates.includes(d))dates.push(d);}
+  while((m=ar.exec(text))!==null){amounts.push(parseInt(m[1].replace(/,/g,'')));}
+  return{dates,amounts};
+}
+
+function finalizeReceiptUpload(name,zone,prev){
+  if(zone)zone.classList.add('uploaded');
+  if(prev)prev.textContent=`✅ ${name}（${receiptData.dates.length}件の日付、${receiptData.amounts.length}件の金額検出）`;
+  if(edfData)runValidation();
+}
+
+function runValidation(){
+  const resultEl=document.getElementById('validation-result');
+  if(!resultEl||!edfData)return;
+  const issues=[],warnings=[];
+
+  // ① 日付整合性チェック（申請日がEDF勤務日にあるか）
+  const entries=collectDailyEntries();
+  const entryDates=entries.map(e=>e.date).filter(Boolean);
+  if(edfData.dates.length>0&&entryDates.length>0){
+    const nonWork=entryDates.filter(d=>!edfData.dates.includes(d));
+    if(nonWork.length>0)issues.push(`勤務記録のない日に交通費が申請されています: ${nonWork.join(', ')}`);
+  }else if(entryDates.length===0&&receiptData?.dates?.length>0){
+    const nonWork=receiptData.dates.filter(d=>!edfData.dates.includes(d));
+    if(nonWork.length>0)issues.push(`勤務日でない日の明細が含まれています: ${nonWork.join(', ')}`);
+  }
+
+  // ② 月別上限チェック
+  const settings=loadData().transport_settings;
+  if(settings?.max_allowance){
+    const claimed=parseInt(document.getElementById('f_transport_amount')?.value||0);
+    if(claimed>settings.max_allowance)issues.push(`申請額¥${claimed.toLocaleString()}が月別上限¥${settings.max_allowance.toLocaleString()}を超えています`);
+  }
+
+  if(receiptData&&receiptData.dates.length===0&&entryDates.length===0){
+    warnings.push('明細から日付を抽出できませんでした。手動確認してください。');
+  }
+
+  resultEl.style.display='block';
+  if(issues.length>0){
+    transportValidPassed=false;
+    resultEl.innerHTML=`<div class="validation-fail"><strong>⚠️ 整合性チェック：不整合が検出されました</strong>
+      <ul style="margin:6px 0 0 14px;">${issues.map(i=>`<li>${i}</li>`).join('')}</ul>
+      ${warnings.length?`<div style="margin-top:4px;font-size:11px;">${warnings.join('<br>')}</div>`:''}
+      <div style="margin-top:6px;font-weight:600;font-size:11px;">このまま申請する場合、経理担当者にも不整合内容が通知されます。</div>
+    </div>`;
+    const d=loadData();const wl=d.whitelist||[];
+    const adminEmails=wl.filter(w=>w.role==='admin').map(w=>w.email).join(', ');
+    if(adminEmails)showEmailToast(adminEmails,'【整合性アラート】交通費申請に不整合が検出されました',`申請者: ${currentUser?.name}\n不整合内容:\n${issues.join('\n')}`);
+  }else{
+    transportValidPassed=true;
+    resultEl.innerHTML=`<div class="validation-pass">✅ 整合性確認OK：勤怠データと申請日付が一致しています
+      ${warnings.length?'<br><small>⚠️ '+warnings.join('<br>')+'</small>':''}
+    </div>`;
+  }
+}
+
+// ══════════ TRANSPORT SETTINGS ══════════
+function renderTransportSettings(){
+  const d=loadData();
+  const ts=d.transport_settings||{};
+  const gel=document.getElementById('ts-gasoline');if(gel)gel.value=ts.gasoline_per_km||13;
+  const mel=document.getElementById('ts-max');if(mel)mel.value=ts.max_allowance||'';
+  renderRouteList();
+}
+
+function saveTransportSettings(){
+  const d=loadData();
+  const gasoline=parseFloat(document.getElementById('ts-gasoline').value)||13;
+  const maxAllowance=parseFloat(document.getElementById('ts-max').value)||null;
+  if(!d.transport_settings)d.transport_settings={routes:[]};
+  d.transport_settings.gasoline_per_km=gasoline;
+  d.transport_settings.max_allowance=maxAllowance;
+  saveData(d);
+  renderRouteList();
+  showToast(`ガソリン単価 ${gasoline}円/km で保存しました`,'success');
+}
+
+function previewRouteAmount(){
+  const km=parseFloat(document.getElementById('rt-km')?.value||0);
+  const fixed=parseFloat(document.getElementById('rt-fixed')?.value||0);
+  const rate=loadData().transport_settings?.gasoline_per_km||13;
+  const el=document.getElementById('rt-amount-preview');
+  if(!el)return;
+  if(fixed>0)el.textContent='¥'+fixed.toLocaleString()+' 固定';
+  else if(km>0)el.textContent='¥'+(Math.round(km*rate)).toLocaleString()+' 🚗';
+  else el.textContent='¥—';
+}
+
+function addRoute(){
+  const name=document.getElementById('rt-name').value.trim();
+  const km=parseFloat(document.getElementById('rt-km').value)||0;
+  const fixed=parseFloat(document.getElementById('rt-fixed')?.value||0)||0;
+  if(!name||(km<=0&&fixed<=0)){showToast('ルート名と距離または固定金額を入力してください','error');return;}
+  const d=loadData();
+  if(!d.transport_settings)d.transport_settings={routes:[],gasoline_per_km:13};
+  if(!d.transport_settings.routes)d.transport_settings.routes=[];
+  const route={name};
+  if(fixed>0)route.fixed_amount=fixed;else route.km=km;
+  d.transport_settings.routes.push(route);
+  saveData(d);
+  document.getElementById('rt-name').value='';
+  document.getElementById('rt-km').value='';
+  if(document.getElementById('rt-fixed'))document.getElementById('rt-fixed').value='';
+  document.getElementById('rt-amount-preview').textContent='¥—';
+  renderRouteList();
+  showToast(`「${name}」を登録しました`,'success');
+}
+
+function removeRoute(i){
+  const d=loadData();
+  const removed=d.transport_settings.routes[i];
+  d.transport_settings.routes.splice(i,1);
+  saveData(d);
+  renderRouteList();
+  showToast(`「${removed.name}」を削除しました`,'info');
+}
+
+function renderRouteList(){
+  const d=loadData();
+  const routes=d.transport_settings?.routes||[];
+  const rate=d.transport_settings?.gasoline_per_km||13;
+  const el=document.getElementById('route-list');
+  if(!el)return;
+  if(!routes.length){el.innerHTML='<p style="font-size:12px;color:var(--g400);padding:12px 0;">ルートが未登録です。上記フォームから追加してください。</p>';return;}
+  el.innerHTML=`<p style="font-size:11px;color:var(--g500);margin-bottom:6px;">${routes.length}件登録済み</p>
+  <div style="border:1px solid var(--g200);border-radius:8px;overflow:hidden;max-height:400px;overflow-y:auto;">
+    <div style="display:grid;grid-template-columns:1fr 90px 90px auto;gap:0;background:var(--g50);padding:7px 12px;font-size:11px;font-weight:700;color:var(--g500);text-transform:uppercase;position:sticky;top:0;">
+      <span>ルート名</span><span style="text-align:right;">種別/距離</span><span style="text-align:right;">金額(片道)</span><span></span>
+    </div>
+    ${routes.map((r,i)=>`<div style="display:grid;grid-template-columns:1fr 90px 90px auto;gap:0;padding:8px 12px;border-top:1px solid var(--g100);align-items:center;">
+      <span style="font-size:12px;font-weight:600;">${r.name}</span>
+      <span style="text-align:right;font-size:11px;color:var(--g500);">${r.fixed_amount?'<span class="route-fixed-badge">固定</span>':r.km+'km 🚗'}</span>
+      <span style="text-align:right;"><span class="route-amount-badge">¥${(r.fixed_amount||Math.round(r.km*rate)).toLocaleString()}</span></span>
+      <span style="text-align:right;padding-left:8px;"><button class="btn btn-sm btn-danger" onclick="removeRoute(${i})">削除</button></span>
+    </div>`).join('')}
+  </div>`;
 }
 
 // ══════════ INIT ══════════
