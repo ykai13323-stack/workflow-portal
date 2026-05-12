@@ -568,10 +568,10 @@ function saveData(d){localStorage.setItem(SK,JSON.stringify(d))}
 
 function initData(){
   const d=loadData();
-  if(!d.transport_settings||!d.transport_settings.v||d.transport_settings.v<3){
+  if(!d.transport_settings||!d.transport_settings.v||d.transport_settings.v<4){
     const prev_rate=d.transport_settings?.gasoline_per_km||13;
     const prev_max=d.transport_settings?.max_allowance||null;
-    d.transport_settings={gasoline_per_km:prev_rate,max_allowance:prev_max,v:3,routes:[
+    d.transport_settings={gasoline_per_km:prev_rate,max_allowance:prev_max,v:4,routes:[
       // ── 舞洲研修センター（車・ガソリン代、距離ベース）──
       {name:'🚗 舞洲研修センター → 大安寺院',km:44},
       {name:'🚗 舞洲研修センター → 東生駒院',km:33},
