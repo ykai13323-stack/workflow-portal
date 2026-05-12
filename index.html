@@ -103,7 +103,7 @@
     .tld-resettlement_completed{background:#10b981}
     .cat-chip{display:inline-block;padding:2px 7px;border-radius:5px;font-size:11px;font-weight:600}
     .cat-payment_error{background:#fee2e2;color:#991b1b}.cat-refund{background:#fef3c7;color:#92400e}
-    .cat-robo_stop{background:#ede9fe;color:#5b21b6}.cat-bank_account{background:#d1fae5;color:#065f46}
+    .cat-robo_stop{background:#ede9fe;color:#5b21b6}.cat-bank_account{background:#d1fae5;color:#065f46}.cat-payment_inquiry{background:#fef9c3;color:#713f12}
     .cat-transport{background:#e0f2fe;color:#0369a1}
     .file-upload-zone{border:2px dashed var(--g300);border-radius:8px;padding:14px 16px;cursor:pointer;transition:border-color .2s;font-size:12px;color:var(--g500);text-align:center}
     .file-upload-zone:hover{border-color:var(--primary);color:var(--primary)}.file-upload-zone.uploaded{border-color:var(--success);background:#f0fdf4;color:#065f46}
@@ -344,7 +344,8 @@
                   <option value="payment_error">💳 決済エラー申請</option>
                   <option value="refund">💰 返金申請</option>
                   <option value="robo_stop">🤖 ロボ停止申請</option>
-                  <option value="bank_account">🏦 銀行口座変更申請</option>
+                  <option value="bank_account">🏦 返金依頼者の口座情報申請</option>
+                  <option value="payment_inquiry">❓ 決済残り回数問い合わせ</option>
                   <option value="transport">🚗 交通費申請</option>
                 </select>
               </div>
@@ -389,8 +390,9 @@
               <button class="category-card" onclick="selectCat('payment_error',this)"><div class="category-card-icon">💳</div><h4>決済エラー申請</h4><p>カード決済エラー・処理変更依頼</p></button>
               <button class="category-card" onclick="selectCat('refund',this)"><div class="category-card-icon">💰</div><h4>返金申請</h4><p>患者様への返金処理の申請</p></button>
               <button class="category-card" onclick="selectCat('robo_stop',this)"><div class="category-card-icon">🤖</div><h4>ロボ停止申請</h4><p>ロボペイ課金停止・変更依頼</p></button>
-              <button class="category-card" onclick="selectCat('bank_account',this)"><div class="category-card-icon">🏦</div><h4>銀行口座変更申請</h4><p>振込先銀行口座の変更申請</p></button>
+              <button class="category-card" onclick="selectCat('bank_account',this)"><div class="category-card-icon">🏦</div><h4>返金依頼者の口座情報申請</h4><p>返金先の銀行口座情報の申請</p></button>
               <button class="category-card" onclick="selectCat('transport',this)"><div class="category-card-icon">🚗</div><h4>交通費申請</h4><p>交通費・ガソリン代の精算申請</p></button>
+              <button class="category-card" onclick="selectCat('payment_inquiry',this)"><div class="category-card-icon">❓</div><h4>決済残り回数問い合わせ</h4><p>決済残り回数を経理担当へ問い合わせ</p></button>
             </div>
             <div id="draft-list-container" style="display:none;margin-top:16px;">
               <div style="font-size:11px;font-weight:700;color:var(--g400);letter-spacing:.06em;margin-bottom:8px;">📝 保存済み下書き（続きから再開）</div>
@@ -890,8 +892,8 @@ function logout(){
 }
 
 // ══════════ HELPERS ══════════
-const CAT_LABELS={payment_error:'決済エラー申請',refund:'返金申請',robo_stop:'ロボ停止申請',bank_account:'銀行口座変更申請',transport:'交通費申請'};
-const CAT_ICONS={payment_error:'💳',refund:'💰',robo_stop:'🤖',bank_account:'🏦',transport:'🚗'};
+const CAT_LABELS={payment_error:'決済エラー申請',refund:'返金申請',robo_stop:'ロボ停止申請',bank_account:'返金依頼者の口座情報申請',transport:'交通費申請',payment_inquiry:'決済残り回数問い合わせ'};
+const CAT_ICONS={payment_error:'💳',refund:'💰',robo_stop:'🤖',bank_account:'🏦',transport:'🚗',payment_inquiry:'❓'};
 const STATUS_LABELS={pending:'承認待ち',manager_approved:'社長確認待ち',president_approved:'最終確認待ち',completed:'完了',returned:'差し戻し',resettlement_pending:'再決済報告確認中',resettlement_completed:'全工程完了'};
 const ROLE_LABELS={employee:'一般社員',manager:'部長',president:'社長',admin:'管理者/最終'};
 // Dynamic status label: 返金のみ部長/社長ステップ表示
@@ -936,7 +938,7 @@ function canApprove(req){
   const r=currentUser.role;
   if(r==='manager')return isRefund(req)&&req.status==='pending';
   if(r==='president')return isRefund(req)&&req.status==='manager_approved';
-  if(r==='admin')return (isRefund(req)&&req.status==='president_approved')||(!isRefund(req)&&req.status==='pending')||(req.category==='payment_error'&&req.status==='resettlement_pending');
+  if(r==='admin')return (isRefund(req)&&req.status==='president_approved')||(!isRefund(req)&&req.status==='pending')||(req.category==='payment_error'&&req.status==='resettlement_pending')||(req.category==='payment_inquiry'&&req.status==='pending');
   return false;
 }
 function getNextStatus(role,req){
@@ -950,6 +952,7 @@ function getApproveLabel(role,req){
   if(role==='manager')return'部長承認';
   if(role==='president')return'社長承認';
   if(req&&req.status==='resettlement_pending')return'再決済報告を承認・完了';
+  if(req&&req.category==='payment_inquiry')return'💬 回答して完了';
   return'最終承認・完了';
 }
 
@@ -1075,6 +1078,7 @@ function getSummary(r){
   if(r.category==='robo_stop')return`${d.card_holder||''} / ${d.process_type||''}`;
   if(r.category==='bank_account')return`${d.bank_name||''} ${d.branch_name||''}`;
   if(r.category==='transport')return`${d.transport_applicant||''} / ¥${Number(d.transport_amount||0).toLocaleString()} (${d.expense_month||d.period_start||''})`;
+  if(r.category==='payment_inquiry')return`${d.card_holder||d.staff_name||''} / ${d.payment_method||''}`;
   return '';
 }
 
@@ -1106,7 +1110,7 @@ function goStep2Form(){setStep(2);}
 const MANUAL_FIELDS=['patient_name','reason_detail','process_reason','refund_reason','details','return_reason'];
 
 function renderForm(){
-  const ft={payment_error:'💳 決済エラー申請',refund:'💰 返金申請',robo_stop:'🤖 ロボ停止申請',bank_account:'🏦 銀行口座変更申請',transport:'🚗 交通費申請'};
+  const ft={payment_error:'💳 決済エラー申請',refund:'💰 返金申請',robo_stop:'🤖 ロボ停止申請',bank_account:'🏦 返金依頼者の口座情報申請',transport:'🚗 交通費申請',payment_inquiry:'❓ 決済残り回数問い合わせ'};
   document.getElementById('form-title').textContent=ft[selCat];
   const fd=formData;
   const mn='<span class="manual-tag">手入力必須</span>';
@@ -1192,6 +1196,21 @@ function renderForm(){
       <div class="form-group"><label>名義人名（カタカナ）<span class="required">*</span></label>${ri('account_holder',fd.account_holder,'タナカ タロウ')}</div>
       <div class="form-group"><label>口座種別<span class="required">*</span></label>${radioGroup('account_type',fd.account_type,['普通','当座'])}</div>
       <div class="form-group"><label>振込手数料負担<span class="required">*</span></label>${radioGroup('transfer_fee',fd.transfer_fee,['弊社負担','先方負担'])}</div>
+    </div>`;
+  }else if(selCat==='payment_inquiry'){
+    html=`<div class="form-grid">
+      <div style="grid-column:span 2;background:#fef9c3;border:1px solid #fcd34d;border-radius:8px;padding:10px 14px;font-size:11.5px;color:#92400e;line-height:1.6;">
+        ⚠️ <strong>注意事項：</strong>残り回数以外のご質問は上司または部長様にご相談ください。
+        記入当日の返答はできかねます。回答は<strong>３営業日以降</strong>（土日祝含まず）となります。
+      </div>
+      <div class="form-group"><label>問合せ日<span class="required">*</span></label>${rd('inquiry_date',fd.inquiry_date||new Date().toISOString().slice(0,10))}</div>
+      <div class="form-group"><label>院名<span class="required">*</span></label>${ri('clinic_name',fd.clinic_name||currentUser?.store_name)}</div>
+      <div class="form-group"><label>担当者名<span class="required">*</span></label>${ri('staff_name',fd.staff_name||currentUser?.name)}</div>
+      <div class="form-group"><label>決済方法<span class="required">*</span></label>${rs('payment_method',fd.payment_method,['','ロボペイ','アルファノート','その他'])}</div>
+      <div class="form-group"><label>カード名義人（アルファベット）<span class="required">*</span></label>${ri('card_holder',fd.card_holder,'YAMADA HANAKO')}</div>
+      <div class="form-group"><label>初回決済日<span class="required">*</span></label>${rd('initial_payment_date',fd.initial_payment_date)}</div>
+      <div class="form-group"><label>毎月決済金額（円）<span class="required">*</span></label>${rn('monthly_amount',fd.monthly_amount,'12800')}</div>
+      <div class="form-group span2"><label>問い合わせ内容${mn}<span class="required">*</span></label>${ra('inquiry_content',fd.inquiry_content,'残り回数や確認したい内容を詳しく記載してください')}</div>
     </div>`;
   }
   if(selCat==='transport'){
@@ -1313,6 +1332,7 @@ function collectForm(){
   else if(selCat==='refund'){formData={clinic_name:g('f_clinic_name'),writer_name:g('f_writer_name'),seller_name:g('f_seller_name'),president_approval_date:g('f_president_approval_date'),patient_name:g('f_patient_name'),card_holder:g('f_card_holder').toUpperCase(),last_visit_date:g('f_last_visit_date'),ticket_purchase_date:g('f_ticket_purchase_date'),product_name:g('f_product_name'),purchase_amount:g('f_purchase_amount'),remaining_sessions:g('f_remaining_sessions'),payment_method:g('f_payment_method'),refund_reason:g('f_refund_reason'),calculation:g('f_calculation')};}
   else if(selCat==='robo_stop'){formData={clinic_name:g('f_clinic_name'),staff_name:g('f_staff_name'),president_approval_date:g('f_president_approval_date'),fit_type:g('f_fit_type'),process_type:getRadio('process_type'),card_holder:g('f_card_holder').toUpperCase(),initial_purchase_date:g('f_initial_purchase_date'),subscription_amount:g('f_subscription_amount'),change_month:g('f_change_month'),details:g('f_details')};}
   else if(selCat==='bank_account'){formData={clinic_name:g('f_clinic_name'),refund_amount:g('f_refund_amount'),bank_name:g('f_bank_name'),branch_name_kana:g('f_branch_name_kana'),branch_name:g('f_branch_name'),account_number:g('f_account_number'),account_holder:g('f_account_holder'),account_type:getRadio('account_type'),transfer_fee:getRadio('transfer_fee')};}
+  else if(selCat==='payment_inquiry'){formData={inquiry_date:g('f_inquiry_date'),clinic_name:g('f_clinic_name'),staff_name:g('f_staff_name'),payment_method:g('f_payment_method'),card_holder:g('f_card_holder').toUpperCase(),initial_payment_date:g('f_initial_payment_date'),monthly_amount:g('f_monthly_amount'),inquiry_content:g('f_inquiry_content')};}
   else if(selCat==='transport'){
     const entries=collectDailyEntries();
     const total=entries.reduce((s,e)=>s+(parseInt(e.amount)||0),0);
@@ -1334,7 +1354,8 @@ function collectForm(){
 }
 
 const FL={clinic_name:'院名',request_date:'依頼日',writer_name:'記入者氏名',seller_name:'売上者氏名',payment_method:'決済方法',process_type:'処理区分',patient_name:'患者様名',initial_payment_date:'初回決済日',card_holder:'カード名義人',monthly_amount:'毎月決済金額A',remaining_count:'残り回数B',remaining_total:'残り合計C',process_reason:'処理理由',reason_detail:'理由・詳細',retry_date:'再決済予定日',director_confirmed:'院長確認',president_approval_date:'社長承諾日',last_visit_date:'最終来院日',ticket_purchase_date:'購入日',product_name:'購入商品名',purchase_amount:'購入金額',remaining_sessions:'残り回数/購入回数',refund_reason:'返金理由',calculation:'返金計算式',staff_name:'担当者',fit_type:'fit区分',initial_purchase_date:'初回購入日',subscription_amount:'サブスク金額',change_month:'変更月',details:'詳細',refund_amount:'返金額',bank_name:'銀行名',branch_name_kana:'支店名（ふりがな）',branch_name:'支店名',account_number:'口座番号',account_holder:'名義人名',account_type:'口座種別',transfer_fee:'振込手数料負担',
-  transport_applicant:'申請者名',expense_month:'申請月',period_start:'申請期間（開始）',period_end:'申請期間（終了）',transport_method:'交通手段',transport_amount:'合計申請金額',edf_uploaded:'勤怠データ',receipt_uploaded:'交通機関明細',validation_status:'整合性チェック'};
+  transport_applicant:'申請者名',expense_month:'申請月',period_start:'申請期間（開始）',period_end:'申請期間（終了）',transport_method:'交通手段',transport_amount:'合計申請金額',edf_uploaded:'勤怠データ',receipt_uploaded:'交通機関明細',validation_status:'整合性チェック',
+  inquiry_date:'問合せ日',inquiry_content:'問い合わせ内容',inquiry_remaining:'残り回数（経理回答）',inquiry_expiry:'回答有効期限',inquiry_memo:'回答メモ'};
 
 function goStep3(){
   collectForm();
@@ -1365,7 +1386,7 @@ function submitReq(){
   sendEmailNotif(req,'pending');
   setStep(4);
   const msgEl=document.getElementById('success-msg');
-  if(msgEl)msgEl.textContent=selCat==='refund'?'申請を受け付けました。部長→社長→経理の順で確認します。':'申請を受け付けました。経理担当者の確認後に進捗をお知らせします。';
+  if(msgEl)msgEl.textContent=selCat==='refund'?'申請を受け付けました。部長→社長→経理の順で確認します。':selCat==='payment_inquiry'?'問い合わせを送信しました。経理担当者が３営業日以内に回答します。':'申請を受け付けました。経理担当者の確認後に進捗をお知らせします。';
   showToast('申請を送信しました！','success');
 }
 
@@ -1704,11 +1725,13 @@ function openDetail(id,fromAdmin){
   if(!req)return;
   document.getElementById('modal-icon').textContent=CAT_ICONS[req.category];
   document.getElementById('modal-title').textContent=`${req.id} — ${CAT_LABELS[req.category]}`;
-  // Flow indicator — 返金は3段階、決済エラーは5段階、それ以外は2段階
+  // Flow indicator — 返金は3段階、決済エラーは5段階、問い合わせは2段階、それ以外は2段階
   const steps=req.category==='refund'
     ?[{s:'pending',l:'部長確認待ち'},{s:'manager_approved',l:'部長承認済み'},{s:'president_approved',l:'社長承認済み'},{s:'completed',l:'完了'}]
     :req.category==='payment_error'
     ?[{s:'pending',l:'経理確認待ち'},{s:'completed',l:'申請承認済み'},{s:'resettlement_pending',l:'再決済報告提出'},{s:'resettlement_completed',l:'全工程完了'}]
+    :req.category==='payment_inquiry'
+    ?[{s:'pending',l:'経理担当確認待ち'},{s:'completed',l:'回答・完了'}]
     :[{s:'pending',l:'経理確認待ち'},{s:'completed',l:'完了'}];
   const statusOrder=['pending','manager_approved','president_approved','completed','resettlement_pending','resettlement_completed'];
   const si=steps.findIndex(x=>x.s===req.status);
@@ -1764,6 +1787,16 @@ function openDetail(id,fromAdmin){
     }
     modalRows+=`<tr><th style="vertical-align:top;padding-top:8px;background:#eff6ff;color:#1e40af;">🔄 再決済報告</th><td style="background:#eff6ff;">${rsDetail}</td></tr>`;
   }
+  // 経理回答がある場合はテーブルに追加
+  if(req.inquiry_response){
+    const ir=req.inquiry_response;
+    let irDetail=``;
+    if(ir.remaining!=null&&ir.remaining!=='')irDetail+=`<strong>残り回数:</strong> ${ir.remaining} 回<br>`;
+    if(ir.expiry)irDetail+=`<strong>回答有効期限:</strong> ${ir.expiry}<br>`;
+    if(ir.memo)irDetail+=`<strong>回答メモ:</strong> ${ir.memo}<br>`;
+    irDetail+=`<strong>回答日時:</strong> ${fmtDT(ir.answered_at)} （${ir.answered_by}）`;
+    modalRows+=`<tr><th style="vertical-align:top;padding-top:8px;background:#ecfdf5;color:#065f46;">💬 経理回答</th><td style="background:#ecfdf5;">${irDetail}</td></tr>`;
+  }
   document.getElementById('modal-table').innerHTML=modalRows;
   // Attachment
   const attEl=document.getElementById('modal-attachment');
@@ -1809,7 +1842,11 @@ function openDetail(id,fromAdmin){
   let btns=`<button class="btn btn-secondary" onclick="closeModal()">閉じる</button>`;
   btns+=`<button class="btn-print" onclick="printRequest('${id}')">🖨️ 印刷（A4）</button>`;
   if(fromAdmin&&canApprove(req)){
-    btns+=`<button class="btn btn-danger" onclick="showReturn()">↩ 差し戻し</button><button class="btn btn-success" onclick="doApprove('${id}')">${getApproveLabel(currentUser?.role,req)}</button>`;
+    if(req.category==='payment_inquiry'&&req.status==='pending'){
+      btns+=`<button class="btn btn-danger" onclick="showReturn()">↩ 差し戻し</button><button class="btn btn-success" onclick="showInquiryResponseForm('${id}')">💬 回答して完了</button>`;
+    } else {
+      btns+=`<button class="btn btn-danger" onclick="showReturn()">↩ 差し戻し</button><button class="btn btn-success" onclick="doApprove('${id}')">${getApproveLabel(currentUser?.role,req)}</button>`;
+    }
   }
   // 申請者が自分の決済エラー申請で、承認済み（再決済報告待ち）の場合
   if(!fromAdmin&&req.category==='payment_error'&&req.status==='completed'&&currentUser&&currentUser.email===req.user_id){
@@ -1833,6 +1870,54 @@ function confirmReturn(){
   const reason=document.getElementById('return-reason').value.trim();
   if(!reason){showToast('差し戻し理由を入力してください','error');return;}
   updateStatus(currentModalId,'returned',reason);
+}
+
+function showInquiryResponseForm(id){
+  const existing=document.getElementById('inquiry-response-form');
+  if(existing)existing.remove();
+  const footer=document.getElementById('modal-footer');
+  const form=document.createElement('div');
+  form.id='inquiry-response-form';
+  form.style.cssText='width:100%;margin-top:10px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:14px;';
+  form.innerHTML=`
+    <div style="font-size:13px;font-weight:700;color:#065f46;margin-bottom:10px;">💬 経理回答を入力して完了</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+      <div><label style="font-size:11px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">残り回数 <span style="color:var(--danger)">*</span></label>
+        <input id="iq_remaining" type="number" min="0" placeholder="例：8" style="width:100%;padding:7px 10px;border:1.5px solid #86efac;border-radius:6px;font-size:13px;"></div>
+      <div><label style="font-size:11px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">回答有効期限</label>
+        <input id="iq_expiry" type="date" style="width:100%;padding:7px 10px;border:1.5px solid #86efac;border-radius:6px;font-size:13px;"></div>
+    </div>
+    <div style="margin-bottom:10px;"><label style="font-size:11px;font-weight:600;color:#374151;display:block;margin-bottom:4px;">回答メモ</label>
+      <textarea id="iq_memo" rows="2" placeholder="補足情報があれば入力してください" style="width:100%;padding:7px 10px;border:1.5px solid #86efac;border-radius:6px;font-size:13px;resize:vertical;"></textarea></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn btn-secondary" onclick="document.getElementById('inquiry-response-form').remove()">キャンセル</button>
+      <button class="btn btn-success" onclick="submitInquiryResponse('${id}')">✅ 回答して完了</button>
+    </div>`;
+  footer.insertAdjacentElement('afterbegin',form);
+}
+
+function submitInquiryResponse(id){
+  const remaining=document.getElementById('iq_remaining').value.trim();
+  if(!remaining){showToast('残り回数を入力してください','error');return;}
+  const d=loadData();
+  const req=d.requests.find(r=>r.id===id);
+  if(!req)return;
+  req.inquiry_response={
+    remaining,
+    expiry:document.getElementById('iq_expiry').value||'',
+    memo:document.getElementById('iq_memo').value.trim()||'',
+    answered_by:currentUser.name,
+    answered_at:new Date().toISOString()
+  };
+  req.status='completed';
+  if(!req.logs)req.logs=[];
+  req.logs.push({action:'completed',label:'経理回答・完了',actor:currentUser.name,actor_email:currentUser.email,timestamp:new Date().toISOString()});
+  saveData(d);
+  sendEmailNotif(req,'completed');
+  renderAdmin();
+  renderDashboard();
+  showToast('回答して完了しました','success');
+  closeModal();
 }
 
 document.getElementById('detail-modal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
@@ -1895,7 +1980,16 @@ function getEmailRecipients(status,req){
 function sendEmailNotif(req,status,note){
   const to=getEmailRecipients(status,req);
   if(!to.length)return;
-  const subjects={pending:`【要確認】部長承認依頼：${req.id} ${CAT_LABELS[req.category]}`,manager_approved:`【要確認】社長承認依頼：${req.id} ${CAT_LABELS[req.category]}`,president_approved:`【要確認】最終承認依頼：${req.id} ${CAT_LABELS[req.category]}`,completed:`【完了】申請が承認されました：${req.id}`,returned:`【差し戻し】申請が差し戻されました：${req.id}`,resettlement_pending:`【要確認】再決済報告が提出されました：${req.id}`,resettlement_completed:`【完了】再決済報告が承認されました（全工程完了）：${req.id}`};
+  const isPmtInq=req&&req.category==='payment_inquiry';
+  const subjects={
+    pending: isPmtInq?`【問い合わせ】決済残り回数問い合わせ：${req.id}`:`【要確認】部長承認依頼：${req.id} ${CAT_LABELS[req.category]}`,
+    manager_approved:`【要確認】社長承認依頼：${req.id} ${CAT_LABELS[req.category]}`,
+    president_approved:`【要確認】最終承認依頼：${req.id} ${CAT_LABELS[req.category]}`,
+    completed: isPmtInq?`【回答済み】決済残り回数問い合わせへの回答：${req.id}`:`【完了】申請が承認されました：${req.id}`,
+    returned:`【差し戻し】申請が差し戻されました：${req.id}`,
+    resettlement_pending:`【要確認】再決済報告が提出されました：${req.id}`,
+    resettlement_completed:`【完了】再決済報告が承認されました（全工程完了）：${req.id}`
+  };
   const subject=subjects[status]||`【通知】${req.id} ステータス更新`;
   const body=`申請者: ${req.user_name}（${req.store_name}）\nカテゴリ: ${CAT_LABELS[req.category]}\nステータス: ${STATUS_LABELS[status]}${note?'\n差し戻し理由: '+note:''}`;
   showEmailToast(to.join(', '),subject,body);
@@ -2007,6 +2101,19 @@ function buildPrintHTML(req){
     </table>`;
   }
 
+  // 経理回答（問い合わせの場合）
+  let iqHTML='';
+  if(req.inquiry_response){
+    const ir=req.inquiry_response;
+    iqHTML=`<h2 style="font-size:12pt;margin:16px 0 8px;border-bottom:2px solid #10b981;padding-bottom:4px;color:#065f46;">💬 経理回答</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:10pt;margin-bottom:16px;">
+      ${ir.remaining!=null&&ir.remaining!==''?`<tr><th style="background:#ecfdf5;padding:6px 10px;border:1px solid #e5e7eb;width:140px;text-align:left;">残り回数</th><td style="padding:6px 10px;border:1px solid #e5e7eb;font-size:14pt;font-weight:700;color:#065f46;">${ir.remaining} 回</td></tr>`:''}
+      ${ir.expiry?`<tr><th style="background:#ecfdf5;padding:6px 10px;border:1px solid #e5e7eb;text-align:left;">回答有効期限</th><td style="padding:6px 10px;border:1px solid #e5e7eb;">${ir.expiry}</td></tr>`:''}
+      ${ir.memo?`<tr><th style="background:#ecfdf5;padding:6px 10px;border:1px solid #e5e7eb;text-align:left;">回答メモ</th><td style="padding:6px 10px;border:1px solid #e5e7eb;">${ir.memo}</td></tr>`:''}
+      <tr><th style="background:#ecfdf5;padding:6px 10px;border:1px solid #e5e7eb;text-align:left;">回答日時</th><td style="padding:6px 10px;border:1px solid #e5e7eb;">${fmtDT(ir.answered_at)}（${ir.answered_by}）</td></tr>
+    </table>`;
+  }
+
   // 添付PDF（本文の最後に印刷）
   let attachPages='';
   if(req.attachment){
@@ -2085,10 +2192,10 @@ ${dailyHTML}
   <tbody>${timelineRows||'<tr><td colspan="4" style="text-align:center;color:#9ca3af;">履歴なし</td></tr>'}</tbody>
 </table>
 
-${rsHTML}
+${rsHTML}${iqHTML}
 
 <div class="print-footer">
-  <span>🏢 社内ワークフローポータル</span>
+  <span>🏢 foryou鍼灸整骨院グループ ワークフローポータル</span>
   <span>印刷日時: ${new Date().toLocaleString('ja-JP')}</span>
 </div>
 
