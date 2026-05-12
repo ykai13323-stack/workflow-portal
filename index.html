@@ -277,27 +277,65 @@
     body.mobile-mode .sidebar{display:none;}
     body.mobile-mode .main{margin-left:0;}
     body.mobile-mode .main-header{display:none;}
-    body.mobile-mode .main-content{padding:14px 12px 80px;}
+    body.mobile-mode .main-content{padding:12px 10px 88px;}
     body.mobile-mode .mob-bottom-nav{display:flex;}
     body.mobile-mode .mob-header{display:flex;}
     body.mobile-mode .mob-fab{display:flex;}
-    body.mobile-mode .stats-grid{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
-    body.mobile-mode .stat-card{padding:12px;gap:10px;}
-    body.mobile-mode .stat-value{font-size:20px;}
-    body.mobile-mode .stat-label{font-size:11px;}
-    body.mobile-mode .stat-icon{width:36px;height:36px;font-size:16px;}
-    body.mobile-mode .card{border-radius:12px;}
-    body.mobile-mode .card-header{padding:12px 14px;}
-    body.mobile-mode .apply-step-bar{padding:12px 0 10px;overflow-x:auto;}
+
+    /* Stats grid 2x2 on mobile */
+    body.mobile-mode .stats-grid{grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+    body.mobile-mode .stat-card{padding:12px 10px;gap:8px;border-radius:10px;}
+    body.mobile-mode .stat-value{font-size:22px;}
+    body.mobile-mode .stat-label{font-size:10px;}
+    body.mobile-mode .stat-icon{width:34px;height:34px;font-size:15px;border-radius:8px;}
+
+    /* Hide desktop tables, show mobile cards */
+    body.mobile-mode .mob-hide-on-mobile{display:none!important;}
+    body.mobile-mode .mob-card-list{display:block!important;}
+    body.mobile-mode .card{border-radius:0;box-shadow:none;border:none;background:transparent;}
+    body.mobile-mode .card-header{background:var(--white);border-radius:12px;margin-bottom:8px;box-shadow:var(--sh);}
+
+    /* Mobile filter bar - scrollable single row */
+    body.mobile-mode .mob-filter-bar{display:flex!important;}
+    body.mobile-mode .desk-filter-area{display:none!important;}
+
+    /* Forms */
+    body.mobile-mode .apply-step-bar{padding:10px 0 8px;overflow-x:auto;}
     body.mobile-mode .step-label{font-size:9px;}
     body.mobile-mode .form-grid{grid-template-columns:1fr;}
     body.mobile-mode .form-group.span2{grid-column:span 1;}
-    body.mobile-mode table thead{display:none;}
-    body.mobile-mode table tbody tr{display:block;border:1.5px solid var(--g200);border-radius:10px;margin-bottom:8px;padding:10px 12px;}
-    body.mobile-mode table tbody td{display:flex;justify-content:space-between;padding:4px 0;font-size:12px;border:none;}
-    body.mobile-mode table tbody td::before{content:attr(data-label);font-weight:600;color:var(--g500);font-size:11px;margin-right:8px;flex-shrink:0;}
-    body.mobile-mode .filter-btn{font-size:10px;padding:4px 8px;}
-    body.mobile-mode .btn-print{font-size:12px;padding:5px 10px;}
+    body.mobile-mode input,body.mobile-mode select,body.mobile-mode textarea{min-height:44px;font-size:16px!important;border-radius:10px;}
+    body.mobile-mode .form-group label{font-size:13px;margin-bottom:6px;}
+    body.mobile-mode .filter-btn{font-size:11px;padding:6px 12px;min-height:36px;}
+    body.mobile-mode .btn{min-height:44px;font-size:14px;border-radius:10px;}
+    body.mobile-mode .btn-sm{min-height:36px;font-size:13px;}
+    body.mobile-mode .btn-print{font-size:13px;padding:8px 14px;min-height:40px;}
+    body.mobile-mode .header-btn{min-height:40px;}
+
+    /* Modal - bottom sheet on mobile */
+    body.mobile-mode .modal-overlay{align-items:flex-end;padding:0;}
+    body.mobile-mode .modal{border-radius:20px 20px 0 0;max-height:92vh;width:100%;max-width:100%;margin:0;display:flex;flex-direction:column;}
+    body.mobile-mode .modal-header{padding:16px 18px 12px;flex-shrink:0;}
+    body.mobile-mode .modal-body{overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1;}
+    body.mobile-mode .modal-footer{flex-shrink:0;padding:12px 16px;display:flex;flex-wrap:wrap;gap:8px;border-top:1px solid var(--g200);}
+    body.mobile-mode .modal-footer button,.modal-footer .btn-print{flex:1;min-width:calc(50% - 4px);text-align:center;min-height:46px;font-size:14px;}
+    body.mobile-mode .modal-footer .btn:only-child{flex:none;width:100%;}
+    body.mobile-mode .approval-flow{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;}
+    body.mobile-mode .flow-step{font-size:10px;padding:4px 8px;white-space:nowrap;}
+    body.mobile-mode .modal-table th{font-size:11px;width:90px;}
+    body.mobile-mode .modal-table td{font-size:12px;}
+
+    /* Category cards grid on mobile */
+    body.mobile-mode .category-grid{grid-template-columns:1fr 1fr!important;}
+    body.mobile-mode .category-card{padding:14px 10px;}
+    body.mobile-mode .category-card-icon{font-size:24px;}
+    body.mobile-mode .category-card h4{font-size:11px;}
+    body.mobile-mode .category-card p{font-size:10px;}
+
+    /* Timeline mobile */
+    body.mobile-mode .timeline-content{padding:12px 14px;}
+    body.mobile-mode .timeline-content h4{font-size:12px;}
+    body.mobile-mode .timeline-content p{font-size:12px;}
 
     /* Desktop: hide mobile elements */
     body:not(.mobile-mode) .mob-bottom-nav{display:none!important;}
@@ -305,6 +343,9 @@
     body:not(.mobile-mode) .mob-fab{display:none!important;}
     body:not(.mobile-mode) .mob-user-sheet{display:none!important;}
     body:not(.mobile-mode) .mob-sheet-overlay{display:none!important;}
+    body:not(.mobile-mode) .mob-card-list{display:none!important;}
+    body:not(.mobile-mode) .mob-filter-bar{display:none!important;}
+    body:not(.mobile-mode) .mob-hide-on-mobile{display:block!important;}
   </style>
 </head>
 <body>
@@ -418,8 +459,28 @@
           <div class="card-header">
             <h3>申請一覧</h3>
           </div>
+          <!-- Mobile filter bar -->
+          <div class="mob-filter-bar" style="display:none;padding:10px 12px;gap:8px;align-items:center;border-bottom:1px solid var(--g100);overflow-x:auto;-webkit-overflow-scrolling:touch;">
+            <input type="text" id="mob-dash-keyword" placeholder="🔍 検索..." oninput="mobSyncSearch(this.value)" style="flex:1;min-width:120px;padding:8px 12px;border:1.5px solid var(--g200);border-radius:20px;font-size:14px;outline:none;">
+            <select id="mob-dash-cat" onchange="mobSyncCat(this.value)" style="padding:8px 10px;border:1.5px solid var(--g200);border-radius:20px;font-size:13px;background:white;flex-shrink:0;">
+              <option value="all">すべて</option>
+              <option value="payment_error">💳 決済エラー</option>
+              <option value="refund">💰 返金</option>
+              <option value="robo_stop">🤖 ロボ停止</option>
+              <option value="bank_account">🏦 口座情報</option>
+              <option value="payment_inquiry">❓ 残り回数</option>
+              <option value="transport">🚗 交通費</option>
+            </select>
+          </div>
+          <!-- Status filter chips (mobile) -->
+          <div class="mob-filter-bar" style="display:none;padding:6px 12px 10px;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;border-bottom:1px solid var(--g100);">
+            <button class="filter-btn active" onclick="filterTable('all',this)" style="white-space:nowrap;">すべて</button>
+            <button class="filter-btn" onclick="filterTable('pending',this)" style="white-space:nowrap;">承認待ち</button>
+            <button class="filter-btn" onclick="filterTable('completed',this)" style="white-space:nowrap;">完了</button>
+            <button class="filter-btn" onclick="filterTable('returned',this)" style="white-space:nowrap;">差し戻し</button>
+          </div>
           <!-- 検索・絞り込みエリア -->
-          <div style="padding:12px 16px 0;border-bottom:1px solid var(--g100);">
+          <div class="desk-filter-area" style="padding:12px 16px 0;border-bottom:1px solid var(--g100);">
             <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-bottom:12px;">
               <div>
                 <div style="font-size:10px;font-weight:700;color:var(--g500);margin-bottom:4px;">📅 期間（開始）</div>
@@ -459,8 +520,9 @@
               <button class="filter-btn" onclick="filterTable('returned',this)">差し戻し</button>
             </div>
           </div>
-          <table><thead><tr><th>申請ID</th><th>店舗番号</th><th>カテゴリ</th><th>内容</th><th>申請日</th><th>タイムログ</th><th>ステータス</th><th></th></tr></thead>
+          <table class="mob-hide-on-mobile"><thead><tr><th>申請ID</th><th>店舗番号</th><th>カテゴリ</th><th>内容</th><th>申請日</th><th>タイムログ</th><th>ステータス</th><th></th></tr></thead>
           <tbody id="dashboard-tbody"></tbody></table>
+          <div id="dashboard-cards" class="mob-card-list" style="display:none;padding:4px 0;"></div>
         </div>
       </div>
 
@@ -551,6 +613,7 @@
           <div class="card-header"><h3 id="admin-title">⚙️ 申請管理</h3><span id="admin-count" style="font-size:12px;color:var(--g400);"></span></div>
           <table><thead><tr><th>申請ID</th><th>店舗番号</th><th>申請者</th><th>カテゴリ</th><th>申請日</th><th>ステータス</th><th>操作</th></tr></thead>
           <tbody id="admin-tbody"></tbody></table>
+          <div id="admin-cards" class="mob-card-list" style="display:none;padding:4px 0;"></div>
         </div>
       </div>
 
@@ -1169,6 +1232,16 @@ function renderDashboard(){
   renderDashTable(dashFilter);
 }
 
+function mobSyncSearch(val){
+  const dk=document.getElementById('dash-keyword');
+  if(dk)dk.value=val;
+  applyDashFilters();
+}
+function mobSyncCat(val){
+  const dc=document.getElementById('dash-cat-filter');
+  if(dc)dc.value=val;
+  applyDashFilters();
+}
 function filterTable(s,btn){
   dashFilter=s;
   document.querySelectorAll('#section-dashboard .filter-btn').forEach(b=>b.classList.remove('active'));
@@ -1220,8 +1293,10 @@ function renderDashTable(filter){
   const cnt=document.getElementById('dash-result-count');
   if(cnt)cnt.textContent=reqs.length+'件';
   const tbody=document.getElementById('dashboard-tbody');
-  if(!reqs.length){tbody.innerHTML=`<tr><td colspan="8" class="table-empty">📭 申請がありません</td></tr>`;return;}
-  tbody.innerHTML=reqs.map(r=>{
+  const cardList=document.getElementById('dashboard-cards');
+  const isMob=document.body.classList.contains('mobile-mode');
+  if(!reqs.length){tbody.innerHTML=`<tr><td colspan="8" class="table-empty">📭 申請がありません</td></tr>`;if(cardList)cardList.innerHTML='';return;}
+  const tableRows=reqs.map(r=>{
     const ll=getLatestLog(r);
     const logHtml=ll?`<div class="timelog-cell"><span class="timelog-action">${ll.label}</span><br>${fmtDT(ll.timestamp)}</div>`:'—';
     return`<tr>
@@ -1235,6 +1310,26 @@ function renderDashTable(filter){
       <td><span class="action-link" onclick="openDetail('${r.id}',false)">詳細 →</span></td>
     </tr>`;
   }).join('');
+  tbody.innerHTML=tableRows;
+  if(cardList){
+    cardList.innerHTML=reqs.map(r=>`
+      <div class="req-card" onclick="openDetail('${r.id}',false)">
+        <div class="req-card-top">
+          <span class="req-card-id">${r.id}</span>
+          <span class="cat-chip cat-${r.category}" style="font-size:11px;">${CAT_ICONS[r.category]} ${CAT_LABELS[r.category]}</span>
+        </div>
+        <div class="req-card-body">
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:700;color:var(--g800);margin-bottom:4px;">${getSummary(r)||'—'}</div>
+            <div style="font-size:11px;color:var(--g500);">${r.store_name||''} ・ ${fmtDate(r.created_at)}</div>
+          </div>
+          <span class="badge badge-${r.status}" style="flex-shrink:0;align-self:flex-start;">${getStatusLabel(r)}</span>
+        </div>
+        <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--g100);display:flex;justify-content:flex-end;">
+          <span style="font-size:12px;color:var(--primary);font-weight:600;">詳細を見る →</span>
+        </div>
+      </div>`).join('');
+  }
 }
 
 function getSummary(r){
@@ -1838,7 +1933,12 @@ function renderAdmin(){
   const reqs=getAdminReqs();
   document.getElementById('admin-count').textContent=`${reqs.length}件`;
   const tbody=document.getElementById('admin-tbody');
-  if(!reqs.length){tbody.innerHTML=`<tr><td colspan="7" class="table-empty">📭 該当する申請がありません</td></tr>`;return;}
+  const adminCards=document.getElementById('admin-cards');
+  if(!reqs.length){
+    tbody.innerHTML=`<tr><td colspan="7" class="table-empty">📭 該当する申請がありません</td></tr>`;
+    if(adminCards)adminCards.innerHTML=`<div style="text-align:center;padding:40px 20px;color:var(--g400);font-size:14px;">📭 該当する申請がありません</div>`;
+    return;
+  }
   tbody.innerHTML=reqs.map(r=>{
     const actions=canApprove(r)?`<button class="btn btn-sm btn-success" onclick="doApprove('${r.id}')">${getApproveLabel(currentUser?.role,r)}</button><button class="btn btn-sm btn-danger" onclick="openDetail('${r.id}',true)">差し戻し</button>`:'';
     return`<tr>
@@ -1851,6 +1951,27 @@ function renderAdmin(){
       <td><div style="display:flex;gap:4px;flex-wrap:wrap"><button class="btn btn-sm btn-secondary" onclick="openDetail('${r.id}',true)">詳細</button>${actions}</div></td>
     </tr>`;
   }).join('');
+  if(adminCards){
+    adminCards.innerHTML=reqs.map(r=>{
+      const approve=canApprove(r);
+      return`<div class="req-card">
+        <div class="req-card-top">
+          <span class="req-card-id">${r.id}</span>
+          <span class="cat-chip cat-${r.category}" style="font-size:11px;">${CAT_ICONS[r.category]} ${CAT_LABELS[r.category]}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="font-size:13px;font-weight:700;color:var(--g800);flex:1;">${r.user_name}</span>
+          <span class="badge badge-${r.status}">${getStatusLabel(r)}</span>
+        </div>
+        <div style="font-size:11px;color:var(--g500);margin-bottom:10px;">${r.store_name||''} ・ ${fmtDate(r.created_at)}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-sm btn-secondary" style="flex:1;" onclick="openDetail('${r.id}',true)">📋 詳細</button>
+          ${approve?`<button class="btn btn-sm btn-success" style="flex:2;" onclick="doApprove('${r.id}')">${getApproveLabel(currentUser?.role,r)}</button>`:''}
+        </div>
+        ${approve?`<div style="margin-top:6px;"><button class="btn btn-sm btn-danger" style="width:100%;" onclick="openDetail('${r.id}',true)">↩ 差し戻し</button></div>`:''}
+      </div>`;
+    }).join('');
+  }
 }
 
 function doApprove(id){
