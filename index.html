@@ -221,6 +221,14 @@
     .admin-badge{background:#fef3c7;color:#92400e;font-size:10px;padding:2px 5px;border-radius:4px;font-weight:700}
     @media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}.form-group.span2{grid-column:span 1}.form-section-title{grid-column:span 1}.wl-form{grid-template-columns:1fr}}
     @media(max-width:600px){.sidebar{display:none}.main{margin-left:0}.category-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:1fr 1fr}}
+    /* PDF プレビュー */
+    .pdf-preview-frame{width:100%;height:480px;border:1px solid var(--g200);border-radius:8px;margin-top:8px;display:block;}
+    .img-preview-frame{max-width:100%;border-radius:8px;margin-top:8px;display:block;border:1px solid var(--g200);}
+    .preview-toggle-btn{font-size:12px;padding:4px 10px;border-radius:6px;background:var(--g100);border:1px solid var(--g200);cursor:pointer;color:var(--g700);transition:all .15s;}
+    .preview-toggle-btn:hover{background:var(--g200);}
+    /* 印刷ボタン */
+    .btn-print{background:#1f2937;color:#fff;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;}
+    .btn-print:hover{background:#374151;}
   </style>
 </head>
 <body>
@@ -1679,8 +1687,39 @@ function openDetail(id,fromAdmin){
   document.getElementById('modal-table').innerHTML=modalRows;
   // Attachment
   const attEl=document.getElementById('modal-attachment');
-  if(req.attachment){attEl.style.display='block';attEl.innerHTML=`<a href="${req.attachment}" download="申請書.pdf" class="btn btn-sm btn-secondary">📄 添付書類をダウンロード</a>`;}
-  else{attEl.style.display='none';}
+  if(req.attachment){
+    const isImg=req.attachment.startsWith('data:image');
+    attEl.style.display='block';
+    attEl.innerHTML=`
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+        <span style="font-size:12px;font-weight:600;color:var(--g600);">📎 添付書類</span>
+        <a href="${req.attachment}" download="申請書.${isImg?'jpg':'pdf'}" class="btn btn-sm btn-secondary" style="font-size:11px;padding:4px 10px;">⬇ ダウンロード</a>
+        <button class="preview-toggle-btn" onclick="toggleAttachPreview('main-att-preview','main-att-btn')">👁 プレビュー表示</button>
+      </div>
+      <div id="main-att-preview" style="display:none;">
+        ${isImg?`<img src="${req.attachment}" class="img-preview-frame">`:`<iframe src="${req.attachment}" class="pdf-preview-frame"></iframe>`}
+      </div>`;
+  } else {
+    attEl.style.display='none';
+  }
+  // 再決済報告の添付も表示
+  if(req.resettlement_report?.attachments?.length){
+    attEl.style.display='block';
+    const rsAtts=req.resettlement_report.attachments;
+    attEl.innerHTML+= `<div style="margin-top:10px;"><span style="font-size:12px;font-weight:600;color:var(--g600);">📎 再決済報告 添付書類（${rsAtts.length}件）</span>${rsAtts.map((a,i)=>{
+      const isImg2=a.data?.startsWith('data:image');
+      return`<div style="margin-top:6px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <span style="font-size:11px;color:var(--g600);">${isImg2?'🖼️':'📄'} ${a.name}</span>
+          <a href="${a.data}" download="${a.name}" class="btn btn-sm btn-secondary" style="font-size:11px;padding:3px 8px;">⬇ DL</a>
+          <button class="preview-toggle-btn" onclick="toggleAttachPreview('rs-att-preview-${i}','rs-att-btn-${i}')">👁 プレビュー</button>
+        </div>
+        <div id="rs-att-preview-${i}" style="display:none;">
+          ${isImg2?`<img src="${a.data}" class="img-preview-frame">`:`<iframe src="${a.data}" class="pdf-preview-frame"></iframe>`}
+        </div>
+      </div>`;
+    }).join('')}</div>`;
+  }
   // Timeline
   const logs=req.logs||[];
   document.getElementById('modal-timeline').innerHTML=`<div class="modal-tl-title">📋 承認タイムライン</div><div class="modal-timeline">${logs.map(l=>`<div class="modal-tl-item"><div class="modal-tl-dot tld-${l.action}"></div><div class="modal-tl-time">${fmtDT(l.timestamp)}</div><div class="modal-tl-content"><strong>${l.label}</strong>${l.note?'：'+l.note:''}</div><div class="modal-tl-actor">${l.actor} (${l.actor_email})</div></div>`).join('')}</div>`;
@@ -1688,6 +1727,7 @@ function openDetail(id,fromAdmin){
   const footer=document.getElementById('modal-footer');
   hideReturn();
   let btns=`<button class="btn btn-secondary" onclick="closeModal()">閉じる</button>`;
+  btns+=`<button class="btn-print" onclick="printRequest('${id}')">🖨️ 印刷（A4）</button>`;
   if(fromAdmin&&canApprove(req)){
     btns+=`<button class="btn btn-danger" onclick="showReturn()">↩ 差し戻し</button><button class="btn btn-success" onclick="doApprove('${id}')">${getApproveLabel(currentUser?.role,req)}</button>`;
   }
@@ -1797,6 +1837,184 @@ function showToast(msg,type='info'){
   el.innerHTML=`<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
   document.getElementById('toast-container').appendChild(el);
   setTimeout(()=>{if(el.parentElement)el.remove();},3500);
+}
+
+// ══════════ PREVIEW / PRINT ══════════
+function toggleAttachPreview(previewId, btnId){
+  const el=document.getElementById(previewId);
+  if(!el)return;
+  const isOpen=el.style.display!=='none';
+  el.style.display=isOpen?'none':'block';
+}
+
+function printRequest(id){
+  const d=loadData();
+  const req=d.requests.find(r=>r.id===id);
+  if(!req)return;
+  const html=buildPrintHTML(req);
+  const win=window.open('','_blank','width=820,height=1160');
+  win.document.write(html);
+  win.document.close();
+  win.addEventListener('load',()=>{setTimeout(()=>{win.focus();win.print();},400);});
+  // fallback
+  setTimeout(()=>{try{win.focus();win.print();}catch(e){}},800);
+}
+
+function buildPrintHTML(req){
+  const fd=req.data||{};
+  const rate=loadData().transport_settings?.gasoline_per_km||13;
+  const skipKeys=['daily_entries','period_start','period_end','validation_status','edf_uploaded','receipt_uploaded'];
+
+  // 申請内容テーブル
+  let dataRows=Object.entries(fd).filter(([k])=>!skipKeys.includes(k)).map(([k,v])=>{
+    if(typeof v==='object')return'';
+    return`<tr><th>${FL[k]||k}</th><td>${v||'—'}</td></tr>`;
+  }).join('');
+
+  // 交通費 日別明細
+  let dailyHTML='';
+  if(req.category==='transport'&&fd.daily_entries?.length){
+    const entries=fd.daily_entries;
+    const total=entries.reduce((s,e)=>s+(parseInt(e.amount)||0),0);
+    dailyHTML=`<h2 style="font-size:12pt;margin:16px 0 8px;border-bottom:2px solid #4f46e5;padding-bottom:4px;color:#4f46e5;">🚗 日別移動明細</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:9pt;margin-bottom:16px;">
+      <thead><tr style="background:#f3f4f6;">
+        <th style="padding:5px 8px;border:1px solid #e5e7eb;text-align:left;">日付</th>
+        <th style="padding:5px 8px;border:1px solid #e5e7eb;text-align:left;">ルート/経路</th>
+        <th style="padding:5px 8px;border:1px solid #e5e7eb;text-align:right;">km</th>
+        <th style="padding:5px 8px;border:1px solid #e5e7eb;text-align:right;">ガソリン</th>
+        <th style="padding:5px 8px;border:1px solid #e5e7eb;text-align:right;">高速代</th>
+        <th style="padding:5px 8px;border:1px solid #e5e7eb;text-align:right;">交通費</th>
+        <th style="padding:5px 8px;border:1px solid #e5e7eb;text-align:right;">駐車場</th>
+        <th style="padding:5px 8px;border:1px solid #e5e7eb;text-align:right;color:#4f46e5;">小計</th>
+      </tr></thead>
+      <tbody>${entries.map(e=>`<tr>
+        <td style="padding:4px 8px;border:1px solid #e5e7eb;">${e.date||'—'}</td>
+        <td style="padding:4px 8px;border:1px solid #e5e7eb;">${e.route_name||((e.from_name||'')+'→'+(e.to_name||''))||'—'}${e.round?' (往復)':''}</td>
+        <td style="padding:4px 8px;border:1px solid #e5e7eb;text-align:right;">${e.km||'—'}</td>
+        <td style="padding:4px 8px;border:1px solid #e5e7eb;text-align:right;">${e.gas?'¥'+Number(e.gas).toLocaleString():'—'}</td>
+        <td style="padding:4px 8px;border:1px solid #e5e7eb;text-align:right;">${e.toll?'¥'+Number(e.toll).toLocaleString():'—'}</td>
+        <td style="padding:4px 8px;border:1px solid #e5e7eb;text-align:right;">${e.transit?'¥'+Number(e.transit).toLocaleString():'—'}</td>
+        <td style="padding:4px 8px;border:1px solid #e5e7eb;text-align:right;">${e.parking?'¥'+Number(e.parking).toLocaleString():'—'}</td>
+        <td style="padding:4px 8px;border:1px solid #e5e7eb;text-align:right;font-weight:700;">¥${Number(e.amount||0).toLocaleString()}</td>
+      </tr>`).join('')}
+      <tr style="background:#eef2ff;font-weight:700;">
+        <td colspan="7" style="padding:5px 8px;border:1px solid #e5e7eb;">合計</td>
+        <td style="padding:5px 8px;border:1px solid #e5e7eb;text-align:right;color:#4f46e5;">¥${total.toLocaleString()}</td>
+      </tr></tbody>
+    </table>`;
+  }
+
+  // 承認タイムライン
+  const logs=req.logs||[];
+  const timelineRows=logs.map(l=>`<tr>
+    <td style="padding:5px 8px;border:1px solid #e5e7eb;white-space:nowrap;">${fmtDT(l.timestamp)}</td>
+    <td style="padding:5px 8px;border:1px solid #e5e7eb;font-weight:600;">${l.label}</td>
+    <td style="padding:5px 8px;border:1px solid #e5e7eb;">${l.actor}</td>
+    <td style="padding:5px 8px;border:1px solid #e5e7eb;color:#6b7280;">${l.note||'—'}</td>
+  </tr>`).join('');
+
+  // 再決済報告
+  let rsHTML='';
+  if(req.resettlement_report){
+    const rs=req.resettlement_report;
+    rsHTML=`<h2 style="font-size:12pt;margin:16px 0 8px;border-bottom:2px solid #f59e0b;padding-bottom:4px;color:#92400e;">🔄 再決済報告</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:10pt;margin-bottom:16px;">
+      <tr><th style="background:#fef9c3;padding:6px 10px;border:1px solid #e5e7eb;width:140px;text-align:left;">再決済結果</th><td style="padding:6px 10px;border:1px solid #e5e7eb;">${rs.result==='success'?'✅ 再決済できた':'❌ できなかった'}</td></tr>
+      ${rs.fail_reason?`<tr><th style="background:#fef9c3;padding:6px 10px;border:1px solid #e5e7eb;text-align:left;">失敗の理由</th><td style="padding:6px 10px;border:1px solid #e5e7eb;">${rs.fail_reason}</td></tr>`:''}
+      ${rs.next_date?`<tr><th style="background:#fef9c3;padding:6px 10px;border:1px solid #e5e7eb;text-align:left;">次回予定日</th><td style="padding:6px 10px;border:1px solid #e5e7eb;">${rs.next_date}</td></tr>`:''}
+      <tr><th style="background:#fef9c3;padding:6px 10px;border:1px solid #e5e7eb;text-align:left;">報告日時</th><td style="padding:6px 10px;border:1px solid #e5e7eb;">${fmtDT(rs.submitted_at)}（${rs.submitted_by}）</td></tr>
+    </table>`;
+  }
+
+  // 添付PDF（本文の最後に印刷）
+  let attachPages='';
+  if(req.attachment){
+    const isImg=req.attachment.startsWith('data:image');
+    attachPages+=`<div style="page-break-before:always;">
+      <h2 style="font-size:12pt;margin:0 0 12px;border-bottom:2px solid #4f46e5;padding-bottom:4px;color:#4f46e5;">📎 添付書類</h2>
+      ${isImg
+        ?`<img src="${req.attachment}" style="max-width:100%;border:1px solid #e5e7eb;border-radius:4px;">`
+        :`<iframe src="${req.attachment}" style="width:100%;height:260mm;border:none;"></iframe>`}
+    </div>`;
+  }
+  // 再決済報告の添付
+  if(req.resettlement_report?.attachments?.length){
+    req.resettlement_report.attachments.forEach((a,i)=>{
+      const isImg2=a.data?.startsWith('data:image');
+      attachPages+=`<div style="page-break-before:always;">
+        <h2 style="font-size:12pt;margin:0 0 12px;border-bottom:2px solid #f59e0b;padding-bottom:4px;color:#92400e;">📎 再決済報告 添付書類${req.resettlement_report.attachments.length>1?' ('+(i+1)+')':''}</h2>
+        ${isImg2
+          ?`<img src="${a.data}" style="max-width:100%;border:1px solid #e5e7eb;border-radius:4px;">`
+          :`<iframe src="${a.data}" style="width:100%;height:260mm;border:none;"></iframe>`}
+      </div>`;
+    });
+  }
+
+  const statusLabel=getStatusLabel(req);
+
+  return`<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>${req.id} 申請書 — ${CAT_LABELS[req.category]}</title>
+<style>
+  @page{size:A4;margin:15mm 12mm 15mm 12mm;}
+  *{box-sizing:border-box;}
+  body{font-family:'Hiragino Kaku Gothic ProN','Noto Sans JP',Meiryo,sans-serif;font-size:10.5pt;color:#1f2937;margin:0;padding:0;line-height:1.6;}
+  h2{font-size:11.5pt;margin:18px 0 8px;border-bottom:2px solid #4f46e5;padding-bottom:4px;color:#4f46e5;}
+  table{width:100%;border-collapse:collapse;margin-bottom:14px;}
+  th{background:#f3f4f6;text-align:left;padding:6px 10px;font-size:9.5pt;color:#6b7280;width:130px;border:1px solid #e5e7eb;font-weight:600;}
+  td{padding:6px 10px;border:1px solid #e5e7eb;font-size:10pt;}
+  .doc-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;padding-bottom:12px;border-bottom:3px solid #1f2937;}
+  .doc-title{font-size:18pt;font-weight:800;color:#1f2937;margin-bottom:4px;}
+  .doc-cat{font-size:10pt;color:#6b7280;}
+  .doc-meta{text-align:right;font-size:9.5pt;color:#6b7280;line-height:1.8;}
+  .doc-meta strong{color:#1f2937;font-size:11pt;}
+  .status-badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:9pt;font-weight:700;background:#dbeafe;color:#1e40af;margin-top:4px;}
+  .print-footer{margin-top:20px;padding-top:8px;border-top:1px solid #e5e7eb;font-size:8pt;color:#9ca3af;display:flex;justify-content:space-between;}
+</style>
+</head>
+<body>
+<div class="doc-header">
+  <div>
+    <div class="doc-title">申請書</div>
+    <div class="doc-cat">${CAT_ICONS[req.category]||'📝'} ${CAT_LABELS[req.category]||req.category}</div>
+  </div>
+  <div class="doc-meta">
+    <strong>${req.id}</strong><br>
+    申請日: ${fmtDate(req.created_at)}<br>
+    申請者: ${req.user_name}（${req.store_name||''}）<br>
+    <span class="status-badge">${statusLabel}</span>
+  </div>
+</div>
+
+<h2>📋 申請内容</h2>
+<table>${dataRows||'<tr><td>—</td></tr>'}</table>
+
+${dailyHTML}
+
+<h2>📊 承認履歴</h2>
+<table>
+  <thead><tr>
+    <th style="width:130px;">日時</th>
+    <th style="width:110px;">アクション</th>
+    <th style="width:110px;">担当者</th>
+    <th>備考</th>
+  </tr></thead>
+  <tbody>${timelineRows||'<tr><td colspan="4" style="text-align:center;color:#9ca3af;">履歴なし</td></tr>'}</tbody>
+</table>
+
+${rsHTML}
+
+<div class="print-footer">
+  <span>🏢 社内ワークフローポータル</span>
+  <span>印刷日時: ${new Date().toLocaleString('ja-JP')}</span>
+</div>
+
+${attachPages}
+</body>
+</html>`;
 }
 
 // ══════════ RESETTLEMENT REPORT ══════════
