@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>社内ワークフローポータル</title>
+  <title>foryou鍼灸整骨院グループ ワークフローポータル</title>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <style>
     :root{--primary:#4f46e5;--primary-light:#6366f1;--primary-dark:#3730a3;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--info:#3b82f6;--purple:#7c3aed;--g50:#f9fafb;--g100:#f3f4f6;--g200:#e5e7eb;--g300:#d1d5db;--g400:#9ca3af;--g500:#6b7280;--g600:#4b5563;--g700:#374151;--g800:#1f2937;--g900:#111827;--white:#fff;--sw:260px;--hh:64px;--r:12px;--sh:0 1px 3px rgba(0,0,0,.1);--shm:0 4px 6px -1px rgba(0,0,0,.1);--shl:0 10px 15px -3px rgba(0,0,0,.1)}
@@ -243,7 +243,7 @@
 <div id="page-login" class="page active">
   <div class="login-card">
     <div class="login-logo">🏢</div>
-    <h1>社内ワークフローポータル</h1>
+    <h1 style="font-size:17px;line-height:1.4;">foryou鍼灸整骨院グループ<br>ワークフローポータル</h1>
     <p class="login-subtitle">承認済みのGoogleアカウントでのみログインできます</p>
     <button class="google-btn" id="google-login-btn" onclick="startLogin('employee')">
       <div class="btn-spinner"></div>
@@ -281,8 +281,8 @@
   <nav class="sidebar">
     <div class="sidebar-header">
       <div class="sb-logo">
-        <div class="sb-logo-icon">🏢</div>
-        <div><div class="sb-logo-text">ワークフローポータル</div><div class="sb-logo-sub">社内申請管理システム</div></div>
+        <div class="sb-logo-icon">💉</div>
+        <div><div class="sb-logo-text" style="font-size:11px;line-height:1.3;">foryou鍼灸整骨院G<br>ワークフローポータル</div><div class="sb-logo-sub">申請管理システム</div></div>
       </div>
     </div>
     <div class="sidebar-nav">
@@ -323,13 +323,47 @@
         <div class="stats-grid" id="stats-grid"></div>
         <div class="card">
           <div class="card-header">
-            <h3>最近の申請</h3>
-            <button class="filter-btn active" onclick="filterTable('all',this)">すべて</button>
-            <button class="filter-btn" onclick="filterTable('pending',this)">承認待ち</button>
-            <button class="filter-btn" onclick="filterTable('manager_approved',this)">社長待ち</button>
-            <button class="filter-btn" onclick="filterTable('president_approved',this)">最終待ち</button>
-            <button class="filter-btn" onclick="filterTable('completed',this)">完了</button>
-            <button class="filter-btn" onclick="filterTable('returned',this)">差し戻し</button>
+            <h3>申請一覧</h3>
+          </div>
+          <!-- 検索・絞り込みエリア -->
+          <div style="padding:12px 16px 0;border-bottom:1px solid var(--g100);">
+            <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-bottom:12px;">
+              <div>
+                <div style="font-size:10px;font-weight:700;color:var(--g500);margin-bottom:4px;">📅 期間（開始）</div>
+                <input type="date" id="dash-date-from" style="border:1px solid var(--g200);border-radius:7px;padding:5px 10px;font-size:12px;color:var(--g700);" onchange="applyDashFilters()">
+              </div>
+              <div style="color:var(--g400);padding-bottom:6px;">〜</div>
+              <div>
+                <div style="font-size:10px;font-weight:700;color:var(--g500);margin-bottom:4px;">📅 期間（終了）</div>
+                <input type="date" id="dash-date-to" style="border:1px solid var(--g200);border-radius:7px;padding:5px 10px;font-size:12px;color:var(--g700);" onchange="applyDashFilters()">
+              </div>
+              <div>
+                <div style="font-size:10px;font-weight:700;color:var(--g500);margin-bottom:4px;">📂 カテゴリ</div>
+                <select id="dash-cat-filter" style="border:1px solid var(--g200);border-radius:7px;padding:5px 10px;font-size:12px;color:var(--g700);background:var(--white);" onchange="applyDashFilters()">
+                  <option value="all">すべて</option>
+                  <option value="payment_error">💳 決済エラー申請</option>
+                  <option value="refund">💰 返金申請</option>
+                  <option value="robo_stop">🤖 ロボ停止申請</option>
+                  <option value="bank_account">🏦 銀行口座変更申請</option>
+                  <option value="transport">🚗 交通費申請</option>
+                </select>
+              </div>
+              <div>
+                <div style="font-size:10px;font-weight:700;color:var(--g500);margin-bottom:4px;">🔍 フリーワード</div>
+                <input type="text" id="dash-keyword" placeholder="患者名・ID・内容など" style="border:1px solid var(--g200);border-radius:7px;padding:5px 10px;font-size:12px;width:160px;" oninput="applyDashFilters()">
+              </div>
+              <button onclick="clearDashFilters()" style="padding:5px 12px;border:1px solid var(--g200);border-radius:7px;font-size:12px;background:var(--g100);cursor:pointer;color:var(--g600);">✕ クリア</button>
+              <div id="dash-result-count" style="font-size:11px;color:var(--g500);padding-bottom:6px;"></div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+              <button class="filter-btn active" onclick="filterTable('all',this)">すべて</button>
+              <button class="filter-btn" onclick="filterTable('pending',this)">承認待ち</button>
+              <button class="filter-btn" onclick="filterTable('manager_approved',this)">社長待ち</button>
+              <button class="filter-btn" onclick="filterTable('president_approved',this)">最終待ち</button>
+              <button class="filter-btn" onclick="filterTable('resettlement_pending',this)">再決済報告待ち</button>
+              <button class="filter-btn" onclick="filterTable('completed',this)">完了</button>
+              <button class="filter-btn" onclick="filterTable('returned',this)">差し戻し</button>
+            </div>
           </div>
           <table><thead><tr><th>申請ID</th><th>店舗番号</th><th>カテゴリ</th><th>内容</th><th>申請日</th><th>タイムログ</th><th>ステータス</th><th></th></tr></thead>
           <tbody id="dashboard-tbody"></tbody></table>
@@ -973,10 +1007,49 @@ function filterTable(s,btn){
   renderDashTable(s);
 }
 
+function applyDashFilters(){
+  renderDashTable(dashFilter);
+}
+
+function clearDashFilters(){
+  const df=document.getElementById('dash-date-from');
+  const dt=document.getElementById('dash-date-to');
+  const dc=document.getElementById('dash-cat-filter');
+  const dk=document.getElementById('dash-keyword');
+  if(df)df.value='';
+  if(dt)dt.value='';
+  if(dc)dc.value='all';
+  if(dk)dk.value='';
+  renderDashTable(dashFilter);
+}
+
 function renderDashTable(filter){
   let reqs=getMyReqs();
   if(filter!=='all')reqs=reqs.filter(r=>r.status===filter);
+  // 期間フィルター
+  const dateFrom=document.getElementById('dash-date-from')?.value;
+  const dateTo=document.getElementById('dash-date-to')?.value;
+  if(dateFrom)reqs=reqs.filter(r=>r.created_at&&r.created_at.slice(0,10)>=dateFrom);
+  if(dateTo)reqs=reqs.filter(r=>r.created_at&&r.created_at.slice(0,10)<=dateTo);
+  // カテゴリフィルター
+  const catFilter=document.getElementById('dash-cat-filter')?.value||'all';
+  if(catFilter!=='all')reqs=reqs.filter(r=>r.category===catFilter);
+  // フリーワード検索
+  const kw=(document.getElementById('dash-keyword')?.value||'').trim().toLowerCase();
+  if(kw){
+    reqs=reqs.filter(r=>{
+      const summary=getSummary(r).toLowerCase();
+      const id=r.id.toLowerCase();
+      const user=(r.user_name||'').toLowerCase();
+      const store=(r.store_name||'').toLowerCase();
+      const dataStr=JSON.stringify(r.data||{}).toLowerCase();
+      return summary.includes(kw)||id.includes(kw)||user.includes(kw)||store.includes(kw)||dataStr.includes(kw);
+    });
+  }
   reqs=[...reqs].reverse();
+  // 件数表示
+  const cnt=document.getElementById('dash-result-count');
+  if(cnt)cnt.textContent=reqs.length+'件';
   const tbody=document.getElementById('dashboard-tbody');
   if(!reqs.length){tbody.innerHTML=`<tr><td colspan="8" class="table-empty">📭 申請がありません</td></tr>`;return;}
   tbody.innerHTML=reqs.map(r=>{
@@ -1068,7 +1141,14 @@ function renderForm(){
       <div class="form-group span2"><label>残り決済金額合計 C（A×B・自動計算）</label><input type="text" id="f_remaining_total" value="${fd.remaining_total||''}" readonly></div>
       <div class="form-group span2"><label>処理理由<span class="required">*</span>${mn}</label>${radioGroup('process_reason',fd.process_reason,['①患者都合','②院都合','③カード会社都合','④その他'])}</div>
       <div class="form-group span2"><label>理由・詳細<span class="required">*</span>${mn}</label>${ra('reason_detail',fd.reason_detail,'詳しい経緯を記載してください')}</div>
-      <div class="form-group"><label>再決済予定日</label>${rd('retry_date',fd.retry_date)}</div>
+      <div class="form-group span2">
+        <label>再決済予定日</label>
+        ${rd('retry_date',fd.retry_date)}
+        <div style="margin-top:6px;padding:8px 12px;background:#fef3c7;border:1px solid #fcd34d;border-radius:7px;font-size:11px;color:#92400e;display:flex;gap:6px;align-items:flex-start;line-height:1.5;">
+          <span style="font-size:14px;flex-shrink:0;">⚠️</span>
+          <span><strong>注意：</strong>決済日を超えて再決済日を申請する場合は、決済されることがありますので注意してください。</span>
+        </div>
+      </div>
       <div class="form-group"><label>院長確認</label><div class="confirm-check"><input type="checkbox" id="f_director_confirmed" ${fd.director_confirmed?'checked':''}><label for="f_director_confirmed">院長が内容を確認しました</label></div></div>
     </div>`;
   }else if(selCat==='refund'){
@@ -2062,7 +2142,11 @@ function openResettlementModal(reqId){
       </div>
       <div>
         <label style="font-size:13px;font-weight:700;display:block;margin-bottom:5px;">次回再決済予定日</label>
-        <input type="date" id="rs_next_date" style="border:1px solid var(--g300);border-radius:6px;padding:8px;font-size:13px;width:100%;">
+        <input type="date" id="rs_next_date" style="border:1px solid var(--g300);border-radius:6px;padding:8px;font-size:13px;width:100%;margin-bottom:6px;">
+        <div style="padding:7px 10px;background:#fef3c7;border:1px solid #fcd34d;border-radius:7px;font-size:11px;color:#92400e;display:flex;gap:6px;align-items:flex-start;line-height:1.5;">
+          <span style="flex-shrink:0;">⚠️</span>
+          <span><strong>注意：</strong>決済日を超えて再決済日を申請する場合は、決済されることがありますので注意してください。</span>
+        </div>
       </div>
     </div>
 
