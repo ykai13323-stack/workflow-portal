@@ -391,6 +391,19 @@
         <span class="dc-desc">最終承認・全体管理</span>
       </button>
     </div>
+    <!-- 表示モード切り替え -->
+    <div style="margin-top:18px;border-top:1px solid var(--g200);padding-top:16px;">
+      <p style="font-size:11px;font-weight:700;color:var(--g400);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;">表示モード</p>
+      <div style="display:flex;gap:8px;">
+        <button id="login-btn-mobile" onclick="setLoginLayout('mobile')" style="flex:1;padding:10px 8px;border-radius:10px;font-size:13px;font-weight:700;border:2px solid var(--g200);background:var(--g50);color:var(--g600);cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;">
+          📱 モバイル
+        </button>
+        <button id="login-btn-desktop" onclick="setLoginLayout('desktop')" style="flex:1;padding:10px 8px;border-radius:10px;font-size:13px;font-weight:700;border:2px solid var(--g200);background:var(--g50);color:var(--g600);cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;">
+          🖥️ PC
+        </button>
+      </div>
+      <p id="login-layout-hint" style="font-size:11px;color:var(--g400);margin-top:8px;text-align:center;"></p>
+    </div>
   </div>
 </div>
 
@@ -1155,11 +1168,35 @@ function applyLayout(mode,save=true){
   document.body.classList.toggle('mobile-mode',mode==='mobile');
   const btn=document.getElementById('layout-toggle-btn');
   if(btn)btn.textContent=mode==='mobile'?'🖥️ PC表示':'📱 モバイル表示';
+  // ログイン画面のボタン状態も更新
+  updateLoginLayoutBtns(mode);
 }
 function toggleLayout(){
   const cur=document.body.classList.contains('mobile-mode')?'mobile':'desktop';
   applyLayout(cur==='mobile'?'desktop':'mobile');
 }
+function setLoginLayout(mode){
+  applyLayout(mode);
+}
+function updateLoginLayoutBtns(mode){
+  const mb=document.getElementById('login-btn-mobile');
+  const db=document.getElementById('login-btn-desktop');
+  const hint=document.getElementById('login-layout-hint');
+  if(!mb||!db)return;
+  const activeStyle='border-color:var(--primary);background:#eef2ff;color:var(--primary);';
+  const inactiveStyle='border-color:var(--g200);background:var(--g50);color:var(--g600);';
+  mb.style.cssText=mb.style.cssText.replace(/border-color:[^;]+;background:[^;]+;color:[^;]+;/,'')+( mode==='mobile'?activeStyle:inactiveStyle);
+  db.style.cssText=db.style.cssText.replace(/border-color:[^;]+;background:[^;]+;color:[^;]+;/,'')+( mode==='desktop'?activeStyle:inactiveStyle);
+  if(hint)hint.textContent=mode==='mobile'?'📱 モバイル向けレイアウトで起動します':'🖥️ PC向けレイアウトで起動します';
+}
+// ページ読み込み時にログイン画面のボタン初期状態を設定
+(function(){
+  const saved=localStorage.getItem('wf_layout');
+  const auto=window.innerWidth<=768?'mobile':'desktop';
+  const mode=saved||auto;
+  document.body.classList.toggle('mobile-mode',mode==='mobile');
+  window.addEventListener('DOMContentLoaded',()=>updateLoginLayoutBtns(mode));
+})();
 function openMobUserSheet(){
   document.getElementById('mob-user-sheet').classList.add('open');
   document.getElementById('mob-sheet-overlay').classList.add('open');
