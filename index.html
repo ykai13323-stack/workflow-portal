@@ -4,6 +4,12 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>foryou鍼灸整骨院グループ ワークフローポータル</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4338ca" id="theme-color-meta">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="foryou WF">
+  <meta name="mobile-web-app-capable" content="yes">
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <style>
     :root{--primary:#4f46e5;--primary-light:#6366f1;--primary-dark:#3730a3;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--info:#3b82f6;--purple:#7c3aed;--g50:#f9fafb;--g100:#f3f4f6;--g200:#e5e7eb;--g300:#d1d5db;--g400:#9ca3af;--g500:#6b7280;--g600:#4b5563;--g700:#374151;--g800:#1f2937;--g900:#111827;--white:#fff;--sw:260px;--hh:64px;--r:12px;--sh:0 1px 3px rgba(0,0,0,.1);--shm:0 4px 6px -1px rgba(0,0,0,.1);--shl:0 10px 15px -3px rgba(0,0,0,.1)}
@@ -360,6 +366,68 @@
     body:not(.mobile-mode) .mob-card-list{display:none!important;}
     body:not(.mobile-mode) .mob-filter-bar{display:none!important;}
     body:not(.mobile-mode) .mob-hide-on-mobile{display:block!important;}
+
+    /* ══════════ DARK MODE ══════════ */
+    body.dark-mode{background:#0f172a;color:#e2e8f0;}
+    body.dark-mode{--g50:#1e293b;--g100:#1e293b;--g200:#334155;--g300:#475569;--g400:#64748b;--g500:#94a3b8;--g600:#cbd5e1;--g700:#e2e8f0;--g800:#f1f5f9;--g900:#f8fafc;--white:#1e293b;--sh:0 1px 3px rgba(0,0,0,.4);--shm:0 4px 6px -1px rgba(0,0,0,.4);}
+    body.dark-mode .sidebar{background:#020617;}
+    body.dark-mode .nav-item{color:#94a3b8;}
+    body.dark-mode .main-header{background:#1e293b;border-color:#334155;}
+    body.dark-mode .card{background:#1e293b;}
+    body.dark-mode .card-header{border-color:#334155;}
+    body.dark-mode .stat-card{background:#1e293b;}
+    body.dark-mode .req-card{background:#1e293b;box-shadow:0 2px 8px rgba(0,0,0,.4);}
+    body.dark-mode .req-card:active{border-color:var(--primary-light);}
+    body.dark-mode table thead th{background:#0f172a;color:#64748b;border-color:#334155;}
+    body.dark-mode tbody tr{border-color:#1e293b;}
+    body.dark-mode tbody tr:hover{background:#0f172a;}
+    body.dark-mode tbody td{color:#cbd5e1;}
+    body.dark-mode .modal{background:#1e293b;}
+    body.dark-mode .modal-header{border-color:#334155;background:#1e293b;}
+    body.dark-mode .modal-body{background:#1e293b;}
+    body.dark-mode .modal-footer{background:#1e293b;border-color:#334155;}
+    body.dark-mode .modal-table th{background:#0f172a;color:#94a3b8;border-color:#334155;}
+    body.dark-mode .modal-table td{border-color:#334155;color:#e2e8f0;}
+    body.dark-mode input,body.dark-mode select,body.dark-mode textarea{background:#0f172a!important;color:#e2e8f0!important;border-color:#334155!important;}
+    body.dark-mode .filter-btn{background:#1e293b;color:#94a3b8;}
+    body.dark-mode .filter-btn.active{background:var(--primary);color:#fff;}
+    body.dark-mode .form-group label{color:#94a3b8;}
+    body.dark-mode .mob-header{background:linear-gradient(135deg,#020617,#1e1b4b);}
+    body.dark-mode .mob-bottom-nav{background:#020617;border-color:rgba(255,255,255,.05);}
+    body.dark-mode .mob-user-sheet{background:#1e293b;}
+    body.dark-mode .mob-user-info-row{background:#0f172a;}
+    body.dark-mode .mob-sheet-close{background:#0f172a;color:#94a3b8;}
+    body.dark-mode .mob-sheet-overlay{background:rgba(0,0,0,.7);}
+    body.dark-mode .login-card{background:rgba(30,41,59,.98);color:#e2e8f0;}
+    body.dark-mode .login-card h1{color:#f1f5f9;}
+    body.dark-mode .login-subtitle{color:#94a3b8;}
+    body.dark-mode .demo-card{background:#1e293b;}
+    body.dark-mode .dc-emp{background:#1e1b4b;border-color:#3730a3;}
+    body.dark-mode .dc-mgr{background:#1c1917;border-color:#78350f;}
+    body.dark-mode .dc-pres{background:#022c22;border-color:#065f46;}
+    body.dark-mode .dc-final{background:#1a1033;border-color:#4c1d95;}
+    body.dark-mode .timeline-content{background:#1e293b;border-color:#334155;}
+    body.dark-mode .toast-email,.dark-mode .toast-success,.dark-mode .toast-error{background:#1e293b;color:#e2e8f0;}
+    body.dark-mode .badge-pending{background:#451a03;color:#fcd34d;}
+    body.dark-mode .badge-completed{background:#022c22;color:#6ee7b7;}
+    body.dark-mode .badge-returned{background:#450a0a;color:#fca5a5;}
+    body.dark-mode .cat-chip{opacity:.9;}
+    body.dark-mode .layout-toggle-btn{background:#0f172a;color:#94a3b8;border-color:#334155;}
+    body.dark-mode .mob-pc-btn{background:rgba(255,255,255,.1);color:rgba(255,255,255,.8);}
+    body.dark-mode .return-section{background:#0f172a;border-color:#334155;}
+    body.dark-mode .approval-flow{background:#0f172a;}
+    body.dark-mode .btn-secondary{background:#334155;color:#e2e8f0;}
+    body.dark-mode hr{border-color:#334155;}
+
+    /* ステータス色分け（左ボーダー） */
+    .req-card{border-left:4px solid transparent;border-radius:0 14px 14px 0;}
+    .req-card[data-status="pending"]{border-left-color:#f59e0b;}
+    .req-card[data-status="manager_approved"]{border-left-color:#3b82f6;}
+    .req-card[data-status="president_approved"]{border-left-color:#8b5cf6;}
+    .req-card[data-status="completed"]{border-left-color:#10b981;}
+    .req-card[data-status="returned"]{border-left-color:#ef4444;}
+    .req-card[data-status="resettlement_pending"]{border-left-color:#f59e0b;}
+    .req-card[data-status="resettlement_completed"]{border-left-color:#10b981;}
   </style>
 </head>
 <body>
@@ -444,6 +512,7 @@
       <div class="mob-user-big-avatar" id="mob-user-big-avatar">U</div>
       <div><div class="mob-user-name" id="mob-user-name">ユーザー</div><div class="mob-user-role" id="mob-user-role-label">社員</div></div>
     </div>
+    <button class="mob-sheet-btn" onclick="toggleDarkMode()" style="background:#1e293b;color:#94a3b8;" id="mob-dark-btn">🌙 ダークモード</button>
     <button class="mob-sheet-btn mob-sheet-logout" onclick="logout();closeMobUserSheet()">🚪 ログアウト</button>
     <button class="mob-sheet-btn mob-sheet-close" onclick="closeMobUserSheet()">✕ 閉じる</button>
   </div>
@@ -482,6 +551,7 @@
     <div class="main-header">
       <h2 id="main-title">ダッシュボード</h2>
       <div class="main-header-actions">
+        <button class="layout-toggle-btn" onclick="toggleDarkMode()" id="dark-toggle-btn">🌙</button>
         <button class="layout-toggle-btn" id="layout-toggle-btn" onclick="toggleLayout()" title="モバイル/PC切り替え">📱 モバイル表示</button>
         <button class="header-btn header-btn-primary" onclick="showSection('apply')">＋ 新規申請</button>
       </div>
@@ -1097,6 +1167,10 @@ function startLogin(role){
     const mobAdminNav=document.getElementById('mob-nav-admin');
     if(mobAdminNav)mobAdminNav.style.display=(currentUser.role==='admin'||currentUser.role==='manager'||currentUser.role==='president')?'flex':'none';
     initLayout();
+    initDarkMode();
+    checkPendingNotifs();
+    setTimeout(()=>{requestNotifPermission();},2000);
+    window.addEventListener('beforeunload',saveNotifSnapshot);
     document.querySelectorAll('.demo-card,.google-btn').forEach(b=>b.disabled=false);
     showSection('dashboard');
   },1600);
@@ -1181,6 +1255,68 @@ function getApproveLabel(role,req){
 }
 
 // ══════════ MOBILE LAYOUT ══════════
+// ══════════ PWA SERVICE WORKER ══════════
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
+
+// ══════════ DARK MODE ══════════
+function initDarkMode(){
+  const saved=localStorage.getItem('wf_dark');
+  const prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const isDark=saved!==null?saved==='1':prefersDark;
+  applyDarkMode(isDark,false);
+}
+function applyDarkMode(on,save=true){
+  document.body.classList.toggle('dark-mode',on);
+  if(save)localStorage.setItem('wf_dark',on?'1':'0');
+  const meta=document.getElementById('theme-color-meta');
+  if(meta)meta.content=on?'#0f172a':'#4338ca';
+  const btn=document.getElementById('dark-toggle-btn');
+  if(btn)btn.textContent=on?'☀️':'🌙';
+  const mBtn=document.getElementById('mob-dark-btn');
+  if(mBtn)mBtn.textContent=on?'☀️ ライトモード':'🌙 ダークモード';
+}
+function toggleDarkMode(){
+  applyDarkMode(!document.body.classList.contains('dark-mode'));
+}
+
+// ══════════ PUSH NOTIFICATIONS ══════════
+async function requestNotifPermission(){
+  if(!('Notification' in window))return false;
+  if(Notification.permission==='granted')return true;
+  if(Notification.permission==='denied')return false;
+  const perm=await Notification.requestPermission();
+  return perm==='granted';
+}
+function sendPushNotif(title,body,icon='💉'){
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  try{new Notification(title,{body,icon:'./manifest.json',tag:'foryou-wf',renotify:true});}catch(e){}
+}
+// ログアウト時のステータス変化チェック（次回ログイン時に通知）
+function checkPendingNotifs(){
+  const saved=localStorage.getItem('wf_notif_check');
+  const d=loadData();
+  if(!currentUser||!saved)return;
+  const prev=JSON.parse(saved);
+  d.requests.filter(r=>r.user_id===currentUser.email).forEach(r=>{
+    const prevStatus=prev[r.id];
+    if(prevStatus&&prevStatus!==r.status){
+      const label=getStatusLabel(r);
+      sendPushNotif(`申請が更新されました — ${r.id}`,`${CAT_LABELS[r.category]}：${label}`);
+    }
+  });
+}
+function saveNotifSnapshot(){
+  if(!currentUser)return;
+  const d=loadData();
+  const snap={};
+  d.requests.filter(r=>r.user_id===currentUser.email).forEach(r=>snap[r.id]=r.status);
+  localStorage.setItem('wf_notif_check',JSON.stringify(snap));
+}
+
 function initLayout(){
   const saved=localStorage.getItem('wf_layout');
   const auto=window.innerWidth<=768?'mobile':'desktop';
@@ -1415,7 +1551,7 @@ function renderDashTable(filter){
   tbody.innerHTML=tableRows;
   if(cardList){
     cardList.innerHTML=reqs.map(r=>`
-      <div class="req-card" onclick="openDetail('${r.id}',false)">
+      <div class="req-card" data-status="${r.status}" onclick="openDetail('${r.id}',false)">
         <div class="req-card-top">
           <span class="req-card-id">${r.id}</span>
           <span class="cat-chip cat-${r.category}" style="font-size:11px;">${CAT_ICONS[r.category]} ${CAT_LABELS[r.category]}</span>
@@ -2056,7 +2192,7 @@ function renderAdmin(){
   if(adminCards){
     adminCards.innerHTML=reqs.map(r=>{
       const approve=canApprove(r);
-      return`<div class="req-card">
+      return`<div class="req-card" data-status="${r.status}">
         <div class="req-card-top">
           <span class="req-card-id">${r.id}</span>
           <span class="cat-chip cat-${r.category}" style="font-size:11px;">${CAT_ICONS[r.category]} ${CAT_LABELS[r.category]}</span>
@@ -2381,6 +2517,10 @@ function sendEmailNotif(req,status,note){
   const subject=subjects[status]||`【通知】${req.id} ステータス更新`;
   const body=`申請者: ${req.user_name}（${req.store_name}）\nカテゴリ: ${CAT_LABELS[req.category]}\nステータス: ${STATUS_LABELS[status]}${note?'\n差し戻し理由: '+note:''}`;
   showEmailToast(to.join(', '),subject,body);
+  // 自分宛の通知の場合はプッシュ通知も送信
+  if(currentUser&&to.includes(currentUser.email)){
+    sendPushNotif(subject,`${req.user_name}（${req.store_name}）\n${CAT_LABELS[req.category]}`);
+  }
 }
 
 function showEmailToast(to,subject,body){

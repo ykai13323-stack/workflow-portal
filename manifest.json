@@ -1,0 +1,21 @@
+{
+  "name": "foryou鍼灸整骨院グループ ワークフローポータル",
+  "short_name": "foryou WF",
+  "description": "foryou鍼灸整骨院グループ 社内申請ワークフローポータル",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#1e1b4b",
+  "theme_color": "#4338ca",
+  "orientation": "portrait-primary",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%234338ca'/><text y='130' x='96' font-size='110' text-anchor='middle'>💉</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "screenshots": []
+}
