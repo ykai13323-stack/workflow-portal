@@ -903,6 +903,8 @@ function getStatusLabel(req){
   if(req.category==='refund'&&req.status==='manager_approved')return '社長確認待ち';
   if(req.status==='president_approved')return '最終確認待ち';
   if(req.category==='payment_error'&&req.status==='completed')return '承認済み（再決済報告待ち）';
+  if(req.category==='payment_inquiry'&&req.status==='pending')return '経理確認中';
+  if(req.category==='payment_inquiry'&&req.status==='completed')return '💬 経理回答済み';
   if(req.status==='resettlement_pending')return '再決済報告確認中';
   if(req.status==='resettlement_completed')return '全工程完了';
   return STATUS_LABELS[req.status]||req.status;
