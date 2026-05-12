@@ -231,56 +231,70 @@
     .btn-print:hover{background:#374151;}
 
     /* ══════════ MOBILE LAYOUT ══════════ */
-    .mob-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:62px;background:var(--g900);z-index:200;border-top:1px solid rgba(255,255,255,.1);padding:0 4px;}
-    .mob-bottom-nav .mob-nav-inner{display:flex;align-items:stretch;height:100%;}
-    .mob-nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--g400);font-size:10px;font-weight:600;border:none;background:none;cursor:pointer;padding:8px 4px;border-radius:10px;transition:all .15s;position:relative;}
-    .mob-nav-btn.active{color:var(--primary-light);}
-    .mob-nav-btn .mob-nav-icon{font-size:20px;line-height:1;}
-    .mob-nav-btn .mob-badge{position:absolute;top:6px;right:calc(50% - 16px);background:var(--danger);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:99px;min-width:16px;text-align:center;}
-    .mob-header{display:none;height:56px;background:var(--white);border-bottom:1px solid var(--g200);position:sticky;top:0;z-index:50;align-items:center;padding:0 16px;gap:10px;}
-    .mob-header-title{flex:1;font-size:15px;font-weight:700;color:var(--g900);}
-    .mob-header-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#a78bfa,#818cf8);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;cursor:pointer;}
+    /* ══ MOBILE BOTTOM NAV ══ */
+    .mob-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--g900);z-index:200;border-top:1px solid rgba(255,255,255,.08);padding-bottom:env(safe-area-inset-bottom,0);}
+    .mob-bottom-nav .mob-nav-inner{display:flex;align-items:stretch;height:72px;}
+    .mob-nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;color:rgba(255,255,255,.45);font-size:11px;font-weight:700;border:none;background:none;cursor:pointer;padding:10px 4px;position:relative;transition:all .2s;}
+    .mob-nav-btn::before{content:'';position:absolute;top:0;left:20%;right:20%;height:3px;background:transparent;border-radius:0 0 4px 4px;transition:background .2s;}
+    .mob-nav-btn.active{color:#fff;}
+    .mob-nav-btn.active::before{background:var(--primary-light);}
+    .mob-nav-btn .mob-nav-icon{font-size:26px;line-height:1;}
+    .mob-nav-btn-apply{background:linear-gradient(135deg,var(--primary),var(--primary-light))!important;border-radius:16px;margin:10px 6px;flex:1.2;box-shadow:0 4px 14px rgba(99,102,241,.5);}
+    .mob-nav-btn-apply.active::before{display:none;}
+    .mob-nav-btn .mob-badge{position:absolute;top:8px;right:calc(50% - 18px);background:var(--danger);color:#fff;font-size:9px;font-weight:700;padding:2px 5px;border-radius:99px;min-width:18px;text-align:center;}
+
+    /* ══ MOBILE HEADER ══ */
+    .mob-header{display:none;background:linear-gradient(135deg,#1e1b4b,#4338ca);position:sticky;top:0;z-index:50;align-items:center;padding:0 16px;gap:10px;padding-top:env(safe-area-inset-top,0);}
+    .mob-header-inner{display:flex;align-items:center;gap:10px;width:100%;height:58px;}
+    .mob-header-logo{width:34px;height:34px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+    .mob-header-texts{flex:1;min-width:0;}
+    .mob-header-title{font-size:15px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .mob-header-sub{font-size:10px;color:rgba(255,255,255,.55);margin-top:1px;}
+    .mob-header-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+    .mob-header-avatar{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;cursor:pointer;}
+    .mob-pc-btn{padding:5px 9px;border-radius:8px;font-size:11px;font-weight:700;background:rgba(255,255,255,.15);color:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.2);cursor:pointer;}
+
+    /* ══ DESKTOP LAYOUT TOGGLE ══ */
     .layout-toggle-btn{padding:6px 10px;border-radius:8px;font-size:12px;font-weight:600;background:var(--g100);color:var(--g600);border:1px solid var(--g200);cursor:pointer;transition:all .2s;white-space:nowrap;}
     .layout-toggle-btn:hover{background:var(--g200);}
 
-    /* Request cards for mobile */
-    .req-card{background:var(--white);border-radius:12px;box-shadow:var(--sh);padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:all .15s;border:1.5px solid transparent;}
-    .req-card:hover,.req-card:active{border-color:var(--primary);transform:translateY(-1px);}
-    .req-card-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
-    .req-card-id{font-size:11px;color:var(--g500);font-weight:600;flex:1;}
-    .req-card-cat{font-size:11px;}
-    .req-card-body{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
-    .req-card-summary{font-size:13px;font-weight:600;color:var(--g800);flex:1;line-height:1.4;}
-    .req-card-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
-    .req-card-date{font-size:10px;color:var(--g400);}
-    .req-card-actions{display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--g100);}
-    .req-card-actions .btn{flex:1;text-align:center;padding:8px 6px;font-size:12px;}
+    /* ══ REQUEST CARDS ══ */
+    .req-card{background:var(--white);border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.08);padding:16px;margin-bottom:10px;cursor:pointer;transition:all .15s;border:2px solid transparent;}
+    .req-card:active{border-color:var(--primary);transform:scale(.99);}
+    .req-card-top{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+    .req-card-id{font-size:11px;color:var(--g400);font-weight:600;flex:1;}
+    .req-card-body{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+    .req-card-summary{font-size:14px;font-weight:700;color:var(--g800);flex:1;line-height:1.4;}
+    .req-card-date{font-size:11px;color:var(--g400);margin-top:4px;}
+    .req-card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--g100);}
 
-    /* Mobile user sheet */
-    .mob-user-sheet{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--white);border-radius:20px 20px 0 0;padding:20px 20px 40px;z-index:300;box-shadow:0 -8px 32px rgba(0,0,0,.15);}
+    /* ══ MOBILE USER SHEET ══ */
+    .mob-user-sheet{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--white);border-radius:24px 24px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom,0));z-index:400;box-shadow:0 -8px 40px rgba(0,0,0,.2);}
     .mob-user-sheet.open{display:block;}
-    .mob-sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:299;}
+    .mob-sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:399;backdrop-filter:blur(2px);}
     .mob-sheet-overlay.open{display:block;}
-    .mob-user-info-row{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
-    .mob-user-big-avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#a78bfa,#818cf8);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;}
-    .mob-user-name{font-size:16px;font-weight:700;color:var(--g900);}
-    .mob-user-role{font-size:12px;color:var(--g500);}
-    .mob-sheet-btn{width:100%;padding:13px;border-radius:10px;font-size:14px;font-weight:600;border:none;cursor:pointer;margin-bottom:8px;text-align:left;display:flex;align-items:center;gap:10px;}
+    .mob-sheet-handle{width:40px;height:4px;background:var(--g200);border-radius:2px;margin:0 auto 20px;}
+    .mob-user-info-row{display:flex;align-items:center;gap:14px;margin-bottom:20px;padding:14px;background:var(--g50);border-radius:14px;}
+    .mob-user-big-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#a78bfa,#818cf8);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;flex-shrink:0;}
+    .mob-user-name{font-size:17px;font-weight:800;color:var(--g900);}
+    .mob-user-role{font-size:12px;color:var(--g500);margin-top:2px;}
+    .mob-sheet-btn{width:100%;padding:15px 16px;border-radius:12px;font-size:15px;font-weight:700;border:none;cursor:pointer;margin-bottom:10px;text-align:left;display:flex;align-items:center;gap:12px;}
     .mob-sheet-logout{background:#fee2e2;color:#991b1b;}
     .mob-sheet-close{background:var(--g100);color:var(--g600);}
 
-    /* Apply FAB hidden on desktop, shown mobile */
-    .mob-fab{display:none;position:fixed;bottom:74px;right:16px;width:52px;height:52px;border-radius:50%;background:var(--primary);color:#fff;font-size:24px;border:none;box-shadow:0 4px 16px rgba(79,70,229,.4);cursor:pointer;z-index:150;align-items:center;justify-content:center;transition:all .2s;}
-    .mob-fab:hover{background:var(--primary-dark);transform:scale(1.05);}
+    /* FAB hidden (replaced by nav button) */
+    .mob-fab{display:none!important;}
 
     /* Mobile mode overrides */
     body.mobile-mode .sidebar{display:none;}
     body.mobile-mode .main{margin-left:0;}
     body.mobile-mode .main-header{display:none;}
-    body.mobile-mode .main-content{padding:12px 10px 88px;}
+    body.mobile-mode .main-content{padding:0 0 calc(72px + env(safe-area-inset-bottom,0));}
     body.mobile-mode .mob-bottom-nav{display:flex;}
     body.mobile-mode .mob-header{display:flex;}
-    body.mobile-mode .mob-fab{display:flex;}
+    body.mobile-mode #section-dashboard{padding:0;}
+    body.mobile-mode #section-history .timeline{padding:12px 14px;}
+    body.mobile-mode #section-apply,body.mobile-mode #section-history,body.mobile-mode #section-admin,body.mobile-mode #section-whitelist,body.mobile-mode #section-transport-settings{padding:12px 14px 0;}
 
     /* Stats grid 2x2 on mobile */
     body.mobile-mode .stats-grid{grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
@@ -410,13 +424,22 @@
 <div id="app">
   <!-- Mobile Header -->
   <div class="mob-header" id="mob-header">
-    <div class="mob-header-title" id="mob-title">ダッシュボード</div>
-    <button class="layout-toggle-btn" onclick="toggleLayout()" title="PC表示に切り替え">🖥️</button>
-    <div class="mob-header-avatar" id="mob-avatar" onclick="openMobUserSheet()">U</div>
+    <div class="mob-header-inner">
+      <div class="mob-header-logo">💉</div>
+      <div class="mob-header-texts">
+        <div class="mob-header-title" id="mob-title">ダッシュボード</div>
+        <div class="mob-header-sub">foryou鍼灸整骨院グループ</div>
+      </div>
+      <div class="mob-header-right">
+        <button class="mob-pc-btn" onclick="toggleLayout()">🖥️ PC</button>
+        <div class="mob-header-avatar" id="mob-avatar" onclick="openMobUserSheet()">U</div>
+      </div>
+    </div>
   </div>
   <!-- Mobile User Sheet -->
   <div class="mob-sheet-overlay" id="mob-sheet-overlay" onclick="closeMobUserSheet()"></div>
   <div class="mob-user-sheet" id="mob-user-sheet">
+    <div class="mob-sheet-handle"></div>
     <div class="mob-user-info-row">
       <div class="mob-user-big-avatar" id="mob-user-big-avatar">U</div>
       <div><div class="mob-user-name" id="mob-user-name">ユーザー</div><div class="mob-user-role" id="mob-user-role-label">社員</div></div>
@@ -535,7 +558,7 @@
           </div>
           <table class="mob-hide-on-mobile"><thead><tr><th>申請ID</th><th>店舗番号</th><th>カテゴリ</th><th>内容</th><th>申請日</th><th>タイムログ</th><th>ステータス</th><th></th></tr></thead>
           <tbody id="dashboard-tbody"></tbody></table>
-          <div id="dashboard-cards" class="mob-card-list" style="display:none;padding:4px 0;"></div>
+          <div id="dashboard-cards" class="mob-card-list" style="display:none;padding:12px 14px 4px;"></div>
         </div>
       </div>
 
@@ -626,7 +649,7 @@
           <div class="card-header"><h3 id="admin-title">⚙️ 申請管理</h3><span id="admin-count" style="font-size:12px;color:var(--g400);"></span></div>
           <table><thead><tr><th>申請ID</th><th>店舗番号</th><th>申請者</th><th>カテゴリ</th><th>申請日</th><th>ステータス</th><th>操作</th></tr></thead>
           <tbody id="admin-tbody"></tbody></table>
-          <div id="admin-cards" class="mob-card-list" style="display:none;padding:4px 0;"></div>
+          <div id="admin-cards" class="mob-card-list" style="display:none;padding:12px 14px 4px;"></div>
         </div>
       </div>
 
@@ -696,10 +719,13 @@
   <nav class="mob-bottom-nav">
     <div class="mob-nav-inner">
       <button class="mob-nav-btn active" id="mob-nav-dashboard" onclick="showSection('dashboard')">
-        <span class="mob-nav-icon">📊</span>ホーム
+        <span class="mob-nav-icon">🏠</span>ホーム
       </button>
       <button class="mob-nav-btn" id="mob-nav-history" onclick="showSection('history')">
         <span class="mob-nav-icon">📋</span>履歴
+      </button>
+      <button class="mob-nav-btn mob-nav-btn-apply" id="mob-nav-apply" onclick="showSection('apply')">
+        <span class="mob-nav-icon">✏️</span>新規申請
       </button>
       <button class="mob-nav-btn" id="mob-nav-admin" style="display:none" onclick="showSection('admin')">
         <span class="mob-nav-icon">⚙️</span>管理
@@ -707,8 +733,6 @@
       </button>
     </div>
   </nav>
-  <!-- Mobile FAB for new application -->
-  <button class="mob-fab" onclick="showSection('apply')" title="新規申請">＋</button>
 </div>
 
 <!-- DETAIL MODAL -->
@@ -1206,13 +1230,15 @@ function closeMobUserSheet(){
   document.getElementById('mob-sheet-overlay').classList.remove('open');
 }
 function updateMobNav(name){
-  ['dashboard','history','admin'].forEach(s=>{
+  ['dashboard','history','apply','admin'].forEach(s=>{
     const el=document.getElementById('mob-nav-'+s);
     if(el)el.classList.toggle('active',s===name);
   });
   const titles={dashboard:'ダッシュボード',apply:'新規申請',history:'申請履歴',admin:'申請管理',whitelist:'メール登録管理','transport-settings':'交通費設定'};
   const t=document.getElementById('mob-title');
   if(t)t.textContent=titles[name]||name;
+  // ダッシュボード切り替え時はヒーロー再描画
+  if(name==='dashboard'&&document.body.classList.contains('mobile-mode'))renderDashboard();
 }
 window.addEventListener('resize',()=>{
   const saved=localStorage.getItem('wf_layout');
@@ -1256,12 +1282,51 @@ function renderDashboard(){
   const cnt=(s)=>reqs.filter(r=>r.status===s).length;
   const pendingCnt=reqs.filter(r=>['pending','manager_approved','president_approved','resettlement_pending'].includes(r.status)).length;
   const completedCnt=reqs.filter(r=>['completed','resettlement_completed'].includes(r.status)).length;
-  document.getElementById('stats-grid').innerHTML=`
-    <div class="stat-card"><div class="stat-icon si-blue">📊</div><div><div class="stat-value">${reqs.length}</div><div class="stat-label">全申請数</div></div></div>
-    <div class="stat-card"><div class="stat-icon si-yellow">⏳</div><div><div class="stat-value">${pendingCnt}</div><div class="stat-label">承認待ち</div></div></div>
-    <div class="stat-card"><div class="stat-icon si-green">✅</div><div><div class="stat-value">${completedCnt}</div><div class="stat-label">承認済・完了</div></div></div>
-    <div class="stat-card"><div class="stat-icon si-red">↩</div><div><div class="stat-value">${cnt('returned')}</div><div class="stat-label">差し戻し</div></div></div>
-  `;
+  const isMob=document.body.classList.contains('mobile-mode');
+
+  // モバイル専用ヒーローバナーを section-dashboard の先頭に挿入
+  const sec=document.getElementById('section-dashboard');
+  let hero=document.getElementById('mob-dash-hero');
+  if(isMob){
+    if(!hero){
+      hero=document.createElement('div');
+      hero.id='mob-dash-hero';
+      sec.insertBefore(hero,sec.firstChild);
+    }
+    hero.innerHTML=`
+      <div style="background:linear-gradient(135deg,#1e1b4b,#4338ca 60%,#7c3aed);padding:20px 18px 28px;color:#fff;">
+        <div style="font-size:12px;opacity:.7;margin-bottom:4px;">こんにちは 👋</div>
+        <div style="font-size:20px;font-weight:800;margin-bottom:16px;">${currentUser?.name||''}さん</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;">
+          <div style="background:rgba(255,255,255,.12);border-radius:14px;padding:12px 8px;text-align:center;">
+            <div style="font-size:22px;font-weight:800;">${reqs.length}</div>
+            <div style="font-size:10px;opacity:.8;margin-top:2px;">全申請</div>
+          </div>
+          <div style="background:rgba(245,158,11,.25);border-radius:14px;padding:12px 8px;text-align:center;">
+            <div style="font-size:22px;font-weight:800;">${pendingCnt}</div>
+            <div style="font-size:10px;opacity:.8;margin-top:2px;">承認待ち</div>
+          </div>
+          <div style="background:rgba(16,185,129,.25);border-radius:14px;padding:12px 8px;text-align:center;">
+            <div style="font-size:22px;font-weight:800;">${completedCnt}</div>
+            <div style="font-size:10px;opacity:.8;margin-top:2px;">完了</div>
+          </div>
+          <div style="background:rgba(239,68,68,.2);border-radius:14px;padding:12px 8px;text-align:center;">
+            <div style="font-size:22px;font-weight:800;">${cnt('returned')}</div>
+            <div style="font-size:10px;opacity:.8;margin-top:2px;">差し戻し</div>
+          </div>
+        </div>
+      </div>`;
+    document.getElementById('stats-grid').style.display='none';
+  } else {
+    if(hero)hero.innerHTML='';
+    document.getElementById('stats-grid').style.display='';
+    document.getElementById('stats-grid').innerHTML=`
+      <div class="stat-card"><div class="stat-icon si-blue">📊</div><div><div class="stat-value">${reqs.length}</div><div class="stat-label">全申請数</div></div></div>
+      <div class="stat-card"><div class="stat-icon si-yellow">⏳</div><div><div class="stat-value">${pendingCnt}</div><div class="stat-label">承認待ち</div></div></div>
+      <div class="stat-card"><div class="stat-icon si-green">✅</div><div><div class="stat-value">${completedCnt}</div><div class="stat-label">承認済・完了</div></div></div>
+      <div class="stat-card"><div class="stat-icon si-red">↩</div><div><div class="stat-value">${cnt('returned')}</div><div class="stat-label">差し戻し</div></div></div>
+    `;
+  }
   const allPending=loadData().requests.filter(r=>['pending','manager_approved','president_approved','resettlement_pending'].includes(r.status)).length;
   document.getElementById('pending-badge').textContent=allPending;
   const mobBadge=document.getElementById('mob-pending-badge');
