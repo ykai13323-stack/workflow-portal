@@ -229,6 +229,82 @@
     /* 印刷ボタン */
     .btn-print{background:#1f2937;color:#fff;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;}
     .btn-print:hover{background:#374151;}
+
+    /* ══════════ MOBILE LAYOUT ══════════ */
+    .mob-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:62px;background:var(--g900);z-index:200;border-top:1px solid rgba(255,255,255,.1);padding:0 4px;}
+    .mob-bottom-nav .mob-nav-inner{display:flex;align-items:stretch;height:100%;}
+    .mob-nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--g400);font-size:10px;font-weight:600;border:none;background:none;cursor:pointer;padding:8px 4px;border-radius:10px;transition:all .15s;position:relative;}
+    .mob-nav-btn.active{color:var(--primary-light);}
+    .mob-nav-btn .mob-nav-icon{font-size:20px;line-height:1;}
+    .mob-nav-btn .mob-badge{position:absolute;top:6px;right:calc(50% - 16px);background:var(--danger);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:99px;min-width:16px;text-align:center;}
+    .mob-header{display:none;height:56px;background:var(--white);border-bottom:1px solid var(--g200);position:sticky;top:0;z-index:50;align-items:center;padding:0 16px;gap:10px;}
+    .mob-header-title{flex:1;font-size:15px;font-weight:700;color:var(--g900);}
+    .mob-header-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#a78bfa,#818cf8);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;cursor:pointer;}
+    .layout-toggle-btn{padding:6px 10px;border-radius:8px;font-size:12px;font-weight:600;background:var(--g100);color:var(--g600);border:1px solid var(--g200);cursor:pointer;transition:all .2s;white-space:nowrap;}
+    .layout-toggle-btn:hover{background:var(--g200);}
+
+    /* Request cards for mobile */
+    .req-card{background:var(--white);border-radius:12px;box-shadow:var(--sh);padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:all .15s;border:1.5px solid transparent;}
+    .req-card:hover,.req-card:active{border-color:var(--primary);transform:translateY(-1px);}
+    .req-card-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+    .req-card-id{font-size:11px;color:var(--g500);font-weight:600;flex:1;}
+    .req-card-cat{font-size:11px;}
+    .req-card-body{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+    .req-card-summary{font-size:13px;font-weight:600;color:var(--g800);flex:1;line-height:1.4;}
+    .req-card-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+    .req-card-date{font-size:10px;color:var(--g400);}
+    .req-card-actions{display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--g100);}
+    .req-card-actions .btn{flex:1;text-align:center;padding:8px 6px;font-size:12px;}
+
+    /* Mobile user sheet */
+    .mob-user-sheet{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--white);border-radius:20px 20px 0 0;padding:20px 20px 40px;z-index:300;box-shadow:0 -8px 32px rgba(0,0,0,.15);}
+    .mob-user-sheet.open{display:block;}
+    .mob-sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:299;}
+    .mob-sheet-overlay.open{display:block;}
+    .mob-user-info-row{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+    .mob-user-big-avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#a78bfa,#818cf8);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;}
+    .mob-user-name{font-size:16px;font-weight:700;color:var(--g900);}
+    .mob-user-role{font-size:12px;color:var(--g500);}
+    .mob-sheet-btn{width:100%;padding:13px;border-radius:10px;font-size:14px;font-weight:600;border:none;cursor:pointer;margin-bottom:8px;text-align:left;display:flex;align-items:center;gap:10px;}
+    .mob-sheet-logout{background:#fee2e2;color:#991b1b;}
+    .mob-sheet-close{background:var(--g100);color:var(--g600);}
+
+    /* Apply FAB hidden on desktop, shown mobile */
+    .mob-fab{display:none;position:fixed;bottom:74px;right:16px;width:52px;height:52px;border-radius:50%;background:var(--primary);color:#fff;font-size:24px;border:none;box-shadow:0 4px 16px rgba(79,70,229,.4);cursor:pointer;z-index:150;align-items:center;justify-content:center;transition:all .2s;}
+    .mob-fab:hover{background:var(--primary-dark);transform:scale(1.05);}
+
+    /* Mobile mode overrides */
+    body.mobile-mode .sidebar{display:none;}
+    body.mobile-mode .main{margin-left:0;}
+    body.mobile-mode .main-header{display:none;}
+    body.mobile-mode .main-content{padding:14px 12px 80px;}
+    body.mobile-mode .mob-bottom-nav{display:flex;}
+    body.mobile-mode .mob-header{display:flex;}
+    body.mobile-mode .mob-fab{display:flex;}
+    body.mobile-mode .stats-grid{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+    body.mobile-mode .stat-card{padding:12px;gap:10px;}
+    body.mobile-mode .stat-value{font-size:20px;}
+    body.mobile-mode .stat-label{font-size:11px;}
+    body.mobile-mode .stat-icon{width:36px;height:36px;font-size:16px;}
+    body.mobile-mode .card{border-radius:12px;}
+    body.mobile-mode .card-header{padding:12px 14px;}
+    body.mobile-mode .apply-step-bar{padding:12px 0 10px;overflow-x:auto;}
+    body.mobile-mode .step-label{font-size:9px;}
+    body.mobile-mode .form-grid{grid-template-columns:1fr;}
+    body.mobile-mode .form-group.span2{grid-column:span 1;}
+    body.mobile-mode table thead{display:none;}
+    body.mobile-mode table tbody tr{display:block;border:1.5px solid var(--g200);border-radius:10px;margin-bottom:8px;padding:10px 12px;}
+    body.mobile-mode table tbody td{display:flex;justify-content:space-between;padding:4px 0;font-size:12px;border:none;}
+    body.mobile-mode table tbody td::before{content:attr(data-label);font-weight:600;color:var(--g500);font-size:11px;margin-right:8px;flex-shrink:0;}
+    body.mobile-mode .filter-btn{font-size:10px;padding:4px 8px;}
+    body.mobile-mode .btn-print{font-size:12px;padding:5px 10px;}
+
+    /* Desktop: hide mobile elements */
+    body:not(.mobile-mode) .mob-bottom-nav{display:none!important;}
+    body:not(.mobile-mode) .mob-header{display:none!important;}
+    body:not(.mobile-mode) .mob-fab{display:none!important;}
+    body:not(.mobile-mode) .mob-user-sheet{display:none!important;}
+    body:not(.mobile-mode) .mob-sheet-overlay{display:none!important;}
   </style>
 </head>
 <body>
@@ -278,6 +354,22 @@
 </div>
 
 <div id="app">
+  <!-- Mobile Header -->
+  <div class="mob-header" id="mob-header">
+    <div class="mob-header-title" id="mob-title">ダッシュボード</div>
+    <button class="layout-toggle-btn" onclick="toggleLayout()" title="PC表示に切り替え">🖥️</button>
+    <div class="mob-header-avatar" id="mob-avatar" onclick="openMobUserSheet()">U</div>
+  </div>
+  <!-- Mobile User Sheet -->
+  <div class="mob-sheet-overlay" id="mob-sheet-overlay" onclick="closeMobUserSheet()"></div>
+  <div class="mob-user-sheet" id="mob-user-sheet">
+    <div class="mob-user-info-row">
+      <div class="mob-user-big-avatar" id="mob-user-big-avatar">U</div>
+      <div><div class="mob-user-name" id="mob-user-name">ユーザー</div><div class="mob-user-role" id="mob-user-role-label">社員</div></div>
+    </div>
+    <button class="mob-sheet-btn mob-sheet-logout" onclick="logout();closeMobUserSheet()">🚪 ログアウト</button>
+    <button class="mob-sheet-btn mob-sheet-close" onclick="closeMobUserSheet()">✕ 閉じる</button>
+  </div>
   <nav class="sidebar">
     <div class="sidebar-header">
       <div class="sb-logo">
@@ -313,6 +405,7 @@
     <div class="main-header">
       <h2 id="main-title">ダッシュボード</h2>
       <div class="main-header-actions">
+        <button class="layout-toggle-btn" id="layout-toggle-btn" onclick="toggleLayout()" title="モバイル/PC切り替え">📱 モバイル表示</button>
         <button class="header-btn header-btn-primary" onclick="showSection('apply')">＋ 新規申請</button>
       </div>
     </div>
@@ -523,6 +616,23 @@
 
     </div>
   </div>
+  <!-- Mobile Bottom Nav -->
+  <nav class="mob-bottom-nav">
+    <div class="mob-nav-inner">
+      <button class="mob-nav-btn active" id="mob-nav-dashboard" onclick="showSection('dashboard')">
+        <span class="mob-nav-icon">📊</span>ホーム
+      </button>
+      <button class="mob-nav-btn" id="mob-nav-history" onclick="showSection('history')">
+        <span class="mob-nav-icon">📋</span>履歴
+      </button>
+      <button class="mob-nav-btn" id="mob-nav-admin" style="display:none" onclick="showSection('admin')">
+        <span class="mob-nav-icon">⚙️</span>管理
+        <span class="mob-badge" id="mob-pending-badge" style="display:none">0</span>
+      </button>
+    </div>
+  </nav>
+  <!-- Mobile FAB for new application -->
+  <button class="mob-fab" onclick="showSection('apply')" title="新規申請">＋</button>
 </div>
 
 <!-- DETAIL MODAL -->
@@ -875,6 +985,18 @@ function startLogin(role){
     if(currentUser.role==='admin'){document.getElementById('whitelist-nav-btn').style.display='block';document.getElementById('transport-settings-nav-btn').style.display='block';}
     const approvalLabels={manager:'部長承認管理',president:'社長承認管理',admin:'最終承認・全体管理'};
     if(approvalLabels[currentUser.role]) document.getElementById('approval-nav-label').textContent=approvalLabels[currentUser.role];
+    // Mobile user info sync
+    const mobAvatar=document.getElementById('mob-avatar');
+    const mobBigAvatar=document.getElementById('mob-user-big-avatar');
+    const mobName=document.getElementById('mob-user-name');
+    const mobRoleLabel=document.getElementById('mob-user-role-label');
+    if(mobAvatar)mobAvatar.textContent=currentUser.avatar||currentUser.name[0];
+    if(mobBigAvatar)mobBigAvatar.textContent=currentUser.avatar||currentUser.name[0];
+    if(mobName)mobName.textContent=currentUser.name;
+    if(mobRoleLabel)mobRoleLabel.textContent=ROLE_LABELS[currentUser.role]||currentUser.role;
+    const mobAdminNav=document.getElementById('mob-nav-admin');
+    if(mobAdminNav)mobAdminNav.style.display=(currentUser.role==='admin'||currentUser.role==='manager'||currentUser.role==='president')?'flex':'none';
+    initLayout();
     document.querySelectorAll('.demo-card,.google-btn').forEach(b=>b.disabled=false);
     showSection('dashboard');
   },1600);
@@ -958,6 +1080,45 @@ function getApproveLabel(role,req){
   return'最終承認・完了';
 }
 
+// ══════════ MOBILE LAYOUT ══════════
+function initLayout(){
+  const saved=localStorage.getItem('wf_layout');
+  const auto=window.innerWidth<=768?'mobile':'desktop';
+  const mode=saved||auto;
+  applyLayout(mode,false);
+}
+function applyLayout(mode,save=true){
+  if(save)localStorage.setItem('wf_layout',mode);
+  document.body.classList.toggle('mobile-mode',mode==='mobile');
+  const btn=document.getElementById('layout-toggle-btn');
+  if(btn)btn.textContent=mode==='mobile'?'🖥️ PC表示':'📱 モバイル表示';
+}
+function toggleLayout(){
+  const cur=document.body.classList.contains('mobile-mode')?'mobile':'desktop';
+  applyLayout(cur==='mobile'?'desktop':'mobile');
+}
+function openMobUserSheet(){
+  document.getElementById('mob-user-sheet').classList.add('open');
+  document.getElementById('mob-sheet-overlay').classList.add('open');
+}
+function closeMobUserSheet(){
+  document.getElementById('mob-user-sheet').classList.remove('open');
+  document.getElementById('mob-sheet-overlay').classList.remove('open');
+}
+function updateMobNav(name){
+  ['dashboard','history','admin'].forEach(s=>{
+    const el=document.getElementById('mob-nav-'+s);
+    if(el)el.classList.toggle('active',s===name);
+  });
+  const titles={dashboard:'ダッシュボード',apply:'新規申請',history:'申請履歴',admin:'申請管理',whitelist:'メール登録管理','transport-settings':'交通費設定'};
+  const t=document.getElementById('mob-title');
+  if(t)t.textContent=titles[name]||name;
+}
+window.addEventListener('resize',()=>{
+  const saved=localStorage.getItem('wf_layout');
+  if(!saved){applyLayout(window.innerWidth<=768?'mobile':'desktop',false);}
+});
+
 // ══════════ NAVIGATION ══════════
 const SECTIONS=['dashboard','apply','history','admin','whitelist','transport-settings'];
 const TITLES={dashboard:'ダッシュボード',apply:'新規申請',history:'申請履歴',admin:'申請管理',whitelist:'メールアドレス登録管理','transport-settings':'交通費設定'};
@@ -978,6 +1139,7 @@ function showSection(name){
   if(name==='whitelist')renderWhitelist();
   if(name==='transport-settings')renderTransportSettings();
   if(name==='apply'){resetApplyState();renderDraftList();}
+  updateMobNav(name);
 }
 
 function resetApplyState(){
@@ -1002,6 +1164,8 @@ function renderDashboard(){
   `;
   const allPending=loadData().requests.filter(r=>['pending','manager_approved','president_approved','resettlement_pending'].includes(r.status)).length;
   document.getElementById('pending-badge').textContent=allPending;
+  const mobBadge=document.getElementById('mob-pending-badge');
+  if(mobBadge){mobBadge.textContent=allPending;mobBadge.style.display=allPending>0?'inline':'none';}
   renderDashTable(dashFilter);
 }
 
