@@ -1203,7 +1203,6 @@ function renderForm(){
     html=`<div class="form-grid">
       <div style="grid-column:span 2;background:#fef9c3;border:1px solid #fcd34d;border-radius:8px;padding:10px 14px;font-size:11.5px;color:#92400e;line-height:1.6;">
         ⚠️ <strong>注意事項：</strong>残り回数以外のご質問は上司または部長様にご相談ください。
-        記入当日の返答はできかねます。回答は<strong>３営業日以降</strong>（土日祝含まず）となります。
       </div>
       <div class="form-group"><label>問合せ日<span class="required">*</span></label>${rd('inquiry_date',fd.inquiry_date||new Date().toISOString().slice(0,10))}</div>
       <div class="form-group"><label>院名<span class="required">*</span></label>${ri('clinic_name',fd.clinic_name||currentUser?.store_name)}</div>
